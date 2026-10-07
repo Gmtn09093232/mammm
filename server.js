@@ -1,499 +1,514 @@
-require('dotenv').config();
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const path = require('path');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
-const mysql = require('mysql2/promise');
+/* ============================================================================
+ *  GEAR ENGINEERING & MANUFACTURING PLATFORM
+ *  Node.js + Express + Supabase backend
+ *
+ *  Run:   npm install    then    npm start
+ *  Open:  http://localhost:3000
+ *
+ *  Endpoints (all JSON):
+ *    GET    /api/health
+ *    GET    /api/projects                 ?q=&gear_type=&limit=&offset=
+ *    GET    /api/projects/:id
+ *    GET    /api/projects/:id/revisions
+ *    POST   /api/projects                 { name, gear_type, parameters, ... }
+ *    PUT    /api/projects/:id             { name?, parameters?, ... }
+ *    PATCH  /api/projects/:id/rename      { name }
+ *    DELETE /api/projects/:id
+ *    POST   /api/projects/:id/duplicate
+ *    GET    /api/stats
+ * ==========================================================================*/
+"use strict";
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+require("dotenv").config();
 
-// ========== MySQL Connection Pool (Aiven) ==========
-// ========== MySQL Connection Pool (Aiven with SSL) ==========
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: parseInt(process.env.DB_PORT),
-    ssl: {
-        // For Aiven "REQUIRED" mode, rejectUnauthorized: false works.
-        // For production, download the CA certificate and use it.
-        rejectUnauthorized: false
-    },
-    connectTimeout: 10000,
-    waitForConnections: true,
-    connectionLimit: 10
+const path    = require("path");
+const express = require("express");
+const cors    = require("cors");
+const morgan  = require("morgan");
+const { createClient } = require("@supabase/supabase-js");
+
+/* ----------------------------------------------------------------------------
+ *  Environment validation
+ * --------------------------------------------------------------------------*/
+const {
+  PORT = 3000,
+  NODE_ENV = "development",
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY,
+  API_KEY = ""
+} = process.env;
+
+const missing = [];
+if (!SUPABASE_URL)                  missing.push("SUPABASE_URL");
+if (!SUPABASE_SERVICE_ROLE_KEY)     missing.push("SUPABASE_SERVICE_ROLE_KEY");
+if (missing.length){
+  console.error("\n[FATAL] Missing environment variables: " + missing.join(", "));
+  console.error("Create a .env file next to server.js — see .env.example.\n");
+  process.exit(1);
+}
+
+/* ----------------------------------------------------------------------------
+ *  Supabase client (service role — server only)
+ * --------------------------------------------------------------------------*/
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+  db:   { schema: "public" }
 });
 
-// Create users table if it doesn't exist
-async function initDatabase() {
-    try {
-        const connection = await pool.getConnection();
-        console.log('✅ MySQL connected successfully');
-        connection.release();
+/* Read-only anon client (optional, for realtime broadcasting) */
+const supabaseAnon = SUPABASE_ANON_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } })
+  : null;
 
-        const createTableSQL = `
-            CREATE TABLE IF NOT EXISTS users (
-                userId VARCHAR(36) PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                balance DECIMAL(10,2) NOT NULL DEFAULT 100.00,
-                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `;
-        await pool.execute(createTableSQL);
-        console.log('✅ Users table ready');
-    } catch (err) {
-        console.error('❌ Database init error:', err.message);
-        console.error('Full error:', err);
-        process.exit(1);
-    }
-}
-initDatabase();
+/* ----------------------------------------------------------------------------
+ *  Express app
+ * --------------------------------------------------------------------------*/
+const app = express();
 
-// ========== Middleware ==========
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'bingo_super_secret_key_change_me',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }
+app.use(cors());
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
+app.use(morgan(NODE_ENV === "production" ? "combined" : "dev"));
+
+/* Serve the static front-end */
+app.use(express.static(path.join(__dirname, ""), {
+  etag: true,
+  maxAge: NODE_ENV === "production" ? "1h" : 0
 }));
 
-// Serve frontend
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Helper to get logged-in user from session (returns row from DB)
-async function getLoggedInUser(req) {
-    if (!req.session.userId) return null;
-    const [rows] = await pool.execute(
-        'SELECT userId, username, balance FROM users WHERE userId = ?',
-        [req.session.userId]
-    );
-    return rows[0] || null;
+/* ----------------------------------------------------------------------------
+ *  Helpers
+ * --------------------------------------------------------------------------*/
+function ok(res, data, status = 200){ res.status(status).json({ ok: true, data }); }
+function fail(res, message, status = 400, extra = {}){
+  res.status(status).json({ ok: false, error: message, ...extra });
 }
 
-// ========== Auth & Balance Endpoints ==========
-app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Missing fields' });
-    }
-    try {
-        // Check if username already exists
-        const [existing] = await pool.execute(
-            'SELECT username FROM users WHERE username = ?',
-            [username]
-        );
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'Username already exists' });
-        }
-        const userId = uuidv4();
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.execute(
-            'INSERT INTO users (userId, username, password, balance) VALUES (?, ?, ?, ?)',
-            [userId, username, hashedPassword, 100]
-        );
-        req.session.userId = userId;
-        req.session.username = username;
-        res.json({ success: true, username, balance: 100 });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        const [rows] = await pool.execute(
-            'SELECT userId, username, password, balance FROM users WHERE username = ?',
-            [username]
-        );
-        if (rows.length === 0) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-        const user = rows[0];
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-        req.session.userId = user.userId;
-        req.session.username = user.username;
-        res.json({ success: true, username: user.username, balance: user.balance });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-app.post('/api/logout', (req, res) => {
-    req.session.destroy();
-    res.json({ success: true });
-});
-
-app.get('/api/me', async (req, res) => {
-    const user = await getLoggedInUser(req);
-    if (!user) return res.status(401).json({ error: 'Not logged in' });
-    res.json({ username: user.username, balance: user.balance });
-});
-
-app.post('/api/deposit', async (req, res) => {
-    const user = await getLoggedInUser(req);
-    if (!user) return res.status(401).json({ error: 'Not logged in' });
-    const { amount } = req.body;
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-        return res.status(400).json({ error: 'Invalid amount' });
-    }
-    // Simulate deposit – replace with Telebirr/Chapa integration
-    const newBalance = user.balance + numAmount;
-    await pool.execute(
-        'UPDATE users SET balance = ? WHERE userId = ?',
-        [newBalance, user.userId]
-    );
-    res.json({ success: true, newBalance });
-});
-
-app.post('/api/withdraw', async (req, res) => {
-    const user = await getLoggedInUser(req);
-    if (!user) return res.status(401).json({ error: 'Not logged in' });
-    const { amount } = req.body;
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-        return res.status(400).json({ error: 'Invalid amount' });
-    }
-    if (user.balance < numAmount) {
-        return res.status(400).json({ error: 'Insufficient balance' });
-    }
-    const newBalance = user.balance - numAmount;
-    await pool.execute(
-        'UPDATE users SET balance = ? WHERE userId = ?',
-        [newBalance, user.userId]
-    );
-    res.json({ success: true, newBalance });
-});
-
-// ========== Game State (in-memory) ==========
-let players = {};           // socketId -> player object
-let takenCards = new Set();
-let gameActive = false;
-let calledNumbers = [];
-let autoInterval = null;
-let countdownTimeout = null;
-let countdownSeconds = 30;
-let isLobbyOpen = true;
-const GAME_COST = 10;
-const HOUSE_PERCENT = 0.2;
-
-function calculatePrize() {
-    const playerCount = Object.keys(players).length;
-    return GAME_COST * playerCount * (1 - HOUSE_PERCENT);
+function requireApiKey(req, res, next){
+  /* If API_KEY is empty, the write endpoints are open (dev mode). */
+  if (!API_KEY) return next();
+  const sent = req.headers["x-api-key"] || req.query.api_key;
+  if (sent !== API_KEY) return fail(res, "Unauthorized — invalid or missing API key.", 401);
+  next();
 }
 
-function generateCardFromNumber(cardNum) {
-    function seededRandom(seed) {
-        let x = Math.sin(seed) * 10000;
-        return x - Math.floor(x);
-    }
-    function column(min, max, seedOffset) {
-        let col = [];
-        let seed = cardNum * 131 + seedOffset;
-        while (col.length < 5) {
-            let n = Math.floor(seededRandom(seed++) * (max - min + 1)) + min;
-            if (!col.includes(n)) col.push(n);
-        }
-        return col;
-    }
-    let B = column(1, 15, 1);
-    let I = column(16, 30, 2);
-    let N = column(31, 45, 3);
-    let G = column(46, 60, 4);
-    let O = column(61, 75, 5);
-    let card = [];
-    for (let i = 0; i < 5; i++) card.push(B[i], I[i], N[i], G[i], O[i]);
-    card[12] = "FREE";
-    return card;
+function validateProjectPayload(body, { partial = false } = {}){
+  const errs = [];
+  if (!partial || body.name !== undefined){
+    if (typeof body.name !== "string" || !body.name.trim()) errs.push("name is required.");
+    else if (body.name.length > 200) errs.push("name must be ≤ 200 characters.");
+  }
+  if (!partial || body.gear_type !== undefined){
+    const allowed = ["spur","helical","bevel","spiralbevel","worm","wormwheel","rack","sprocket"];
+    if (!allowed.includes(body.gear_type)) errs.push("gear_type must be one of: " + allowed.join(", "));
+  }
+  if (!partial || body.parameters !== undefined){
+    if (typeof body.parameters !== "object" || body.parameters === null || Array.isArray(body.parameters))
+      errs.push("parameters must be a JSON object.");
+  }
+  return errs;
 }
 
-function broadcastAvailableCards() {
-    const available = [];
-    for (let i = 1; i <= 100; i++) if (!takenCards.has(i)) available.push(i);
-    io.emit('availableCards', available);
+function cleanRow(row){
+  if (!row) return null;
+  return {
+    id:          row.id,
+    name:        row.name,
+    gearType:    row.gear_type,
+    description: row.description,
+    ownerEmail:  row.owner_email,
+    parameters:  row.parameters || {},
+    results:     row.results || null,
+    tags:        row.tags || [],
+    version:     row.version,
+    isPublic:    row.is_public,
+    createdAt:   row.created_at,
+    updatedAt:   row.updated_at
+  };
 }
 
-function broadcastPlayers() {
-    const playerList = Object.values(players).map(p => ({ id: p.id, name: p.name, cardNumber: p.cardNumber }));
-    io.emit('playersList', playerList);
-}
-
-function fullReset() {
-    if (autoInterval) clearInterval(autoInterval);
-    if (countdownTimeout) clearTimeout(countdownTimeout);
-    autoInterval = null;
-    gameActive = false;
-    calledNumbers = [];
-    isLobbyOpen = true;
-    countdownSeconds = 30;
-    takenCards.clear();
-    players = {};
-    broadcastAvailableCards();
-    io.emit('lobbyReset', { countdown: countdownSeconds });
-}
-
-function startCountdown() {
-    if (countdownTimeout) clearInterval(countdownTimeout);
-    countdownSeconds = 30;
-    io.emit('countdownTick', countdownSeconds);
-    countdownTimeout = setInterval(() => {
-        countdownSeconds--;
-        io.emit('countdownTick', countdownSeconds);
-        if (countdownSeconds <= 0) {
-            clearInterval(countdownTimeout);
-            countdownTimeout = null;
-            startGame();
-        }
-    }, 1000);
-}
-
-async function startGame() {
-    if (gameActive) return;
-
-    // Deduct GAME_COST from each player's balance in DB
-    const playersToRemove = [];
-    for (let id in players) {
-        const p = players[id];
-        try {
-            const [rows] = await pool.execute(
-                'SELECT balance FROM users WHERE username = ?',
-                [p.username]
-            );
-            if (rows.length === 0 || rows[0].balance < GAME_COST) {
-                playersToRemove.push(id);
-                io.to(id).emit('error', `Insufficient balance (need ${GAME_COST} credits). Please deposit.`);
-            } else {
-                const newBalance = rows[0].balance - GAME_COST;
-                await pool.execute(
-                    'UPDATE users SET balance = ? WHERE username = ?',
-                    [newBalance, p.username]
-                );
-                io.to(id).emit('balanceUpdate', newBalance);
-            }
-        } catch (err) {
-            console.error(err);
-            playersToRemove.push(id);
-            io.to(id).emit('error', 'Database error, cannot start game');
-        }
-    }
-
-    playersToRemove.forEach(id => {
-        const cardNum = players[id].cardNumber;
-        takenCards.delete(cardNum);
-        delete players[id];
+/* ----------------------------------------------------------------------------
+ *  Health & stats
+ * --------------------------------------------------------------------------*/
+app.get("/api/health", async (_req, res) => {
+  try {
+    const { error } = await supabase.from("gear_projects").select("id").limit(1);
+    if (error) throw error;
+    ok(res, {
+      status: "healthy",
+      supabase: "connected",
+      time: new Date().toISOString(),
+      env: NODE_ENV
     });
-    broadcastAvailableCards();
-    broadcastPlayers();
+  } catch (e){
+    fail(res, "Supabase unreachable: " + e.message, 500);
+  }
+});
 
-    if (Object.keys(players).length === 0) {
-        io.emit('gameError', 'No players with enough balance. Game canceled.');
-        fullReset();
-        return;
-    }
+app.get("/api/stats", async (_req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from("gear_projects")
+      .select("id", { count: "exact", head: true });
+    if (error) throw error;
 
-    gameActive = true;
-    isLobbyOpen = false;
-    calledNumbers = [];
-    io.emit('gameStarted');
+    const { data: byType } = await supabase
+      .from("gear_projects")
+      .select("gear_type");
 
-    for (let id in players) {
-        const p = players[id];
-        p.marked = new Array(25).fill(false);
-        p.marked[12] = true;
-        io.to(id).emit('cardAssigned', {
-            playerId: id,
-            card: p.card,
-            gameActive: true
-        });
-    }
+    const tally = {};
+    (byType || []).forEach(r => { tally[r.gear_type] = (tally[r.gear_type] || 0) + 1; });
 
-    if (autoInterval) clearInterval(autoInterval);
-    autoInterval = setInterval(() => {
-        if (!gameActive) return;
-        let available = [];
-        for (let i = 1; i <= 75; i++) if (!calledNumbers.includes(i)) available.push(i);
-        if (available.length === 0) {
-            fullReset();
-            return;
-        }
-        const newNumber = available[Math.floor(Math.random() * available.length)];
-        calledNumbers.push(newNumber);
-        io.emit('newNumber', newNumber);
-    }, 4000);
-}
+    ok(res, { total: count || 0, byGearType: tally });
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
 
-function checkWin(marked) {
-    // Rows
-    for (let r = 0; r < 5; r++) {
-        let win = true;
-        for (let c = 0; c < 5; c++) if (!marked[r * 5 + c]) { win = false; break; }
-        if (win) return true;
-    }
-    // Columns
-    for (let c = 0; c < 5; c++) {
-        let win = true;
-        for (let r = 0; r < 5; r++) if (!marked[r * 5 + c]) { win = false; break; }
-        if (win) return true;
-    }
-    // Diagonals
-    let diag1 = true, diag2 = true;
-    for (let i = 0; i < 5; i++) {
-        if (!marked[i * 5 + i]) diag1 = false;
-        if (!marked[i * 5 + (4 - i)]) diag2 = false;
-    }
-    if (diag1 || diag2) return true;
-    // Four corners
-    const corners = [0, 4, 20, 24];
-    return corners.every(idx => marked[idx]);
-}
+/* ----------------------------------------------------------------------------
+ *  List projects (with search, filter, pagination)
+ * --------------------------------------------------------------------------*/
+app.get("/api/projects", async (req, res) => {
+  try {
+    const q        = (req.query.q || "").toString().trim();
+    const gearType = (req.query.gear_type || "").toString().trim();
+    const limit    = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+    const offset   = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+    const orderBy  = req.query.order === "name" ? "name" : "updated_at";
+    const ascending = req.query.dir === "asc";
 
-async function handleMark(socketId, cellIndex, numberValue) {
-    const player = players[socketId];
-    if (!player || !gameActive) return false;
-    if (!calledNumbers.includes(numberValue)) return false;
-    if (player.card[cellIndex] !== numberValue) return false;
-    if (player.marked[cellIndex]) return false;
+    let query = supabase
+      .from("gear_projects")
+      .select("id,name,gear_type,description,owner_email,parameters,results,tags,version,is_public,created_at,updated_at", { count: "exact" })
+      .order(orderBy, { ascending })
+      .range(offset, offset + limit - 1);
 
-    player.marked[cellIndex] = true;
-    io.to(socketId).emit('markConfirmed', { cellIndex, number: numberValue });
+    if (gearType) query = query.eq("gear_type", gearType);
+    if (q)        query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`);
 
-    if (checkWin(player.marked)) {
-        gameActive = false;
-        if (autoInterval) clearInterval(autoInterval);
-        autoInterval = null;
+    const { data, error, count } = await query;
+    if (error) throw error;
 
-        const prize = calculatePrize();
+    ok(res, {
+      items: (data || []).map(cleanRow),
+      total: count || 0,
+      limit,
+      offset
+    });
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
 
-        // Award prize to winner from DB
-        try {
-            const [rows] = await pool.execute(
-                'SELECT balance FROM users WHERE username = ?',
-                [player.username]
-            );
-            if (rows.length > 0) {
-                const newBalance = rows[0].balance + prize;
-                await pool.execute(
-                    'UPDATE users SET balance = ? WHERE username = ?',
-                    [newBalance, player.username]
-                );
-                io.to(socketId).emit('balanceUpdate', newBalance);
-            }
-        } catch (err) {
-            console.error('Failed to award prize:', err);
-        }
+/* ----------------------------------------------------------------------------
+ *  Get one project
+ * --------------------------------------------------------------------------*/
+app.get("/api/projects/:id", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("gear_projects")
+      .select("*")
+      .eq("id", req.params.id)
+      .maybeSingle();
 
-        io.emit('gameWinner', {
-            winnerId: socketId,
-            winnerName: player.name,
-            prize: prize,
-            players: Object.keys(players).length
-        });
-        io.emit('prizeUpdate', {
-            prize: prize,
-            players: Object.keys(players).length
-        });
+    if (error) throw error;
+    if (!data) return fail(res, "Project not found.", 404);
+    ok(res, cleanRow(data));
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
 
-        setTimeout(() => fullReset(), 5000);
-        return true;
-    }
-    return false;
-}
+/* ----------------------------------------------------------------------------
+ *  Revisions
+ * --------------------------------------------------------------------------*/
+app.get("/api/projects/:id/revisions", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("gear_revisions")
+      .select("id,version,parameters,note,created_at")
+      .eq("project_id", req.params.id)
+      .order("version", { ascending: false })
+      .limit(100);
 
-// ========== Socket.IO ==========
-io.on('connection', (socket) => {
-    console.log('Client connected', socket.id);
+    if (error) throw error;
+    ok(res, data || []);
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
 
-    socket.on('auth', async ({ userId, username }) => {
-        socket.userId = userId;
-        socket.username = username;
-        const available = [];
-        for (let i = 1; i <= 100; i++) if (!takenCards.has(i)) available.push(i);
-        socket.emit('availableCards', available);
-        socket.emit('lobbyState', { isLobbyOpen, countdown: countdownSeconds, gameActive });
+/* ----------------------------------------------------------------------------
+ *  Create project
+ * --------------------------------------------------------------------------*/
+app.post("/api/projects", requireApiKey, async (req, res) => {
+  try {
+    const errs = validateProjectPayload(req.body, { partial: false });
+    if (errs.length) return fail(res, errs.join(" "), 422);
 
-        // Send current balance
-        try {
-            const [rows] = await pool.execute('SELECT balance FROM users WHERE username = ?', [username]);
-            if (rows.length) socket.emit('balanceUpdate', rows[0].balance);
-        } catch (err) {
-            console.error(err);
-        }
+    const row = {
+      name:        req.body.name.trim(),
+      gear_type:   req.body.gear_type,
+      description: req.body.description || null,
+      owner_email: req.body.owner_email || null,
+      parameters:  req.body.parameters,
+      results:     req.body.results || null,
+      tags:        Array.isArray(req.body.tags) ? req.body.tags : [],
+      is_public:   req.body.is_public !== false,
+      version:     1
+    };
+
+    const { data, error } = await supabase
+      .from("gear_projects")
+      .insert(row)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    /* first revision */
+    await supabase.from("gear_revisions").insert({
+      project_id: data.id,
+      version: 1,
+      parameters: row.parameters,
+      note: "Initial revision"
     });
 
-    socket.on('selectCard', ({ name, cardNumber }) => {
-        if (!isLobbyOpen) {
-            socket.emit('joinError', 'Game already started');
-            return;
-        }
-        const num = parseInt(cardNumber);
-        if (isNaN(num) || num < 1 || num > 100) return;
-        if (takenCards.has(num)) {
-            socket.emit('joinError', `Card ${num} already taken`);
-            return;
-        }
-        if (players[socket.id]) {
-            takenCards.delete(players[socket.id].cardNumber);
-        }
-        takenCards.add(num);
-        const card = generateCardFromNumber(num);
-        players[socket.id] = {
-            id: socket.id,
-            name: name,
-            cardNumber: num,
-            card: card,
-            marked: new Array(25).fill(false),
-            userId: socket.userId,
-            username: socket.username
-        };
-        players[socket.id].marked[12] = true;
-        socket.emit('cardAssigned', { playerId: socket.id, card, gameActive: false });
-        broadcastAvailableCards();
-        broadcastPlayers();
-        if (Object.keys(players).length === 1 && isLobbyOpen && !countdownTimeout) {
-            startCountdown();
-        }
-    });
-
-    socket.on('markNumber', ({ cellIndex, number }) => {
-        handleMark(socket.id, cellIndex, number);
-    });
-
-    socket.on('disconnect', () => {
-        if (players[socket.id]) {
-            const cardNum = players[socket.id].cardNumber;
-            takenCards.delete(cardNum);
-            delete players[socket.id];
-            broadcastAvailableCards();
-            broadcastPlayers();
-        }
-        if (Object.keys(players).length === 0 && autoInterval) {
-            clearInterval(autoInterval);
-            autoInterval = null;
-            gameActive = false;
-            isLobbyOpen = true;
-            if (countdownTimeout) clearTimeout(countdownTimeout);
-            countdownTimeout = null;
-            countdownSeconds = 30;
-        }
-    });
+    ok(res, cleanRow(data), 201);
+  } catch (e){
+    fail(res, e.message, 500);
+  }
 });
 
-const PORT = process.env.PORT || 13926;
-server.listen(PORT, () => console.log(`✅ Bingo server running on http://localhost:${PORT}`));
+/* ----------------------------------------------------------------------------
+ *  Update project (creates a revision)
+ * --------------------------------------------------------------------------*/
+app.put("/api/projects/:id", requireApiKey, async (req, res) => {
+  try {
+    const errs = validateProjectPayload(req.body, { partial: true });
+    if (errs.length) return fail(res, errs.join(" "), 422);
+
+    /* fetch current version */
+    const { data: current, error: readErr } = await supabase
+      .from("gear_projects")
+      .select("version, parameters")
+      .eq("id", req.params.id)
+      .maybeSingle();
+
+    if (readErr) throw readErr;
+    if (!current) return fail(res, "Project not found.", 404);
+
+    const nextVersion = (current.version || 1) + 1;
+
+    const patch = { version: nextVersion };
+    if (req.body.name !== undefined)        patch.name = req.body.name.trim();
+    if (req.body.gear_type !== undefined)   patch.gear_type = req.body.gear_type;
+    if (req.body.description !== undefined) patch.description = req.body.description;
+    if (req.body.owner_email !== undefined) patch.owner_email = req.body.owner_email;
+    if (req.body.parameters !== undefined)  patch.parameters = req.body.parameters;
+    if (req.body.results !== undefined)     patch.results = req.body.results;
+    if (req.body.tags !== undefined)        patch.tags = Array.isArray(req.body.tags) ? req.body.tags : [];
+    if (req.body.is_public !== undefined)   patch.is_public = req.body.is_public;
+
+    const { data, error } = await supabase
+      .from("gear_projects")
+      .update(patch)
+      .eq("id", req.params.id)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    await supabase.from("gear_revisions").insert({
+      project_id: data.id,
+      version: nextVersion,
+      parameters: patch.parameters || current.parameters,
+      note: req.body.note || `Revision ${nextVersion}`
+    });
+
+    ok(res, cleanRow(data));
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
+
+/* ----------------------------------------------------------------------------
+ *  Rename only
+ * --------------------------------------------------------------------------*/
+app.patch("/api/projects/:id/rename", requireApiKey, async (req, res) => {
+  try {
+    const name = (req.body.name || "").trim();
+    if (!name) return fail(res, "name is required.", 422);
+
+    const { data, error } = await supabase
+      .from("gear_projects")
+      .update({ name })
+      .eq("id", req.params.id)
+      .select("id,name,updated_at")
+      .single();
+
+    if (error) throw error;
+    ok(res, data);
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
+
+/* ----------------------------------------------------------------------------
+ *  Duplicate project
+ * --------------------------------------------------------------------------*/
+app.post("/api/projects/:id/duplicate", requireApiKey, async (req, res) => {
+  try {
+    const { data: src, error: readErr } = await supabase
+      .from("gear_projects")
+      .select("*")
+      .eq("id", req.params.id)
+      .maybeSingle();
+
+    if (readErr) throw readErr;
+    if (!src) return fail(res, "Project not found.", 404);
+
+    const newRow = {
+      name:        (req.body && req.body.name) || (src.name + " (copy)"),
+      gear_type:   src.gear_type,
+      description: src.description,
+      owner_email: src.owner_email,
+      parameters:  src.parameters,
+      results:     src.results,
+      tags:        src.tags || [],
+      is_public:   src.is_public,
+      version:     1
+    };
+
+    const { data, error } = await supabase
+      .from("gear_projects")
+      .insert(newRow)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    ok(res, cleanRow(data), 201);
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
+
+/* ----------------------------------------------------------------------------
+ *  Delete project
+ * --------------------------------------------------------------------------*/
+app.delete("/api/projects/:id", requireApiKey, async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from("gear_projects")
+      .delete()
+      .eq("id", req.params.id);
+
+    if (error) throw error;
+    ok(res, { deleted: req.params.id });
+  } catch (e){
+    fail(res, e.message, 500);
+  }
+});
+
+/* ----------------------------------------------------------------------------
+ *  SPA fallback — serve index.html for any other GET
+ * --------------------------------------------------------------------------*/
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api/")) return next();
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+/* ----------------------------------------------------------------------------
+ *  404 + error handler
+ * --------------------------------------------------------------------------*/
+app.use((req, res) => {
+  if (req.path.startsWith("/api/")) return fail(res, "Endpoint not found.", 404);
+  res.status(404).send("Not found");
+});
+
+app.use((err, _req, res, _next) => {
+  console.error("[ERROR]", err);
+  fail(res, err.message || "Internal server error.", err.status || 500);
+});
+
+/* ----------------------------------------------------------------------------
+ *  Start
+ * --------------------------------------------------------------------------*/
+const server = app.listen(PORT, () => {
+  console.log("");
+  console.log("═══════════════════════════════════════════════════════════════");
+  console.log("  ⚙  GEAR ENGINEERING & MANUFACTURING PLATFORM");
+  console.log("═══════════════════════════════════════════════════════════════");
+  console.log(`  Server      : http://localhost:${PORT}`);
+  console.log(`  Environment : ${NODE_ENV}`);
+  console.log(`  Supabase    : ${SUPABASE_URL}`);
+  console.log(`  API key     : ${API_KEY ? "required for write operations" : "OPEN (dev mode)"}`);
+  console.log("═══════════════════════════════════════════════════════════════");
+  console.log("");
+});
+
+/* ----------------------------------------------------------------------------
+ *  Real-time broadcast: push DB changes to connected clients via SSE
+ * --------------------------------------------------------------------------*/
+const sseClients = new Set();
+
+app.get("/api/live", (req, res) => {
+  res.set({
+    "Content-Type":  "text/event-stream",
+    "Cache-Control": "no-cache, no-transform",
+    "Connection":    "keep-alive",
+    "X-Accel-Buffering": "no"
+  });
+  res.flushHeaders && res.flushHeaders();
+  res.write(`event: hello\ndata: ${JSON.stringify({ time: Date.now() })}\n\n`);
+
+  const client = { res };
+  sseClients.add(client);
+
+  const ping = setInterval(() => {
+    try { res.write(`: ping\n\n`); } catch (_) {}
+  }, 25000);
+
+  req.on("close", () => {
+    clearInterval(ping);
+    sseClients.delete(client);
+  });
+});
+
+function broadcast(event, payload){
+  const msg = `event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
+  for (const c of sseClients){
+    try { c.res.write(msg); } catch (_) { sseClients.delete(c); }
+  }
+}
+
+/* Subscribe to Supabase Realtime on the gear_projects table */
+try {
+  const channel = supabase
+    .channel("gear_projects_live")
+    .on("postgres_changes",
+        { event: "*", schema: "public", table: "gear_projects" },
+        (payload) => {
+          broadcast("project_change", {
+            eventType: payload.eventType,
+            record:    payload.new ? cleanRow(payload.new) : null,
+            oldId:     payload.old ? payload.old.id : null,
+            at:        Date.now()
+          });
+        })
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") console.log("[realtime] subscribed to gear_projects");
+      if (status === "CHANNEL_ERROR") console.warn("[realtime] channel error");
+    });
+} catch (e){
+  console.warn("[realtime] could not subscribe:", e.message);
+}
+
+/* ----------------------------------------------------------------------------
+ *  Graceful shutdown
+ * --------------------------------------------------------------------------*/
+process.on("SIGINT", () => {
+  console.log("\n[server] shutting down…");
+  server.close(() => process.exit(0));
+});
