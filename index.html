@@ -7,80 +7,74 @@
 <style>
 :root{
   --bg:#0e1116; --panel:#161b22; --panel2:#1c232d; --line:#2a3441;
-  --txt:#d6dee8; --dim:#8b97a6; --accent:#ffbe3c; --accent2:#4da3ff;
-  --ok:#3fb950; --warn:#d29922; --err:#f85149; --cyan:#2ec4b6;
-  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --txt:#d6dee8; --dim:#8b97a6; --accent:#4da3ff; --accent2:#2b7fd4;
+  --ok:#3fb950; --warn:#d29922; --err:#f85149; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px}
 h1,h2,h3,h4{margin:0 0 8px;font-weight:600}
-h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
-h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-a{color:var(--accent2)}
+h2{font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+h3{font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--dim)}
+a{color:var(--accent)}
 button{font-family:inherit}
 
-/* ===== TOP BAR ===== */
 .topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
-  padding:8px 16px;background:linear-gradient(180deg,#171d26,#12171e);border-bottom:1px solid var(--line);
+  padding:10px 16px;background:linear-gradient(180deg,#171d26,#12171e);border-bottom:1px solid var(--line);
   position:sticky;top:0;z-index:50}
-.brand{font-weight:700;letter-spacing:.08em;font-size:14px;color:#eaf2ff;display:flex;align-items:center;gap:8px}
-.brand .brand-sub{font-size:9px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase;display:block;font-weight:500}
-.brand .gear-ico{color:var(--accent);font-size:18px}
-.topbar-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.topbar-controls label{display:flex;gap:5px;align-items:center;font-size:10.5px;color:var(--dim);
-  letter-spacing:.05em;text-transform:uppercase}
+.brand{font-weight:700;letter-spacing:.08em;font-size:14px;color:#eaf2ff}
+.brand span{color:var(--accent)}
+.topbar-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.topbar-controls label{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--dim)}
 select,input,textarea{background:#0c1016;color:var(--txt);border:1px solid var(--line);
   border-radius:4px;padding:5px 7px;font-size:13px;font-family:inherit;outline:none}
-select:focus,input:focus,textarea:focus{border-color:var(--accent2)}
+select:focus,input:focus,textarea:focus{border-color:var(--accent)}
 input[type=number]{width:100%}
-input[type=text]{width:100%}
 
-/* ===== TABS ===== */
-.tabs{display:flex;gap:2px;flex-wrap:wrap;padding:5px 12px;background:#12171e;border-bottom:1px solid var(--line);
-  position:sticky;top:50px;z-index:40}
-.tabs button{background:transparent;border:1px solid transparent;color:var(--dim);padding:6px 11px;
-  border-radius:4px;cursor:pointer;font-size:12px;letter-spacing:.03em;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;padding:6px 12px;background:#12171e;border-bottom:1px solid var(--line);
+  position:sticky;top:53px;z-index:40}
+.tabs button{background:transparent;border:1px solid transparent;color:var(--dim);padding:7px 12px;
+  border-radius:4px;cursor:pointer;font-size:12.5px;letter-spacing:.02em;white-space:nowrap}
 .tabs button:hover{color:var(--txt);background:#1a212b}
-.tabs button.active{color:#fff;background:var(--accent2);border-color:var(--accent2)}
+.tabs button.active{color:#fff;background:var(--accent2);border-color:var(--accent)}
 .tabs button[hidden]{display:none !important}
 
-main{padding:14px;max-width:1900px;margin:0 auto}
+main{padding:14px;max-width:1800px;margin:0 auto}
 .tab-pane{display:none}
 .tab-pane.active{display:block}
-.grid{display:grid;gap:12px}
+.grid{display:grid;gap:14px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}
-.card.tight{padding:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+.card.tight{padding:10px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .spacer{flex:1}
 
 .field{display:flex;flex-direction:column;gap:4px;margin-bottom:9px}
-.field label{font-size:10.5px;color:var(--dim);letter-spacing:.06em;text-transform:uppercase}
-.field .hint{font-size:10px;color:#5f6b7a}
+.field label{font-size:11.5px;color:var(--dim);letter-spacing:.03em;text-transform:uppercase}
+.field .hint{font-size:10.5px;color:#5f6b7a}
 .inline{display:flex;gap:8px;align-items:center}
 .inline input[type=checkbox]{width:auto}
 
 table.res{width:100%;border-collapse:collapse;font-size:12.5px}
 table.res th,table.res td{padding:5px 8px;border-bottom:1px solid #212a35;text-align:left}
-table.res th{color:var(--dim);font-weight:500;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
+table.res th{color:var(--dim);font-weight:500;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 table.res td.val{text-align:right;font-family:var(--mono);color:#eaf2ff;white-space:nowrap}
 table.res tr:hover{background:#1a212b}
-table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-size:10.5px;
-  letter-spacing:.08em;text-transform:uppercase;padding-top:8px}
+table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-size:11px;
+  letter-spacing:.06em;text-transform:uppercase;padding-top:9px}
 .unit{color:var(--dim);font-size:11px;margin-left:3px}
 
 .msg{padding:7px 10px;border-radius:5px;margin-bottom:6px;font-size:12.5px;border-left:3px solid}
 .msg.ok{background:#0e2417;border-color:var(--ok);color:#9fe0b0}
 .msg.warn{background:#241d0c;border-color:var(--warn);color:#e8c877}
 .msg.err{background:#2a1214;border-color:var(--err);color:#f8a7a3}
-.msg.info{background:#0e1c2a;border-color:var(--accent2);color:#9dcaf5}
+.msg.info{background:#0e1c2a;border-color:var(--accent);color:#9dcaf5}
 
 .trace{font-family:var(--mono);font-size:12px;background:#0a0e13;border:1px solid var(--line);
   border-radius:6px;padding:10px;max-height:420px;overflow:auto;white-space:pre-wrap;line-height:1.55}
-.trace .t{color:var(--accent2);font-weight:600}
+.trace .t{color:var(--accent);font-weight:600}
 .trace .r{color:#7ee08a}
 
 .svg-wrap{background:#0a0e13;border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
@@ -89,16 +83,16 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 #threeWrap{width:100%;height:520px;background:#0a0e13;border:1px solid var(--line);border-radius:6px;
   position:relative;overflow:hidden;touch-action:none}
 #threeWrap canvas{display:block}
-.view-btns{position:absolute;top:8px;right:8px;display:flex;flex-direction:row;gap:4px;z-index:5}
+.view-btns{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;z-index:5}
 .view-btns button{background:rgba(22,27,34,.9);border:1px solid var(--line);color:var(--txt);
-  border-radius:4px;padding:4px 9px;font-size:11px;cursor:pointer;letter-spacing:.04em}
-.view-btns button:hover{background:var(--accent2);border-color:var(--accent2)}
+  border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
+.view-btns button:hover{background:var(--accent2);border-color:var(--accent)}
 
 .btn{background:#1f2937;border:1px solid var(--line);color:var(--txt);padding:7px 13px;border-radius:5px;
   cursor:pointer;font-size:12.5px}
 .btn:hover{background:#26313f;border-color:#3a4756}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#14181d;font-weight:600}
-.btn.primary:hover{background:#ffce5c}
+.btn.primary{background:var(--accent2);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent)}
 .btn.small{padding:4px 9px;font-size:11.5px}
 
 .kv{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed #212a35;font-size:12.5px}
@@ -113,100 +107,17 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 .tooth-panel{font-family:var(--mono);font-size:12px;line-height:1.7}
 .tooth-panel .k{color:var(--dim)}
 .scroll-x{overflow-x:auto}
-.slider-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);margin-bottom:6px}
-.slider-row input[type=range]{flex:1;accent-color:var(--accent)}
-.slider-row .num{width:52px;text-align:right;font-family:var(--mono);color:var(--txt);
-  background:#0c1016;border:1px solid var(--line);border-radius:4px;padding:3px 6px;font-size:11px}
+.slider-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);margin-bottom:4px}
+.slider-row input[type=range]{flex:1}
+.slider-row span{width:52px;text-align:right;font-family:var(--mono);color:var(--txt)}
 
-/* ===== DESIGN LAYOUT ===== */
-.design-layout{display:grid;grid-template-columns:300px minmax(420px,1fr) 300px;gap:12px}
-@media (max-width:1200px){.design-layout{grid-template-columns:1fr}}
-.design-params-row{display:flex;justify-content:space-between;align-items:center;
-  padding:6px 0;border-bottom:1px solid #1a212b;gap:10px}
-.design-params-row:last-child{border-bottom:none}
-.design-params-row label{font-size:11.5px;color:var(--dim);letter-spacing:.03em;flex:1}
-.design-params-row .inp{width:120px;flex:0 0 120px;position:relative}
-.design-params-row .inp input,.design-params-row .inp select{width:100%;text-align:right;padding-right:32px}
-.design-params-row .inp .unit-chip{position:absolute;right:6px;top:50%;transform:translateY(-50%);
-  font-size:10.5px;color:var(--dim);pointer-events:none}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:6px 14px;
+  background:#101822;border:1px solid #1e2633;border-radius:6px;padding:10px 12px;margin-bottom:10px}
+.summary-item{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;
+  border-bottom:1px dashed #1e2633;padding:3px 0}
+.summary-item span{color:var(--dim)}
+.summary-item b{font-family:var(--mono);color:#eaf2ff;font-weight:600}
 
-.calc-block{margin-bottom:12px}
-.calc-block h4{font-size:10px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;
-  margin:0 0 6px;font-weight:600;border-bottom:1px solid #1e2633;padding-bottom:5px}
-.calc-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:4px 0;
-  border-bottom:1px dashed #1a212b}
-.calc-row:last-child{border-bottom:none}
-.calc-row span:first-child{color:var(--dim)}
-.calc-row b{font-family:var(--mono);color:#eaf2ff;font-weight:600}
-.calc-row b.hl{color:var(--accent)}
-
-.chk-row{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);align-items:center;margin-bottom:8px}
-.chk-row label{display:flex;gap:5px;align-items:center;cursor:pointer}
-.chk-row input[type=checkbox]{accent-color:var(--accent2)}
-
-.status-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-@media (max-width:800px){.status-row{grid-template-columns:1fr}}
-.status-card{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:6px;
-  background:var(--panel);border:1px solid var(--line)}
-.status-card .ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 34px}
-.status-card .ico.ok{background:#0e2417;border:1px solid #245c33;color:var(--ok)}
-.status-card .ico.warn{background:#241d0c;border:1px solid #5c4a1a;color:var(--warn)}
-.status-card .ico.err{background:#2a1214;border:1px solid #5c2225;color:var(--err)}
-.status-card .title{font-weight:600;font-size:13px}
-.status-card .sub{font-size:11.5px;color:var(--dim);margin-top:2px}
-.status-card .val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--accent);margin-left:auto}
-
-/* ===== INDEXING ===== */
-.method-toggle{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--line);border-radius:5px;overflow:hidden}
-.method-toggle button{flex:1;background:transparent;border:none;color:var(--dim);padding:9px 10px;
-  font-size:12px;cursor:pointer;letter-spacing:.03em}
-.method-toggle button:hover{background:#1a212b;color:var(--txt)}
-.method-toggle button.active{background:var(--accent);color:#14181d;font-weight:600}
-
-.idx-result-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;
-  border-bottom:1px solid #1a212b;gap:12px}
-.idx-result-row:last-child{border-bottom:none}
-.idx-result-row .lbl{color:var(--dim);font-size:12px}
-.idx-result-row .val{font-family:var(--mono);font-size:20px;color:#eaf2ff;font-weight:600}
-.idx-result-row .val.hl{color:var(--accent)}
-.idx-result-row .sub{font-size:11px;color:var(--dim);font-family:var(--mono);margin-top:2px}
-.idx-hole-visual{flex:0 0 76px;width:76px;height:76px}
-
-.mechanism-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;
-  background:#0f141b;border-radius:6px;padding:14px;margin-top:8px}
-.mech-step{position:relative;padding:0 10px;border-left:1px dashed #2a3441}
-.mech-step:first-child{border-left:none}
-.mech-step .num{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.08em}
-.mech-step .ttl{font-weight:600;font-size:12.5px;color:var(--txt);margin:3px 0 5px;letter-spacing:.02em}
-.mech-step .desc{font-size:11px;color:var(--dim);line-height:1.5;margin-bottom:8px}
-.mech-step svg{display:block;width:100%;height:110px}
-.mech-step .arrow{position:absolute;right:-10px;top:50%;transform:translateY(-50%);
-  color:var(--dim);font-size:16px;font-weight:300}
-
-/* ===== CNC ===== */
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
-.kpi-card{background:var(--panel);border:1px solid var(--line);border-radius:6px;
-  padding:10px 14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
-.kpi-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
-.kpi-card .k-ico{color:var(--accent);font-size:18px;opacity:.9}
-.kpi-card .k-body{flex:1}
-.kpi-card .k-lbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
-.kpi-card .k-val{font-family:var(--mono);font-size:20px;font-weight:700;color:#eaf2ff;line-height:1.1;margin-top:2px}
-.kpi-card .k-unit{font-size:11px;color:var(--dim);margin-left:3px;font-weight:400}
-
-.legend{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--dim);
-  position:absolute;top:8px;right:8px;z-index:5}
-.legend .li{display:flex;align-items:center;gap:6px}
-.legend .sw{width:14px;height:2px;border-radius:1px}
-.legend .sw.path{background:var(--accent2)}
-.legend .sw.rapid{background:var(--accent)}
-.legend .sw.const{background:#2ec4b6;opacity:.6}
-
-.gcode-line{display:flex;gap:10px;font-family:var(--mono);font-size:11.5px;color:#7ee08a;
-  padding:1px 4px;line-height:1.55}
-.gcode-line .ln{color:var(--dim);width:28px;text-align:right;flex:0 0 28px}
-
-/* ===== PRINT ===== */
 @media print{
   .topbar,.tabs,.no-print,.view-btns{display:none !important}
   body{background:#fff;color:#000}
@@ -222,166 +133,157 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 <body>
 
 <header class="topbar">
-  <div class="brand">
-    <span class="gear-ico">⚙</span>
-    <div>GearWorks<span class="brand-sub">Engineering Platform</span></div>
-  </div>
+  <div class="brand">⚙ GEAR <span>ENGINEERING</span> PLATFORM</div>
   <div class="topbar-controls">
     <label>Units
       <select id="unitSystem">
-        <option value="metric">mm</option>
-        <option value="imperial">inch</option>
+        <option value="metric">Metric (mm / module)</option>
+        <option value="imperial">Imperial (in / DP)</option>
       </select>
     </label>
     <label>Basis
       <select id="calcBasis">
         <option value="general">General Engineering</option>
-        <option value="iso">Involute (Standard)</option>
+        <option value="iso">ISO (reference)</option>
         <option value="agma">AGMA (reference)</option>
         <option value="din">DIN (reference)</option>
         <option value="jis">JIS (reference)</option>
       </select>
     </label>
-    <button class="btn small" id="btnSave">🔒 Save</button>
-    <button class="btn small" id="btnLoad">📁 Load</button>
-    <button class="btn small" id="btnExportJson">⬇ Export JSON</button>
-    <button class="btn small" id="btnPrint">🖨 Print / PDF</button>
+    <button class="btn small" id="btnSave">Save Project</button>
+    <button class="btn small" id="btnLoad">Load Project</button>
+    <button class="btn small" id="btnExportJson">Export JSON</button>
+    <button class="btn small" id="btnPrint">Print / PDF</button>
   </div>
 </header>
 
 <nav class="tabs" id="tabs">
-  <button data-tab="design" class="active">✏ Gear Design</button>
-  <button data-tab="tooth">Σ Tooth Geometry</button>
-  <button data-tab="model3d">◫ 3D Model</button>
-  <button data-tab="indexing">◉ Indexing</button>
-  <button data-tab="changegears">⚙ Change Gears</button>
-  <button data-tab="lead">〰 Lead / Helical</button>
-  <button data-tab="cnc">▤ CNC &amp; Milling</button>
-  <button data-tab="inspection">✓ Inspection</button>
-  <button data-tab="report">▦ Report</button>
+  <button data-tab="design" class="active">Gear Design</button>
+  <button data-tab="tooth">Tooth Geometry</button>
+  <button data-tab="model3d">3D Model</button>
+  <button data-tab="indexing">Indexing</button>
+  <button data-tab="changegears">Change Gears</button>
+  <button data-tab="lead">Lead / Helical</button>
+  <button data-tab="cnc">CNC &amp; Milling</button>
+  <button data-tab="inspection">Inspection</button>
+  <button data-tab="report">Report</button>
 </nav>
 
 <main>
 
-<!-- ================= DESIGN ================= -->
 <section id="tab-design" class="tab-pane active">
-  <div class="design-layout">
+  <div class="grid g2">
 
-    <!-- LEFT : PARAMETERS -->
     <div class="card">
-      <h2 style="margin-bottom:10px">Gear Parameters</h2>
+      <h2>Component &amp; Data</h2>
 
-      <div class="design-params-row">
-        <label>Gear type</label>
-        <div class="inp">
-          <select id="gearType">
-            <option value="spur">Spur Gear</option>
-            <option value="helical">Helical Gear</option>
-            <option value="bevel">Straight Bevel Gear</option>
-            <option value="spiralbevel">Spiral Bevel Gear</option>
-            <option value="worm">Worm Shaft</option>
-            <option value="wormwheel">Worm Wheel</option>
-            <option value="rack">Rack</option>
-            <option value="sprocket">Sprocket</option>
-          </select>
+      <div class="field">
+        <label>Gear Type</label>
+        <select id="gearType">
+          <option value="spur">Spur Gear</option>
+          <option value="helical">Helical Gear</option>
+          <option value="bevel">Straight Bevel Gear</option>
+          <option value="spiralbevel">Spiral Bevel Gear</option>
+          <option value="worm">Worm Shaft</option>
+          <option value="wormwheel">Worm Wheel</option>
+          <option value="rack">Rack</option>
+          <option value="sprocket">Sprocket</option>
+        </select>
+      </div>
+
+      <div class="grid g3">
+        <div class="field" id="fModule">
+          <label id="lblModule">Module m</label>
+          <input type="number" id="inModule" step="0.01" min="0.1" value="3">
+        </div>
+        <div class="field">
+          <label id="lblTeeth">Number of teeth z</label>
+          <input type="number" id="inTeeth" step="1" min="1" value="24">
+        </div>
+        <div class="field">
+          <label id="lblMate">Mating gear teeth z₂ <span class="hint">(0 = none)</span></label>
+          <input type="number" id="inMate" step="1" min="0" value="48">
         </div>
       </div>
 
-      <div class="design-params-row" id="fModule">
-        <label id="lblModule">Module m</label>
-        <div class="inp"><input type="number" id="inModule" step="0.01" min="0.1" value="3"><span class="unit-chip">mm</span></div>
-      </div>
-
-      <div class="design-params-row">
-        <label id="lblTeeth">Teeth z</label>
-        <div class="inp"><input type="number" id="inTeeth" step="1" min="1" value="24"><span class="unit-chip">t</span></div>
-      </div>
-
-      <div class="design-params-row">
-        <label id="lblMate">Mating teeth z₂</label>
-        <div class="inp"><input type="number" id="inMate" step="1" min="0" value="48"><span class="unit-chip">t</span></div>
-      </div>
-
-      <div class="design-params-row" id="fPA">
-        <label>Pressure angle α</label>
-        <div class="inp"><input type="number" id="inPA" step="0.5" min="10" max="30" value="20"><span class="unit-chip">°</span></div>
-      </div>
-
-      <div class="design-params-row" id="fHelix" style="display:none">
-        <label>Helix angle β</label>
-        <div class="inp"><input type="number" id="inHelix" step="0.5" min="0" max="45" value="20"><span class="unit-chip">°</span></div>
-      </div>
-
-      <div class="design-params-row" id="fSpiral" style="display:none">
-        <label>Spiral angle βm</label>
-        <div class="inp"><input type="number" id="inSpiral" step="0.5" min="0" max="45" value="35"><span class="unit-chip">°</span></div>
-      </div>
-
-      <div class="design-params-row" id="fHand" style="display:none">
-        <label>Hand</label>
-        <div class="inp">
-          <select id="inHand"><option value="right">Right</option><option value="left">Left</option></select>
+      <div class="grid g3">
+        <div class="field" id="fPA">
+          <label>Pressure angle α <span class="hint">(deg)</span></label>
+          <input type="number" id="inPA" step="0.5" min="10" max="30" value="20">
+        </div>
+        <div class="field" id="fHelix">
+          <label>Helix angle β <span class="hint">(deg)</span></label>
+          <input type="number" id="inHelix" step="0.5" min="0" max="45" value="20">
+        </div>
+        <div class="field" id="fSpiral">
+          <label>Spiral angle βm <span class="hint">(deg)</span></label>
+          <input type="number" id="inSpiral" step="0.5" min="0" max="45" value="35">
         </div>
       </div>
 
-      <div class="design-params-row">
-        <label>Face width b</label>
-        <div class="inp"><input type="number" id="inFace" step="0.5" min="1" value="30"><span class="unit-chip" id="uFace">mm</span></div>
+      <div class="grid g3">
+        <div class="field" id="fHand">
+          <label>Hand</label>
+          <select id="inHand"><option value="right">Right hand</option><option value="left">Left hand</option></select>
+        </div>
+        <div class="field">
+          <label>Face width b <span class="unit" id="uFace">mm</span></label>
+          <input type="number" id="inFace" step="0.5" min="1" value="30">
+        </div>
+        <div class="field">
+          <label>Bore Ø <span class="unit" id="uBore">mm</span></label>
+          <input type="number" id="inBore" step="0.5" min="0" value="20">
+        </div>
       </div>
 
-      <div class="design-params-row">
-        <label>Bore Ø</label>
-        <div class="inp"><input type="number" id="inBore" step="0.5" min="0" value="20"><span class="unit-chip" id="uBore">mm</span></div>
+      <div class="grid g3">
+        <div class="field">
+          <label>Profile shift x</label>
+          <input type="number" id="inShift" step="0.05" value="0">
+        </div>
+        <div class="field">
+          <label>Addendum coeff hₐ*</label>
+          <input type="number" id="inHaC" step="0.05" value="1.0">
+        </div>
+        <div class="field">
+          <label>Dedendum coeff h_f*</label>
+          <input type="number" id="inHfC" step="0.05" value="1.25">
+        </div>
       </div>
 
-      <div class="design-params-row">
-        <label>Profile shift x</label>
-        <div class="inp"><input type="number" id="inShift" step="0.05" value="0"><span class="unit-chip">–</span></div>
+      <div class="grid g3">
+        <div class="field" id="fBacklash">
+          <label>Backlash (circumferential) <span class="unit" id="uBl">mm</span></label>
+          <input type="number" id="inBacklash" step="0.01" min="0" value="0.10">
+        </div>
+        <div class="field" id="fWormQ">
+          <label>Worm diameter factor q</label>
+          <input type="number" id="inWormQ" step="0.5" min="4" value="10">
+        </div>
+        <div class="field" id="fShaftAngle">
+          <label>Shaft angle Σ <span class="hint">(deg)</span></label>
+          <input type="number" id="inShaftAngle" step="1" min="10" max="170" value="90">
+        </div>
       </div>
 
-      <div class="design-params-row">
-        <label>Addendum coeff hₐ*</label>
-        <div class="inp"><input type="number" id="inHaC" step="0.05" value="1.0"><span class="unit-chip">–</span></div>
+      <div class="grid g3">
+        <div class="field">
+          <label>Speed <span class="hint">(RPM)</span></label>
+          <input type="number" id="inRpm" step="10" min="0" value="500">
+        </div>
+        <div class="field" id="fPower">
+          <label>Power <span class="unit" id="uPower">kW</span></label>
+          <input type="number" id="inPower" step="0.1" min="0" value="5">
+        </div>
+        <div class="field">
+          <label>Material</label>
+          <select id="inMaterial"></select>
+        </div>
       </div>
 
-      <div class="design-params-row">
-        <label>Dedendum coeff h_f*</label>
-        <div class="inp"><input type="number" id="inHfC" step="0.05" value="1.25"><span class="unit-chip">–</span></div>
-      </div>
-
-      <div class="design-params-row" id="fBacklash">
-        <label>Backlash j</label>
-        <div class="inp"><input type="number" id="inBacklash" step="0.01" min="0" value="0.10"><span class="unit-chip" id="uBl">mm</span></div>
-      </div>
-
-      <div class="design-params-row" id="fWormQ" style="display:none">
-        <label>Worm q factor</label>
-        <div class="inp"><input type="number" id="inWormQ" step="0.5" min="4" value="10"><span class="unit-chip">–</span></div>
-      </div>
-
-      <div class="design-params-row" id="fShaftAngle" style="display:none">
-        <label>Shaft angle Σ</label>
-        <div class="inp"><input type="number" id="inShaftAngle" step="1" min="10" max="170" value="90"><span class="unit-chip">°</span></div>
-      </div>
-
-      <div class="design-params-row">
-        <label>Speed n</label>
-        <div class="inp"><input type="number" id="inRpm" step="10" min="0" value="500"><span class="unit-chip">rpm</span></div>
-      </div>
-
-      <div class="design-params-row" id="fPower">
-        <label>Power P</label>
-        <div class="inp"><input type="number" id="inPower" step="0.1" min="0" value="5"><span class="unit-chip" id="uPower">kW</span></div>
-      </div>
-
-      <div class="design-params-row">
-        <label>Material</label>
-        <div class="inp"><select id="inMaterial"></select></div>
-      </div>
-
-      <div class="design-params-row">
-        <label>Manufacturing</label>
-        <div class="inp">
+      <div class="grid g3">
+        <div class="field">
+          <label>Manufacturing method</label>
           <select id="inMethod">
             <option>Gear milling (form cutter)</option>
             <option>Gear hobbing</option>
@@ -392,84 +294,41 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
             <option>Manual milling</option>
           </select>
         </div>
+        <div class="field">
+          <label>Chain pitch p <span class="hint">(sprocket only)</span></label>
+          <input type="number" id="inChainPitch" step="0.05" min="1" value="12.7">
+        </div>
+        <div class="field">
+          <label>Roller Ø <span class="hint">(sprocket only)</span></label>
+          <input type="number" id="inRoller" step="0.05" min="0.1" value="7.75">
+        </div>
       </div>
 
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnCalc" style="flex:1">⚙ Recalculate</button>
-        <button class="btn" id="btnReset">Reset</button>
+      <div class="row" style="margin-top:6px">
+        <button class="btn primary" id="btnCalc">Recalculate</button>
+        <button class="btn" id="btnReset">Reset Defaults</button>
       </div>
     </div>
 
-    <!-- CENTER : DRAWING -->
-    <div class="card">
-      <div class="row" style="margin-bottom:8px">
-        <h2 style="margin:0">Gear Drawing</h2>
-        <div class="spacer"></div>
-        <button class="btn small" id="btnSvgPng">Export PNG</button>
-        <button class="btn small" id="btnSvgFile">Export SVG</button>
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <h2>Validation</h2>
+        <div id="validationBox"></div>
       </div>
 
-      <div class="chk-row">
-        <label><input type="checkbox" id="chkPitch" checked> Pitch circle</label>
-        <label><input type="checkbox" id="chkBase" checked> Base circle</label>
-        <label><input type="checkbox" id="chkRoot"> Root circle</label>
-        <label><input type="checkbox" id="chkDims" checked> Dimensions</label>
-        <label><input type="checkbox" id="chkTeethNo"> Tooth numbers</label>
+      <div class="card">
+        <h2>Calculated Geometry <span class="badge ref" id="basisBadge">GENERAL / REFERENCE</span></h2>
+        <div class="summary-grid" id="inputSummary"></div>
+        <div class="scroll-x"><table class="res" id="resultsTable"></table></div>
       </div>
-
-      <div class="svg-wrap">
-        <svg id="gearSvg" viewBox="-320 -320 640 640" xmlns="http://www.w3.org/2000/svg"></svg>
-      </div>
-
-      <div class="row" style="margin-top:8px">
-        <button class="btn small" data-svg="zoomout">−</button>
-        <button class="btn small" data-svg="zoomin">+</button>
-        <button class="btn small" data-svg="reset">Reset View</button>
-        <div class="spacer"></div>
-        <span class="note">Highlight tooth #</span>
-        <input type="number" id="inToothSel" min="1" step="1" value="1" style="width:70px">
-        <button class="btn small" id="btnToothPrev">◀</button>
-        <button class="btn small" id="btnToothNext">▶</button>
-        <button class="btn small" id="btnToothAll">All</button>
-      </div>
-    </div>
-
-    <!-- RIGHT : CALCULATED -->
-    <div class="card">
-      <div class="row" style="margin-bottom:8px">
-        <h2 style="margin:0">Calculated Geometry</h2>
-        <div class="spacer"></div>
-        <span class="badge ref" id="basisBadge">GENERAL</span>
-      </div>
-      <div id="resultsTable"></div>
-      <div id="inputSummary" style="display:none"></div>
     </div>
   </div>
 
-  <!-- STATUS -->
-  <div class="status-row">
-    <div class="status-card" id="statusOkCard">
-      <div class="ico ok" id="statusIco">✓</div>
-      <div>
-        <div class="title" id="statusTitle">All checks passed</div>
-        <div class="sub" id="statusSub">Gear geometry is valid and ready for manufacturing.</div>
-      </div>
-    </div>
-    <div class="status-card">
-      <div class="ico warn">⚠</div>
-      <div>
-        <div class="title">Safety factor</div>
-        <div class="sub" id="sfSub">Within recommended range for standard applications.</div>
-      </div>
-      <div class="val" id="sfVal">—</div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
+  <div class="card" style="margin-top:14px">
     <div class="row">
       <h2 style="margin:0">Calculation Trace</h2>
       <div class="spacer"></div>
-      <button class="btn small" id="btnTrace">Show / Hide</button>
+      <button class="btn small" id="btnTrace">Show / Hide Calculation</button>
     </div>
     <div id="traceBox" style="display:none;margin-top:10px">
       <div class="trace" id="traceContent"></div>
@@ -477,30 +336,59 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
   </div>
 </section>
 
-<!-- ================= TOOTH ================= -->
 <section id="tab-tooth" class="tab-pane">
   <div class="grid g2">
     <div class="card">
       <div class="row">
         <h2 style="margin:0">2D Engineering Drawing</h2>
         <div class="spacer"></div>
-        <button class="btn small" id="btnSvgPng2">Export PNG</button>
-        <button class="btn small" id="btnSvgFile2">Export SVG</button>
+        <button class="btn small" id="btnSvgPng">Export PNG</button>
+        <button class="btn small" id="btnSvgFile">Export SVG</button>
       </div>
       <div class="svg-wrap" style="margin-top:10px">
-        <svg id="gearSvgClone" viewBox="-320 -320 640 640" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg id="gearSvg" viewBox="-320 -320 640 640" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" data-svg="zoomout">−</button>
+        <button class="btn small" data-svg="zoomin">+</button>
+        <button class="btn small" data-svg="reset">Reset View</button>
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkPitch" checked> Pitch circle
+        </label>
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkBase" checked> Base circle
+        </label>
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkRoot" checked> Root circle
+        </label>
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkDims" checked> Dimensions
+        </label>
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkTeethNo"> Tooth numbers
+        </label>
       </div>
     </div>
+
     <div class="card">
       <h2>Tooth Analysis</h2>
+      <div class="field">
+        <label>Highlight tooth # <span class="hint">(1 … z)</span></label>
+        <input type="number" id="inToothSel" min="1" step="1" value="1">
+      </div>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn small" id="btnToothPrev">◀ Prev</button>
+        <button class="btn small" id="btnToothNext">Next ▶</button>
+        <button class="btn small" id="btnToothAll">Show All</button>
+      </div>
       <div class="tooth-panel" id="toothPanel"></div>
+
       <h3 style="margin-top:16px">Involute Sample Points</h3>
-      <div class="trace" id="involuteTable" style="max-height:280px"></div>
+      <div class="trace" id="involuteTable" style="max-height:240px"></div>
     </div>
   </div>
 </section>
 
-<!-- ================= 3D MODEL ================= -->
 <section id="tab-model3d" class="tab-pane">
   <div class="grid" style="grid-template-columns:1fr 300px">
     <div class="card tight">
@@ -508,210 +396,154 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         <div class="view-btns">
           <button data-view="iso">ISO</button>
           <button data-view="front">Front</button>
+          <button data-view="rear">Rear</button>
           <button data-view="top">Top</button>
+          <button data-view="bottom">Bottom</button>
+          <button data-view="left">Left</button>
+          <button data-view="right">Right</button>
           <button data-view="reset">Reset</button>
         </div>
       </div>
     </div>
     <div class="card">
-      <h2 style="margin-bottom:10px">View Controls</h2>
-      <div class="slider-row"><label style="width:48px">Rot X</label>
-        <input type="range" id="rotX" min="-180" max="180" value="0"><span class="num" id="rotXv">0°</span></div>
-      <div class="slider-row"><label style="width:48px">Rot Y</label>
-        <input type="range" id="rotY" min="-180" max="180" value="25"><span class="num" id="rotYv">25°</span></div>
-      <div class="slider-row"><label style="width:48px">Rot Z</label>
-        <input type="range" id="rotZ" min="-180" max="180" value="0"><span class="num" id="rotZv">0°</span></div>
-
-      <div class="row" style="margin-top:12px">
-        <label class="inline" style="font-size:11.5px;color:var(--dim)">
-          <input type="checkbox" id="chkExplode"> Exploded view
-        </label>
+      <h2>Viewer Controls</h2>
+      <div class="slider-row"><label style="width:70px">Rot X</label>
+        <input type="range" id="rotX" min="-180" max="180" value="0"><span id="rotXv">0°</span></div>
+      <div class="slider-row"><label style="width:70px">Rot Y</label>
+        <input type="range" id="rotY" min="-180" max="180" value="0"><span id="rotYv">0°</span></div>
+      <div class="slider-row"><label style="width:70px">Rot Z</label>
+        <input type="range" id="rotZ" min="-180" max="180" value="0"><span id="rotZv">0°</span></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn small" id="btnExplode">Exploded View</button>
+        <button class="btn small" id="btnSpin">Animation ON/OFF</button>
       </div>
-      <div class="row">
+      <div class="row" style="margin-top:6px">
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkAxes" checked> Axes
+        </label>
+        <label class="inline" style="font-size:11.5px;color:var(--dim)">
+          <input type="checkbox" id="chkPitch3d" checked> Pitch circle
+        </label>
         <label class="inline" style="font-size:11.5px;color:var(--dim)">
           <input type="checkbox" id="chkWire"> Wireframe
         </label>
       </div>
-      <div class="row">
-        <label class="inline" style="font-size:11.5px;color:var(--dim)">
-          <input type="checkbox" id="chkAxes" checked> Show axes
-        </label>
+      <div class="note" style="margin-top:12px">
+        The 3D solid is generated directly from the calculated involute tooth profile.
+        Every parameter change regenerates the mesh. Drag to orbit, wheel/pinch to zoom.
       </div>
-      <div class="row">
-        <label class="inline" style="font-size:11.5px;color:var(--dim)">
-          <input type="checkbox" id="chkPitch3d" checked> Pitch circle
-        </label>
-      </div>
-
-      <h3 style="margin-top:16px;margin-bottom:6px">Gear Parameters</h3>
-      <div id="meshInfo"></div>
-
-      <div class="row" style="margin-top:12px">
-        <button class="btn small" id="btnExplode">Explode</button>
-        <button class="btn small" id="btnSpin">Spin</button>
-      </div>
+      <div id="meshInfo" class="note" style="margin-top:10px"></div>
     </div>
   </div>
 </section>
 
-<!-- ================= INDEXING ================= -->
 <section id="tab-indexing" class="tab-pane">
-
-  <div class="grid g2" style="margin-bottom:12px">
-    <!-- Method -->
+  <div class="grid g2">
     <div class="card">
-      <h2 style="margin-bottom:10px">Indexing Method</h2>
+      <h2>Dividing Head Indexing</h2>
 
-      <div class="method-toggle" id="idxMethodToggle">
-        <button data-method="simple" class="active">Simple indexing 40 / N</button>
-        <button data-method="differential">Differential indexing</button>
+      <div class="field">
+        <label>Method</label>
+        <select id="idxMethod">
+          <option value="direct">Direct indexing (24 / N)</option>
+          <option value="simple" selected>Simple indexing (40 / N)</option>
+          <option value="differential">Differential indexing</option>
+          <option value="angular">Angular indexing (degrees)</option>
+        </select>
       </div>
 
-      <select id="idxMethod" style="display:none">
-        <option value="direct">Direct indexing (24 / N)</option>
-        <option value="simple" selected>Simple indexing (40 / N)</option>
-        <option value="differential">Differential indexing</option>
-        <option value="angular">Angular indexing (degrees)</option>
-      </select>
-
-      <div class="design-params-row">
-        <label>Ratio</label>
-        <div class="inp">
-          <select id="idxRatio" style="width:100%;text-align:right">
+      <div class="grid g2">
+        <div class="field">
+          <label>Dividing-head ratio</label>
+          <select id="idxRatio">
             <option value="40" selected>40 : 1</option>
             <option value="30">30 : 1</option>
             <option value="60">60 : 1</option>
             <option value="custom">Custom…</option>
           </select>
         </div>
-      </div>
-      <div class="design-params-row" id="fIdxRatioCustom" style="display:none">
-        <label>Custom ratio</label>
-        <div class="inp"><input type="number" id="idxRatioCustom" min="1" step="1" value="40"></div>
-      </div>
-
-      <div class="design-params-row">
-        <label>Divisions N</label>
-        <div class="inp"><input type="number" id="idxN" min="1" step="1" value="24"><span class="unit-chip">div</span></div>
+        <div class="field" id="fIdxRatioCustom" style="display:none">
+          <label>Custom ratio</label>
+          <input type="number" id="idxRatioCustom" min="1" step="1" value="40">
+        </div>
       </div>
 
-      <div class="row" style="margin:4px 0 10px">
+      <div class="field">
+        <label>Number of divisions N <span class="hint">(auto from teeth)</span></label>
+        <input type="number" id="idxN" min="1" step="1" value="24">
+      </div>
+      <div class="row" style="margin-bottom:6px">
         <label class="inline" style="font-size:11.5px;color:var(--dim)">
           <input type="checkbox" id="idxSyncTeeth" checked> Sync N with number of teeth
         </label>
       </div>
 
-      <div id="idxDirectExtra" class="note" style="margin-bottom:8px;display:none">
+      <div id="idxDirectExtra" class="note" style="margin-bottom:8px">
         Direct indexing requires N to divide 24 exactly.
       </div>
 
       <div id="idxSimpleExtra">
-        <div class="design-params-row">
-          <label>Hole circle preset</label>
-          <div class="inp">
-            <select id="idxHolePreset" style="width:100%">
-              <option value="15,16,17,18,19,20,21,23,27,29,31,33,37,39,41,43,47,49">Plate 1–3 (Brown &amp; Sharpe)</option>
-              <option value="24,25,28,30,34,37,38,39,41,42,43,46,47,49,51,53,54,57,58,59,62,66">Set A–D (Cincinnati)</option>
-            </select>
-          </div>
+        <div class="field">
+          <label>Hole circles preset</label>
+          <select id="idxHolePreset">
+            <option value="15,16,17,18,19,20,21,23,27,29,31,33,37,39,41,43,47,49">Plate 1–3 (Brown &amp; Sharpe)</option>
+            <option value="24,25,28,30,34,37,38,39,41,42,43,46,47,49,51,53,54,57,58,59,62,66">Set A–D (Cincinnati)</option>
+          </select>
         </div>
-        <div class="design-params-row">
-          <label>Custom holes</label>
-          <div class="inp"><input type="text" id="idxCustomHoles" placeholder="21,39,49"></div>
+        <div class="field">
+          <label>Custom holes (comma separated)</label>
+          <input type="text" id="idxCustomHoles" placeholder="21,39,49">
         </div>
       </div>
 
       <div id="idxDiffExtra" style="display:none">
-        <div class="design-params-row">
-          <label>Approximate A</label>
-          <div class="inp"><input type="number" id="idxApproxA" step="1" value="0"><span class="unit-chip">auto</span></div>
+        <div class="field">
+          <label>Approximate A <span class="hint">(0 = auto, must be simply indexable)</span></label>
+          <input type="number" id="idxApproxA" step="1" value="0">
         </div>
-        <div class="design-params-row">
-          <label>Change gears</label>
-          <div class="inp"><input type="text" id="idxDiffGearSet" value="24,28,32,36,40,44,48,56,64,72,86,100"></div>
+        <div class="field">
+          <label>Change gear set for differential</label>
+          <input type="text" id="idxDiffGearSet" value="24,28,32,36,40,44,48,56,64,72,86,100">
         </div>
       </div>
 
       <div id="idxAngularExtra" style="display:none">
-        <div class="design-params-row">
-          <label>Angle (deg)</label>
-          <div class="inp"><input type="number" id="idxAngleDeg" step="0.5" value="15"></div>
-        </div>
-        <div class="design-params-row">
-          <label>Minutes</label>
-          <div class="inp"><input type="number" id="idxAngleMin" step="1" min="0" max="59" value="0"></div>
+        <div class="grid g2">
+          <div class="field">
+            <label>Angle (deg)</label>
+            <input type="number" id="idxAngleDeg" step="0.5" value="15">
+          </div>
+          <div class="field">
+            <label>Minutes</label>
+            <input type="number" id="idxAngleMin" step="1" min="0" max="59" value="0">
+          </div>
         </div>
       </div>
 
-      <div class="note" style="margin-top:8px;padding:10px;background:#0f1720;border-radius:5px;border-left:2px solid var(--accent2)">
-        <b style="color:var(--accent2)">ⓘ</b> Simple indexing is used when N is a factor of 40,
-        or when a suitable hole circle is available on the indexing plate.
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="btnIdxCalc" style="flex:1">Calculate Indexing</button>
+      <div class="row" style="margin-top:6px">
+        <button class="btn primary" id="btnIdxCalc">Calculate Indexing</button>
       </div>
     </div>
 
-    <!-- Results -->
     <div class="card">
-      <h2 style="margin-bottom:10px">Indexing Results</h2>
+      <h2>Indexing Result</h2>
       <div id="idxResults"></div>
-      <div id="idxResultsVisual" style="margin-top:10px"></div>
       <h3 style="margin-top:14px">Calculation Trace</h3>
-      <div class="trace" id="idxTrace" style="max-height:180px"></div>
+      <div class="trace" id="idxTrace"></div>
     </div>
   </div>
 
-  <!-- Mechanism -->
-  <div class="card">
-    <h2 style="margin-bottom:10px">Indexing Mechanism</h2>
-    <div class="mechanism-grid" id="mechanismGrid">
-      <div class="mech-step">
-        <div class="num">1. INDEX CRANK</div>
-        <div class="ttl">Rotate the handle by the calculated amount for each division.</div>
-        <div class="desc">The crank turns the worm shaft through the index plate at a fixed ratio (40:1).</div>
-        <svg id="mechCrank" viewBox="0 0 220 110"></svg>
-        <div class="arrow">→</div>
-      </div>
-      <div class="mech-step">
-        <div class="num">2. CHANGE GEARS</div>
-        <div class="ttl">Fit 48T driver and 32T driven gear for the required ratio (when using differential).</div>
-        <div class="desc">The change-gear train applies a small correction to the index plate rotation.</div>
-        <svg id="mechGears" viewBox="0 0 220 110"></svg>
-        <div class="arrow">→</div>
-      </div>
-      <div class="mech-step">
-        <div class="num">3. WORM DRIVE 40:1</div>
-        <div class="ttl">Dividing head worm gear ratio 40:1 (standard).</div>
-        <div class="desc">The worm and worm wheel form the primary reduction stage.</div>
-        <svg id="mechWorm" viewBox="0 0 220 110"></svg>
-        <div class="arrow">→</div>
-      </div>
-      <div class="mech-step">
-        <div class="num">4. WORKPIECE</div>
-        <div class="ttl">Indexed workpiece ready for gear cutting.</div>
-        <div class="desc">The spindle is now positioned at the exact division angle for the next tooth.</div>
-        <svg id="mechWorkpiece" viewBox="0 0 220 110"></svg>
-      </div>
-    </div>
-
-    <div class="note" style="margin-top:10px;padding:10px;background:#0f1720;border-radius:5px;border-left:2px solid var(--accent2)">
-      <b style="color:var(--accent2)">ⓘ</b> For non-standard ratios, use differential indexing with a change gear train.
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
-    <h2 style="margin-bottom:8px">Differential Indexing Change-Gear Train</h2>
+  <div class="card" style="margin-top:14px">
+    <h2>Differential Indexing Change-Gear Train</h2>
     <div class="svg-wrap"><svg id="idxDiffSvg" viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg"></svg></div>
   </div>
 </section>
 
-<!-- ================= CHANGE GEARS ================= -->
 <section id="tab-changegears" class="tab-pane">
   <div class="grid g2">
     <div class="card">
       <h2>Change-Gear Calculator</h2>
+
       <div class="field">
         <label>Machine configuration</label>
         <select id="inMachine">
@@ -722,6 +554,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <option value="gearMillSetup">Gear milling setup (direct)</option>
         </select>
       </div>
+
       <div class="grid g2">
         <div class="field">
           <label>Machine lead-screw pitch Lₛ <span class="unit" id="uLead">mm</span></label>
@@ -732,10 +565,12 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <input type="number" id="inReqLead" step="1" min="0.1" value="300">
         </div>
       </div>
+
       <div class="field">
-        <label>Available change gears (teeth)</label>
+        <label>Available change gears (teeth, comma separated)</label>
         <textarea id="inGearSet" rows="3">20,24,25,28,30,32,35,36,40,45,48,50,56,60,64,72,80,84,90,96,100,120</textarea>
       </div>
+
       <div class="grid g3">
         <div class="field">
           <label>Train type</label>
@@ -760,13 +595,16 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <input type="number" id="inTolCustom" step="0.01" min="0" value="0.05">
         </div>
       </div>
+
       <label class="inline" style="font-size:11.5px;color:var(--dim);margin-bottom:8px">
         <input type="checkbox" id="chkDistinct" checked> Require distinct gears
       </label>
+
       <div class="row">
         <button class="btn primary" id="btnGearSearch">Search Change Gears</button>
       </div>
     </div>
+
     <div class="card">
       <h2>Kinematic Relationship (assumed)</h2>
       <div class="trace" id="kinematicBox" style="margin-bottom:12px"></div>
@@ -776,7 +614,8 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
     </div>
   </div>
-  <div class="card" style="margin-top:12px">
+
+  <div class="card" style="margin-top:14px">
     <div class="row">
       <h2 style="margin:0">Change-Gear Train Drawing</h2>
       <div class="spacer"></div>
@@ -788,7 +627,6 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
   </div>
 </section>
 
-<!-- ================= LEAD ================= -->
 <section id="tab-lead" class="tab-pane">
   <div class="grid g2">
     <div class="card">
@@ -819,6 +657,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       <h3 style="margin-top:14px">Lead Calculation Trace</h3>
       <div class="trace" id="leadTrace"></div>
     </div>
+
     <div class="card">
       <h2>Helix Visualisation</h2>
       <div class="svg-wrap">
@@ -830,7 +669,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
     </div>
   </div>
 
-  <div class="card" style="margin-top:12px">
+  <div class="card" style="margin-top:14px">
     <h2>Helical Lead — Change-Gear Train Search</h2>
     <div class="grid g2">
       <div>
@@ -865,10 +704,12 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         <div class="field">
           <label>Number of gears in train</label>
           <select id="leadGearCount">
-            <option value="2">2 gears</option>
-            <option value="4" selected>4 gears</option>
-            <option value="6">6 gears</option>
-            <option value="8">8 gears</option>
+            <option value="2">2 gears (1 pair)</option>
+            <option value="4" selected>4 gears (2 pairs)</option>
+            <option value="6">6 gears (3 pairs)</option>
+            <option value="8">8 gears (4 pairs)</option>
+            <option value="10">10 gears (5 pairs)</option>
+            <option value="12">12 gears (6 pairs)</option>
           </select>
         </div>
         <div class="row">
@@ -877,25 +718,29 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
       <div>
         <div class="field">
-          <label>Alternative gear trains</label>
+          <label>Alternative gear trains (sorted by error)</label>
           <select id="leadAltSelect" size="10" style="width:100%;font-family:var(--mono);font-size:12px"></select>
         </div>
         <div id="leadAltInfo" class="note" style="margin-top:6px"></div>
       </div>
     </div>
-    <div class="grid g2" style="margin-top:12px">
-      <div class="svg-wrap"><svg id="leadTopSvg" viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg"></svg></div>
-      <div class="svg-wrap"><svg id="leadSideSvg" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="svg-wrap">
+        <svg id="leadTopSvg" viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="svg-wrap">
+        <svg id="leadSideSvg" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:12px">
+  <div class="card" style="margin-top:14px">
     <h2>Spiral Bevel Lead</h2>
     <div class="grid g2">
       <div>
         <div class="grid g2">
           <div class="field">
-            <label>Mean pitch Ø d_m <span class="unit" id="uSpd">mm</span></label>
+            <label>Mean pitch diameter d_m <span class="unit" id="uSpd">mm</span></label>
             <input type="number" id="inSpiralDm" step="0.1" value="120">
           </div>
           <div class="field">
@@ -920,7 +765,8 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         </div>
       </div>
     </div>
-    <h3 style="margin-top:16px">Spiral Lead — Change-Gear Train Search</h3>
+
+    <h3 style="margin-top:18px">Spiral Lead — Change-Gear Train Search</h3>
     <div class="grid g2">
       <div>
         <div class="field">
@@ -930,7 +776,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         <div class="field">
           <label>Lead source</label>
           <select id="spiralLeadMode">
-            <option value="auto">Auto — from spiral angle &amp; mean pitch Ø</option>
+            <option value="auto">Auto — from spiral angle &amp; mean pitch dia</option>
             <option value="manual">Manual — enter lead directly</option>
           </select>
         </div>
@@ -944,6 +790,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
             <option value="25,25,30,35,40,50,55,60,70,80,90,100">Standard set (25–100)</option>
             <option value="24,24,28,32,40,44,48,56,64,72,86,100">Alternative set (24–100)</option>
             <option value="20,20,25,30,35,40,45,50,55,60,70,80,90,100,110,120">Extended set (20–120)</option>
+            <option value="10,20,30,40,50,60,70,80,90,100,110,120">10–120 step 10</option>
           </select>
         </div>
         <div class="field">
@@ -953,10 +800,10 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         <div class="field">
           <label>Number of gears in train</label>
           <select id="spiralLeadGearCount">
-            <option value="2">2 gears</option>
-            <option value="4" selected>4 gears</option>
-            <option value="6">6 gears</option>
-            <option value="8">8 gears</option>
+            <option value="2">2 gears (1 pair)</option>
+            <option value="4" selected>4 gears (2 pairs)</option>
+            <option value="6">6 gears (3 pairs)</option>
+            <option value="8">8 gears (4 pairs)</option>
           </select>
         </div>
         <div class="row">
@@ -965,56 +812,27 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
       <div>
         <div class="field">
-          <label>Alternative gear trains</label>
+          <label>Alternative gear trains (sorted by error)</label>
           <select id="spiralAltSelect" size="10" style="width:100%;font-family:var(--mono);font-size:12px"></select>
         </div>
         <div id="spiralAltInfo" class="note" style="margin-top:6px"></div>
       </div>
     </div>
-    <div class="grid g2" style="margin-top:12px">
-      <div class="svg-wrap"><svg id="spiralTopSvg" viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg"></svg></div>
-      <div class="svg-wrap"><svg id="spiralSideSvg" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg"></svg></div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="svg-wrap">
+        <svg id="spiralTopSvg" viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="svg-wrap">
+        <svg id="spiralSideSvg" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ================= CNC ================= -->
 <section id="tab-cnc" class="tab-pane">
-
-  <div class="kpi-row" id="cncKpiRow">
-    <div class="kpi-card">
-      <div class="k-ico">◉</div>
-      <div class="k-body">
-        <div class="k-lbl">Spindle</div>
-        <div class="k-val" id="kpiSpindle">—<span class="k-unit">RPM</span></div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="k-ico">→</div>
-      <div class="k-body">
-        <div class="k-lbl">Feed</div>
-        <div class="k-val" id="kpiFeed">—<span class="k-unit">mm/min</span></div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="k-ico">▦</div>
-      <div class="k-body">
-        <div class="k-lbl">MRR</div>
-        <div class="k-val" id="kpiMrr">—<span class="k-unit">cm³/min</span></div>
-      </div>
-    </div>
-    <div class="kpi-card">
-      <div class="k-ico">◷</div>
-      <div class="k-body">
-        <div class="k-lbl">Time</div>
-        <div class="k-val" id="kpiTime">—<span class="k-unit">min</span></div>
-      </div>
-    </div>
-  </div>
-
   <div class="grid g2">
     <div class="card">
-      <h2>Cutting Parameters</h2>
+      <h2>CNC Cutting Parameters</h2>
       <div class="grid g3">
         <div class="field">
           <label>Tool Ø D <span class="unit" id="uTool">mm</span></label>
@@ -1032,17 +850,17 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           </select>
         </div>
         <div class="field">
-          <label>Flutes</label>
+          <label>Number of flutes z</label>
           <input type="number" id="inFlutes" step="1" min="1" value="4">
         </div>
       </div>
       <div class="grid g3">
         <div class="field">
-          <label>Vc <span class="unit" id="uVc">m/min</span></label>
+          <label>Cutting speed Vc <span class="unit" id="uVc">m/min</span></label>
           <input type="number" id="inVc" step="1" min="1" value="30">
         </div>
         <div class="field">
-          <label>fz <span class="unit" id="ufz">mm</span></label>
+          <label>Feed per tooth fz <span class="unit" id="ufz">mm</span></label>
           <input type="number" id="inFz" step="0.005" min="0.001" value="0.05">
         </div>
         <div class="field">
@@ -1052,75 +870,57 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
       <div class="grid g3">
         <div class="field">
-          <label>ap <span class="unit" id="uAp">mm</span></label>
+          <label>Axial depth aₚ <span class="unit" id="uAp">mm</span></label>
           <input type="number" id="inAp" step="0.5" min="0.1" value="2">
         </div>
         <div class="field">
-          <label>ae <span class="unit" id="uAe">mm</span></label>
+          <label>Radial width aₑ <span class="unit" id="uAe">mm</span></label>
           <input type="number" id="inAe" step="0.5" min="0.1" value="5">
         </div>
         <div class="field">
-          <label>Cut length <span class="unit" id="uLen">mm</span></label>
+          <label>Total cut length <span class="unit" id="uLen">mm</span></label>
           <input type="number" id="inCutLen" step="1" min="1" value="500">
         </div>
       </div>
-      <div class="row"><button class="btn primary" id="btnCnc">Calculate CNC</button></div>
+      <div class="row"><button class="btn primary" id="btnCnc">Calculate CNC Parameters</button></div>
       <div id="cncResults" style="margin-top:12px"></div>
+      <h3 style="margin-top:14px">CNC Calculation Trace</h3>
+      <div class="trace" id="cncTrace"></div>
     </div>
 
-    <div class="card" style="display:flex;flex-direction:column">
-      <div class="row">
-        <h2 style="margin:0">Toolpath Preview</h2>
-        <div class="spacer"></div>
-        <button class="btn small" id="btnToolpathSim">Simulate</button>
-      </div>
-      <div class="svg-wrap" style="margin-top:8px;position:relative">
-        <svg id="toolpathSvg" viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg"></svg>
-        <div class="legend">
-          <div class="li"><span class="sw path"></span>Toolpath</div>
-          <div class="li"><span class="sw rapid"></span>Rapid</div>
-          <div class="li"><span class="sw const"></span>Constrain</div>
+    <div class="card">
+      <h2>Gear Milling Parameters</h2>
+      <div class="grid g3">
+        <div class="field">
+          <label>Cutter Ø <span class="unit" id="uCutD">mm</span></label>
+          <input type="number" id="inCutD" step="1" value="70">
+        </div>
+        <div class="field">
+          <label>Cutter teeth</label>
+          <input type="number" id="inCutTeeth" step="1" min="1" value="8">
+        </div>
+        <div class="field">
+          <label>Passes</label>
+          <input type="number" id="inPasses" step="1" min="1" value="1">
         </div>
       </div>
-    </div>
-  </div>
+      <div id="millingResults" style="margin-top:12px"></div>
+      <h3 style="margin-top:14px">Recommended Involute Gear Cutter</h3>
+      <div id="cutterResult"></div>
 
-  <div class="card" style="margin-top:12px">
-    <div class="row" style="margin-bottom:8px">
-      <h2 style="margin:0">Gear Milling Parameters</h2>
-    </div>
-    <div class="grid g3">
-      <div class="field">
-        <label>Cutter Ø <span class="unit" id="uCutD">mm</span></label>
-        <input type="number" id="inCutD" step="1" value="70">
+      <h3 style="margin-top:16px">Toolpath Preview</h3>
+      <div class="svg-wrap">
+        <svg id="toolpathSvg" viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg"></svg>
       </div>
-      <div class="field">
-        <label>Cutter teeth</label>
-        <input type="number" id="inCutTeeth" step="1" min="1" value="8">
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" id="btnToolpathSim">Simulation ON/OFF</button>
+        <button class="btn small" id="btnGcode">Generate G-code</button>
       </div>
-      <div class="field">
-        <label>Passes</label>
-        <input type="number" id="inPasses" step="1" min="1" value="1">
-      </div>
+      <div class="trace" id="gcodeBox" style="max-height:220px;margin-top:8px;display:none"></div>
     </div>
-    <div id="millingResults" style="margin-top:8px"></div>
-    <h3 style="margin-top:14px">Recommended Involute Gear Cutter</h3>
-    <div id="cutterResult"></div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
-    <div class="row" style="margin-bottom:8px">
-      <h2 style="margin:0">G-Code Output</h2>
-      <div class="spacer"></div>
-      <button class="btn small" id="btnGcode">Generate</button>
-    </div>
-    <div class="trace" id="gcodeBox" style="max-height:280px;display:block"></div>
-    <h3 style="margin-top:12px">CNC Calculation Trace</h3>
-    <div class="trace" id="cncTrace" style="max-height:180px"></div>
   </div>
 </section>
 
-<!-- ================= INSPECTION ================= -->
 <section id="tab-inspection" class="tab-pane">
   <div class="grid g2">
     <div class="card">
@@ -1133,24 +933,27 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         <table class="res" id="inspectionTable"></table>
       </div>
     </div>
+
     <div class="card">
       <h2>Gear Strength Check (simplified)</h2>
       <div id="strengthBox"></div>
       <div class="note" style="margin-top:10px">
-        <b>REFERENCE / SIMPLIFIED CALCULATION.</b> Lewis-style bending check with simple
-        surface-durability estimate. Not a certified ISO / AGMA / DIN / JIS rating.
+        <b>REFERENCE / SIMPLIFIED CALCULATION.</b> This is a Lewis-style bending check with a
+        simple surface-durability estimate. It is NOT a certified ISO / AGMA / DIN / JIS rating
+        calculation. Use it for preliminary sizing only and verify with the applicable standard.
       </div>
-      <h2 style="margin-top:16px">Backlash Calculator</h2>
+
+      <h2 style="margin-top:18px">Backlash Calculator</h2>
       <div id="backlashBox"></div>
     </div>
   </div>
-  <div class="card" style="margin-top:12px">
+
+  <div class="card" style="margin-top:14px">
     <h2>Section A–A</h2>
     <div class="svg-wrap"><svg id="sectionSvg" viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg"></svg></div>
   </div>
 </section>
 
-<!-- ================= REPORT ================= -->
 <section id="tab-report" class="tab-pane">
   <div class="card no-print">
     <div class="row">
@@ -1170,7 +973,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 <script>
 "use strict";
 /* ============================================================================
- * SECTION 1 — CONSTANTS
+ * SECTION 1 — ENGINEERING CONSTANTS
  * ==========================================================================*/
 const ENGINEERING_CONSTANTS = {
   standardPressureAngle: 20,
@@ -1184,7 +987,7 @@ const ENGINEERING_CONSTANTS = {
 };
 
 /* ============================================================================
- * SECTION 2 — MATERIALS
+ * SECTION 2 — MATERIAL DATABASE
  * ==========================================================================*/
 const MATERIAL_DB = {
   "Mild steel (EN1A / 1018)":   { density:7.87, machinability:1.00, vcMin:20, vcMax:35, hardness:"120-170 HB", E:205000, sigmaAllow:90,  HB:150 },
@@ -1246,7 +1049,10 @@ function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } retu
 function lcm(a,b){ return Math.abs(a*b)/gcd(a,b); }
 
 /* ============================================================================
- * TABS PER GEAR TYPE
+ * PER-GEAR-TYPE TAB CONFIGURATION
+ *
+ * Each gear type only exposes the tabs that actually apply to it.
+ * NOTE: indexing is available for ALL types (including rack & sprocket).
  * ==========================================================================*/
 const TABS_FOR_TYPE = {
   spur:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
@@ -1258,14 +1064,15 @@ const TABS_FOR_TYPE = {
   rack:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
   sprocket:    ['design','tooth','model3d','indexing','cnc','inspection','report']
 };
+
 const TAB_LABEL = {
-  design:'✏ Gear Design', tooth:'Σ Tooth Geometry', model3d:'◫ 3D Model',
-  indexing:'◉ Indexing', changegears:'⚙ Change Gears', lead:'〰 Lead / Helical',
-  cnc:'▤ CNC & Milling', inspection:'✓ Inspection', report:'▦ Report'
+  design:'Gear Design', tooth:'Tooth Geometry', model3d:'3D Model',
+  indexing:'Indexing', changegears:'Change Gears', lead:'Lead / Helical',
+  cnc:'CNC & Milling', inspection:'Inspection', report:'Report'
 };
 
 /* ============================================================================
- * TOOTH GEOMETRY
+ * INVOLUTE TOOTH GEOMETRY ENGINE
  * ==========================================================================*/
 const ToothGeometry = (function(){
   function involuteAngleAtRadius(r, rb, phiPitch, invAlphaPitch){
@@ -1374,7 +1181,7 @@ const ToothGeometry = (function(){
 })();
 
 /* ============================================================================
- * CALCULATIONS (unchanged formulas)
+ * CALCULATION ENGINES
  * ==========================================================================*/
 function calcSpurGear(s){
   const m = s.module, z = s.teeth, alphaDeg = s.pressureAngle;
@@ -1387,6 +1194,7 @@ function calcSpurGear(s){
   const p = Math.PI*m, pb = p*Math.cos(alpha);
   const sPitch = m*(Math.PI/2 + 2*x*Math.tan(alpha)) - j/2;
   const toothSpace = p - sPitch;
+  const invP = Math.tan(alpha)-alpha;
   const rows = [], trace = [];
   rows.push({sec:'Basic geometry'});
   rows.push({l:'Module m', v:m, u:LEN()==='mm'?'mm':'in', raw:'mm', conv:'module'});
@@ -1785,7 +1593,7 @@ function recommendCutter(z){
 }
 
 /* ============================================================================
- * SVG ENGINE
+ * SVG 2D DRAWING ENGINE
  * ==========================================================================*/
 const SvgDrawing = (function(){
   function pathFromOutline(outline, scale){
@@ -1800,25 +1608,19 @@ const SvgDrawing = (function(){
     return `<circle cx="${fmt(cx,3)}" cy="${fmt(cy,3)}" r="${fmt(r,3)}" fill="none" ` +
            `stroke="${stroke}" stroke-width="${width||1}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
   }
-  function arrow(x1,y1,x2,y2){
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#4da3ff" stroke-width="0.8"/>` +
-           `<polygon points="${x1},${y1-3} ${x1},${y1+3} ${x1-6},${y1}" fill="#4da3ff"/>` +
-           `<polygon points="${x2},${y2-3} ${x2},${y2+3} ${x2+6},${y2}" fill="#4da3ff"/>`;
-  }
   function drawGear(svg, g, s, opts){
     opts = opts || {};
     const scale = opts.scale || 1;
     let html = '';
     html += `<rect x="-320" y="-320" width="640" height="640" fill="#0a0e13"/>`;
-    // grid
-    html += `<g stroke="#111922" stroke-width="0.4">`;
+    html += `<g stroke="#131a23" stroke-width="0.5">`;
     for (let i=-300;i<=300;i+=20){
       html += `<line x1="${i}" y1="-300" x2="${i}" y2="300"/>`;
       html += `<line x1="-300" y1="${i}" x2="300" y2="${i}"/>`;
     }
     html += `</g>`;
     const d = pathFromOutline(g.outline, scale);
-    html += `<path d="${d}" fill="#16202c" stroke="#2ec4b6" stroke-width="1.4" fill-rule="evenodd"/>`;
+    html += `<path d="${d}" fill="#243040" stroke="#5fa8ff" stroke-width="1.1" fill-rule="evenodd"/>`;
     if (opts.highlight > 0 && g.outline && s.teeth){
       const per = Math.floor(g.outline.length/s.teeth);
       const start = (opts.highlight-1)*per;
@@ -1827,48 +1629,21 @@ const SvgDrawing = (function(){
         const p = g.outline[(start+i)%g.outline.length];
         if (p) seg += (i===0?'M':'L') + fmt(p.x*scale,3) + ' ' + fmt(-p.y*scale,3) + ' ';
       }
-      html += `<path d="${seg}Z" fill="rgba(255,190,60,0.45)" stroke="#ffbe3c" stroke-width="1.6"/>`;
+      html += `<path d="${seg}Z" fill="rgba(255,190,60,0.55)" stroke="#ffbe3c" stroke-width="1.6"/>`;
     }
     if (s.bore > 0)
-      html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,3)}" fill="#0a0e13" stroke="#2ec4b6" stroke-width="1.2"/>`;
-    // circles
+      html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,3)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1.1"/>`;
     if (opts.showPitch !== false) html += circle(0,0,g.rp*scale,'#ffbe3c','10 4 3 4',1.1);
     if (opts.showBase  !== false) html += circle(0,0,g.rb*scale,'#3fb950','5 4',1.0);
     if (opts.showRoot  !== false) html += circle(0,0,g.rf*scale,'#8b97a6','2 3',0.9);
-    // centerlines
     html += `<line x1="${-g.ra*scale-14}" y1="0" x2="${g.ra*scale+14}" y2="0" stroke="#f85149" stroke-width="0.8" stroke-dasharray="12 3 3 3"/>`;
     html += `<line x1="0" y1="${-g.ra*scale-14}" x2="0" y2="${g.ra*scale+14}" stroke="#f85149" stroke-width="0.8" stroke-dasharray="12 3 3 3"/>`;
-
-    // dimension lines
     if (opts.showDims !== false){
       const R = g.ra*scale;
-      const yTop = -R - 22;
-      const yBot = -R - 8;
-      // outer dimension (da)
-      html += arrow(-R, yTop, R, yTop);
-      html += `<line x1="${-R}" y1="${yTop}" x2="${-R}" y2="${yBot}" stroke="#4da3ff" stroke-width="0.6" stroke-dasharray="2 2"/>`;
-      html += `<line x1="${R}" y1="${yTop}" x2="${R}" y2="${yBot}" stroke="#4da3ff" stroke-width="0.6" stroke-dasharray="2 2"/>`;
-      html += `<rect x="-38" y="${yTop-8}" width="76" height="14" fill="#0a0e13"/>`;
-      html += `<text x="0" y="${yTop+3}" fill="#4da3ff" font-size="10.5" text-anchor="middle" font-family="monospace">d_a = ${fmtLen(g.da,2)} mm</text>`;
-      // pitch dimension (d)
-      const rP = g.rp*scale;
-      const yMid = -R + 20;
-      html += arrow(-rP, yMid, rP, yMid);
-      html += `<line x1="${-rP}" y1="${yMid}" x2="${-rP}" y2="${-rP+6}" stroke="#ffbe3c" stroke-width="0.5" stroke-dasharray="2 2"/>`;
-      html += `<line x1="${rP}" y1="${yMid}" x2="${rP}" y2="${-rP+6}" stroke="#ffbe3c" stroke-width="0.5" stroke-dasharray="2 2"/>`;
-      html += `<rect x="-32" y="${yMid-8}" width="64" height="14" fill="#0a0e13"/>`;
-      html += `<text x="0" y="${yMid+3}" fill="#ffbe3c" font-size="10.5" text-anchor="middle" font-family="monospace">d = ${fmtLen(g.d,2)} mm</text>`;
+      html += `<text x="${R+22}" y="-8" fill="#4da3ff" font-size="10" font-family="monospace">d_a = ${fmtLen(g.da,2)} ${LEN()}</text>`;
+      html += `<text x="${g.rp*scale*0.62}" y="${-g.rp*scale*0.62-6}" fill="#ffbe3c" font-size="10" font-family="monospace">d = ${fmtLen(g.d,2)}</text>`;
+      html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">z = ${s.teeth}   m = ${fmtLen(s.module,3)} ${LEN()==='mm'?'mm':'DP'}</text>`;
     }
-    // scale bar
-    const scaleLenMm = 10;
-    const px = scaleLenMm * scale;
-    html += `<g transform="translate(200 280)">`;
-    html += `<line x1="0" y1="0" x2="${px}" y2="0" stroke="#d6dee8" stroke-width="1"/>`;
-    html += `<line x1="0" y1="-4" x2="0" y2="4" stroke="#d6dee8" stroke-width="1"/>`;
-    html += `<line x1="${px}" y1="-4" x2="${px}" y2="4" stroke="#d6dee8" stroke-width="1"/>`;
-    html += `<text x="${px/2}" y="-6" fill="#d6dee8" font-size="9" text-anchor="middle" font-family="monospace">${scaleLenMm} mm</text>`;
-    html += `</g>`;
-
     if (opts.showTeethNo){
       const step = s.teeth > 40 ? 5 : 1;
       for (let i=0;i<s.teeth;i+=step){
@@ -1895,27 +1670,31 @@ const SvgDrawing = (function(){
       if (i>0) x = placed[i-1].x + placed[i-1].r + r + 6;
       placed.push({x, y:H/2, r, z:g.z, name:g.name, d:g.d});
     }
-    placed.forEach((p)=>{
+    placed.forEach((p,i)=>{
       const prof = ToothGeometry.buildProfile(p.d/p.z, p.z, 20*D2R, 0, 1.0, 1.25, 0, {nInv:7,nFil:3,nTip:3,nRoot:2});
       let d = '';
       for (let k=0;k<prof.outline.length;k++){
         d += (k===0?'M':'L') + fmt(p.x+prof.outline[k].x*scale,2) + ' ' + fmt(p.y-prof.outline[k].y*scale,2) + ' ';
       }
       d += 'Z';
-      html += `<path d="${d}" fill="#1e2833" stroke="#4da3ff" stroke-width="0.9"/>`;
+      html += `<path d="${d}" fill="#1e2833" stroke="#5fa8ff" stroke-width="0.9"/>`;
       html += `<text x="${fmt(p.x,2)}" y="${fmt(p.y+p.r+26,2)}" fill="#d6dee8" font-size="12" text-anchor="middle" font-family="monospace">${p.name}</text>`;
       html += `<text x="${fmt(p.x,2)}" y="${fmt(p.y+p.r+41,2)}" fill="#8b97a6" font-size="10.5" text-anchor="middle" font-family="monospace">${p.z} teeth</text>`;
     });
     svg.innerHTML = html;
   }
+
   function drawDifferential(svg, res){
     const W = 980, H = 420;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
     html += `<text x="${W/2}" y="30" text-anchor="middle" fill="#eaf2ff" font-size="14" font-weight="700" letter-spacing="1" font-family="monospace">DIFFERENTIAL INDEXING — SIGNAL PATH</text>`;
-    html += `<text x="${W/2}" y="50" text-anchor="middle" fill="#8b97a6" font-size="11" font-family="monospace">The index plate is rotated by the crank AND by the change-gear train.</text>`;
+    html += `<text x="${W/2}" y="50" text-anchor="middle" fill="#8b97a6" font-size="11" font-family="monospace">The index plate is rotated by the crank AND by the change-gear train at the same time.</text>`;
     html += `<defs>
       <marker id="darr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
         <polygon points="0 0,10 5,0 10" fill="#4da3ff"/>
+      </marker>
+      <marker id="darrOk" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+        <polygon points="0 0,10 5,0 10" fill="#3fb950"/>
       </marker>
     </defs>`;
     if (!res){
@@ -1925,7 +1704,7 @@ const SvgDrawing = (function(){
     const boxY = 85, boxH = 90;
     const stages = [
       { x: 30,  w: 180, label: 'INDEX CRANK', color: '#4da3ff',
-        sub: res.idx && res.idx.turns !== undefined ? `${fmt(res.idx.turns, 4)} turns` : '—',
+        sub: res.idx.turns !== undefined ? `${fmt(res.idx.turns, 4)} turns` : '—',
         sub2: 'per workpiece tooth' },
       { x: 260, w: 220, label: 'CHANGE GEARS', color: '#3fb950',
         sub: gearTrainText(res),
@@ -1945,6 +1724,9 @@ const SvgDrawing = (function(){
       html += `<text x="${st.x + st.w/2}" y="${boxY+15}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${st.color}" letter-spacing="1" font-family="monospace">${st.label}</text>`;
       html += `<text x="${st.x + st.w/2}" y="${boxY+44}" text-anchor="middle" font-size="13" font-weight="700" fill="#eaf2ff" font-family="monospace">${st.sub}</text>`;
       if (st.sub2) html += `<text x="${st.x + st.w/2}" y="${boxY+63}" text-anchor="middle" font-size="10.5" fill="#8b97a6" font-family="monospace">${st.sub2}</text>`;
+      const cyy = boxY + boxH - 14;
+      const rot = (i % 2 === 0) ? '↻' : '↺';
+      html += `<text x="${st.x + st.w/2}" y="${cyy}" text-anchor="middle" font-size="13" fill="${st.color}" font-family="monospace">${rot} rotates</text>`;
     });
     for (let i=0; i<stages.length-1; i++){
       const s1 = stages[i], s2 = stages[i+1];
@@ -1952,6 +1734,9 @@ const SvgDrawing = (function(){
       const x2 = s2.x - 4;
       const y  = boxY + boxH/2;
       html += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#4da3ff" stroke-width="2" marker-end="url(#darr)"/>`;
+      const mid = (x1 + x2) / 2;
+      const lbl = (i === 0) ? 'drives' : (i === 1) ? 'gears down' : 'drives';
+      html += `<text x="${mid}" y="${y - 8}" text-anchor="middle" font-size="10" fill="#8b97a6" font-family="monospace">${lbl}</text>`;
     }
     const pY = boxY + boxH + 30;
     const pW = W - 60;
@@ -1962,28 +1747,35 @@ const SvgDrawing = (function(){
     const c1 = 46, c2 = c1 + colW + 20, c3 = c2 + colW + 20;
     const tY  = pY + 44;
     const lh  = 15;
-    html += `<text x="${c1}" y="${tY}" fill="#8b97a6" font-size="10" font-family="monospace">TARGET</text>`;
+    html += `<text x="${c1}" y="${tY}" fill="#8b97a6" font-size="10" letter-spacing="0.5" font-family="monospace">TARGET</text>`;
     html += `<text x="${c1}" y="${tY+lh}"  fill="#d6dee8" font-size="11" font-family="monospace">Desired N = ${res.N} teeth</text>`;
     html += `<text x="${c1}" y="${tY+lh*2}" fill="#d6dee8" font-size="11" font-family="monospace">Approximate N′ = ${res.A}</text>`;
-    html += `<text x="${c2}" y="${tY}" fill="#8b97a6" font-size="10" font-family="monospace">SIMPLE INDEXING AT N′</text>`;
+    html += `<text x="${c1}" y="${tY+lh*3}" fill="#8b97a6" font-size="10" font-family="monospace">(N′ must be simply indexable)</text>`;
+    html += `<text x="${c1}" y="${tY+lh*4}" fill="#eaf2ff" font-size="11" font-family="monospace">Difference = ${res.A - res.N >= 0 ? '+' : ''}${res.A - res.N} teeth</text>`;
+    html += `<text x="${c2}" y="${tY}" fill="#8b97a6" font-size="10" letter-spacing="0.5" font-family="monospace">SIMPLE INDEXING AT N′</text>`;
+    html += `<text x="${c2}" y="${tY+lh}"  fill="#d6dee8" font-size="11" font-family="monospace">Crank = ${res.ratio}/${res.A} = ${fmt(res.ratio/res.A,5)} turns</text>`;
     const bestH = res.idx && res.idx.best ? `${res.idx.best.count} holes on ${res.idx.best.holes}-circle` : '—';
-    html += `<text x="${c2}" y="${tY+lh}"  fill="#d6dee8" font-size="11" font-family="monospace">Crank = ${res.ratio}/${res.A}</text>`;
     html += `<text x="${c2}" y="${tY+lh*2}" fill="#7ee08a" font-size="11" font-family="monospace">→ ${bestH}</text>`;
-    html += `<text x="${c3}" y="${tY}" fill="#8b97a6" font-size="10" font-family="monospace">CHANGE-GEAR CORRECTION</text>`;
+    html += `<text x="${c2}" y="${tY+lh*4}" fill="#8b97a6" font-size="10" font-family="monospace">This gives approximately 1/ N′ revolution</text>`;
+    html += `<text x="${c2}" y="${tY+lh*5}" fill="#8b97a6" font-size="10" font-family="monospace">of the workpiece per step.</text>`;
+    html += `<text x="${c3}" y="${tY}" fill="#8b97a6" font-size="10" letter-spacing="0.5" font-family="monospace">CHANGE-GEAR CORRECTION</text>`;
     html += `<text x="${c3}" y="${tY+lh}" fill="#d6dee8" font-size="11" font-family="monospace">i = (N′−N)/N′ × ${res.ratio}</text>`;
-    html += `<text x="${c3}" y="${tY+lh*2}" fill="${res.gearRatio < 0 ? '#f85149' : '#3fb950'}" font-size="11" font-family="monospace">Direction: ${res.direction}</text>`;
+    html += `<text x="${c3}" y="${tY+lh*2}" fill="#7ee08a" font-size="11" font-family="monospace">|i| = ${fmt(Math.abs(res.gearRatio),5)}</text>`;
+    html += `<text x="${c3}" y="${tY+lh*3}" fill="${res.gearRatio < 0 ? '#f85149' : '#3fb950'}" font-size="11" font-family="monospace">Direction: ${res.direction}</text>`;
     if (res.search && res.search.length){
       const b = res.search[0];
       const t = b.stages === 1 ? `${b.a} / ${b.b}` : `(${b.a}/${b.b}) × (${b.c}/${b.d})`;
-      html += `<text x="${c3}" y="${tY+lh*4}" fill="#eaf2ff" font-size="11" font-family="monospace">→ ${t} (err ${fmt(b.errPct,4)}%)</text>`;
+      html += `<text x="${c3}" y="${tY+lh*5}" fill="#eaf2ff" font-size="11" font-family="monospace">→ ${t}  (error ${fmt(b.errPct,4)}%)</text>`;
     }
     svg.innerHTML = html;
   }
+
   function gearTrainText(res){
     if (!res || !res.search || !res.search.length) return '—';
     const b = res.search[0];
     return b.stages === 1 ? `${b.a} / ${b.b}` : `${b.a}/${b.b} · ${b.c}/${b.d}`;
   }
+
   function drawHelix(svg, d, betaDeg, b, lead, hand){
     const W=640, H=400;
     const cx = 220, cy = 200, R = 110;
@@ -2034,66 +1826,29 @@ const SvgDrawing = (function(){
   }
   function drawSection(svg, g, s){
     const W=700, H=420;
-    const ra = g.ra, boreR = s.bore/2;
+    const ra = g.ra, rf = g.rf, boreR = s.bore/2;
     const scale = Math.min((W-120)/(2*ra+20), (H-140)/(2*ra+20), 3.5);
     const cx = W/2, cy = H/2 + 10;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
     html += `<text x="20" y="30" fill="#d6dee8" font-size="13" font-family="monospace">SECTION A–A</text>`;
     const rr = ra*scale, ri = boreR*scale;
-    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="#1e2833" stroke="#4da3ff" stroke-width="1.2"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="#1e2833" stroke="#5fa8ff" stroke-width="1.2"/>`;
     html += `<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#3a4756" stroke-width="1"/></pattern></defs>`;
     html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="url(#hatch)"/>`;
-    if (boreR > 0) html += `<circle cx="${cx}" cy="${cy}" r="${fmt(ri,2)}" fill="#0a0e13" stroke="#4da3ff" stroke-width="1.2"/>`;
+    if (boreR > 0) html += `<circle cx="${cx}" cy="${cy}" r="${fmt(ri,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1.2"/>`;
     svg.innerHTML = html;
   }
   function drawToolpath(svg, g, s, pass){
     const W=600, H=320;
-    if (!g) {
-      svg.innerHTML = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/><text x="${W/2}" y="${H/2}" fill="#8b97a6" font-size="12" text-anchor="middle" font-family="monospace">Calculate a gear to see the toolpath</text>`;
-      return;
-    }
-    const scale = Math.min((W-180)/(2*g.ra+20), (H-100)/(2*g.ra+20), 3);
-    const cx = W/2 - 30, cy = H/2;
+    const scale = Math.min((W-160)/(2*g.ra+20), (H-100)/(2*g.ra+20), 3);
+    const cx = W/2 - 60, cy = H/2;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
-    // grid
-    html += `<g stroke="#111922" stroke-width="0.4">`;
-    for (let i=0;i<W;i+=20) html += `<line x1="${i}" y1="0" x2="${i}" y2="${H}"/>`;
-    for (let i=0;i<H;i+=20) html += `<line x1="0" y1="${i}" x2="${W}" y2="${i}"/>`;
-    html += `</g>`;
-    // gear outline
-    if (g.outline){
-      let d = '';
-      for (let k=0;k<g.outline.length;k++){
-        d += (k===0?'M':'L') + fmt(cx + g.outline[k].x*scale,2) + ' ' + fmt(cy - g.outline[k].y*scale,2) + ' ';
-      }
-      d += 'Z';
-      html += `<path d="${d}" fill="#16202c" stroke="#2ec4b6" stroke-width="1.1"/>`;
-    }
-    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(g.rp*scale,2)}" fill="none" stroke="#ffbe3c" stroke-width="0.6" stroke-dasharray="5 3" opacity="0.6"/>`;
-    if (s.bore > 0) html += `<circle cx="${cx}" cy="${cy}" r="${fmt(s.bore/2*scale,2)}" fill="#0a0e13" stroke="#2ec4b6" stroke-width="1"/>`;
-    // toolpath spiral
-    const R = g.ra*scale + 22;
-    const tR = g.rf*scale;
-    let path = '';
-    for (let i=0;i<=200;i++){
-      const t = i/200;
-      const r = R - (R - tR)*t;
-      const a = t*Math.PI*6;
-      const px = cx + r*Math.cos(a);
-      const py = cy + r*Math.sin(a);
-      path += (i===0?'M':'L') + fmt(px,2) + ' ' + fmt(py,2) + ' ';
-    }
-    html += `<path d="${path}" fill="none" stroke="#4da3ff" stroke-width="1.3"/>`;
-    // cutter
-    const cutterR = 14;
-    html += `<circle cx="${fmt(cx+R,2)}" cy="${fmt(cy,2)}" r="${cutterR}" fill="rgba(255,190,60,0.15)" stroke="#ffbe3c" stroke-width="1.2"/>`;
-    // scale
-    html += `<g transform="translate(20 ${H-20})">`;
-    html += `<line x1="0" y1="0" x2="60" y2="0" stroke="#d6dee8" stroke-width="1"/>`;
-    html += `<line x1="0" y1="-3" x2="0" y2="3" stroke="#d6dee8"/>`;
-    html += `<line x1="60" y1="-3" x2="60" y2="3" stroke="#d6dee8"/>`;
-    html += `<text x="30" y="-6" fill="#d6dee8" font-size="10" text-anchor="middle" font-family="monospace">10 mm</text>`;
-    html += `</g>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(g.ra*scale,2)}" fill="#141b24" stroke="#3a4756"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(g.rp*scale,2)}" fill="none" stroke="#ffbe3c" stroke-width="0.7" stroke-dasharray="6 3"/>`;
+    const cutterR = 26;
+    const cxp = cx + g.ra*scale + cutterR*0.9;
+    html += `<circle cx="${fmt(cxp,2)}" cy="${fmt(cy,2)}" r="${cutterR}" fill="rgba(77,163,255,0.15)" stroke="#4da3ff"/>`;
+    html += `<text x="20" y="28" fill="#d6dee8" font-size="11" font-family="monospace">PASS ${(pass||0)+1}</text>`;
     svg.innerHTML = html;
   }
   function drawMultiStageTop(svg, pairs, W, H){
@@ -2119,7 +1874,7 @@ const SvgDrawing = (function(){
       g.forEach(q=>{
         const y = cY + (q.level ? -lvl : lvl);
         const r = Math.min(50, 22 + Math.sqrt(q.gear)*3.2);
-        out += `<circle cx="${x}" cy="${y}" r="${r}" fill="#1e2833" stroke="#4da3ff" stroke-width="2"/>`;
+        out += `<circle cx="${x}" cy="${y}" r="${r}" fill="#1e2833" stroke="#5fa8ff" stroke-width="2"/>`;
         out += `<text x="${x}" y="${y+5}" text-anchor="middle" font-weight="700" fill="#eaf2ff" font-family="monospace">${q.gear}</text>`;
       });
     });
@@ -2138,101 +1893,18 @@ const SvgDrawing = (function(){
       out += `<line x1="${x}" y1="50" x2="${x}" y2="${H-50}" stroke="#3a4756" stroke-width="1.5" stroke-dasharray="6,5"/>`;
       if (i<n-1){
         const a = pairs[i];
-        out += `<rect x="${x-42}" y="${cy-26}" width="84" height="52" rx="6" fill="#1e2833" stroke="#4da3ff"/>`;
+        out += `<rect x="${x-42}" y="${cy-26}" width="84" height="52" rx="6" fill="#1e2833" stroke="#5fa8ff"/>`;
         out += `<text x="${x}" y="${cy+5}" text-anchor="middle" font-weight="700" fill="#eaf2ff" font-family="monospace">${a.driver}/${a.driven}</text>`;
       }
     }
     svg.innerHTML = out;
   }
-
-  /* ---- Indexing hole-circle visual ---- */
-  function drawHoleCircle(svg, totalHoles, highlightCount){
-    const W = 76, H = 76, cx = W/2, cy = H/2, r = 26;
-    let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0c1016" rx="6"/>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#3a4756" stroke-width="0.8"/>`;
-    for (let i=0;i<totalHoles;i++){
-      const a = (i/totalHoles)*Math.PI*2 - Math.PI/2;
-      const px = cx + r*Math.cos(a);
-      const py = cy + r*Math.sin(a);
-      const isHi = i < (highlightCount || 0);
-      html += `<circle cx="${fmt(px,2)}" cy="${fmt(py,2)}" r="${isHi?2.4:1.6}" fill="${isHi?'#ffbe3c':'#2a3441'}" stroke="${isHi?'#ffbe3c':'#3a4756'}" stroke-width="0.5"/>`;
-    }
-    html += `<circle cx="${cx}" cy="${cy}" r="3" fill="#1e2833" stroke="#4da3ff" stroke-width="0.8"/>`;
-    svg.innerHTML = html;
-  }
-
-  /* ---- Indexing mechanism drawings ---- */
-  function drawCrankSVG(svg){
-    const W=220, H=110, cx=110, cy=60;
-    let h = `<rect width="${W}" height="${H}" fill="transparent"/>`;
-    h += `<circle cx="${cx}" cy="${cy}" r="38" fill="#141b24" stroke="#2ec4b6" stroke-width="1.4"/>`;
-    h += `<circle cx="${cx}" cy="${cy}" r="30" fill="none" stroke="#2ec4b6" stroke-width="0.5" opacity="0.5" stroke-dasharray="3 3"/>`;
-    h += `<circle cx="${cx}" cy="${cy}" r="6" fill="#0a0e13" stroke="#2ec4b6" stroke-width="1"/>`;
-    // crank arm
-    h += `<line x1="${cx}" y1="${cy}" x2="${cx+52}" y2="${cy-28}" stroke="#ffbe3c" stroke-width="2.5" stroke-linecap="round"/>`;
-    h += `<circle cx="${cx+52}" cy="${cy-28}" r="7" fill="#1e2833" stroke="#ffbe3c" stroke-width="1.5"/>`;
-    // rotation arrow
-    h += `<path d="M ${cx-40} ${cy-18} A 42 42 0 0 1 ${cx-10} ${cy-42}" fill="none" stroke="#2ec4b6" stroke-width="1.4" marker-end="url(#arrHi)"/>`;
-    h += `<defs><marker id="arrHi" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0 0,6 3,0 6" fill="#2ec4b6"/></marker></defs>`;
-    svg.innerHTML = h;
-  }
-  function drawChangeGearsSVG(svg, aTeeth, bTeeth){
-    const W=220, H=110;
-    let h = `<rect width="${W}" height="${H}" fill="transparent"/>`;
-    const r1 = 32, r2 = 24;
-    const c1x = 78, c1y = 60;
-    const c2x = c1x + r1 + r2 + 2, c2y = 60;
-    h += miniGear(c1x, c1y, r1, aTeeth, '#2ec4b6');
-    h += miniGear(c2x, c2y, r2, bTeeth, '#ffbe3c');
-    h += `<text x="${c1x}" y="${H-4}" fill="#8b97a6" font-size="10" text-anchor="middle" font-family="monospace">${aTeeth}T</text>`;
-    h += `<text x="${c2x}" y="${H-4}" fill="#8b97a6" font-size="10" text-anchor="middle" font-family="monospace">${bTeeth}T</text>`;
-    svg.innerHTML = h;
-  }
-  function miniGear(cx, cy, r, teeth, color){
-    const te = Math.min(teeth, 24);
-    let h = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#141b24" stroke="${color}" stroke-width="1.4"/>`;
-    for (let i=0;i<te;i++){
-      const a = (i/te)*Math.PI*2;
-      const x1 = cx + r*Math.cos(a), y1 = cy + r*Math.sin(a);
-      const x2 = cx + (r+4)*Math.cos(a), y2 = cy + (r+4)*Math.sin(a);
-      h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="1.2"/>`;
-    }
-    h += `<circle cx="${cx}" cy="${cy}" r="${Math.max(2, r*0.18)}" fill="#0a0e13" stroke="${color}" stroke-width="0.8"/>`;
-    return h;
-  }
-  function drawWormDriveSVG(svg){
-    const W=220, H=110;
-    let h = `<rect width="${W}" height="${H}" fill="transparent"/>`;
-    // worm wheel
-    h += miniGear(140, 55, 32, 20, '#2ec4b6');
-    // worm shaft (horizontal)
-    h += `<rect x="14" y="48" width="80" height="14" rx="3" fill="#141b24" stroke="#ffbe3c" stroke-width="1.3"/>`;
-    for (let i=0;i<7;i++){
-      const x = 18 + i*11;
-      h += `<line x1="${x}" y1="48" x2="${x+4}" y2="62" stroke="#ffbe3c" stroke-width="1.4"/>`;
-    }
-    h += `<text x="110" y="${H-4}" fill="#8b97a6" font-size="10" text-anchor="middle" font-family="monospace">40 : 1</text>`;
-    svg.innerHTML = h;
-  }
-  function drawWorkpieceSVG(svg){
-    const W=220, H=110;
-    let h = `<rect width="${W}" height="${H}" fill="transparent"/>`;
-    // table
-    h += `<ellipse cx="${W/2}" cy="92" rx="80" ry="10" fill="#141b24" stroke="#3a4756"/>`;
-    // gear blank
-    h += miniGear(W/2, 58, 30, 18, '#ffbe3c');
-    // spindle
-    h += `<rect x="${W/2-6}" y="88" width="12" height="14" fill="#141b24" stroke="#3a4756"/>`;
-    svg.innerHTML = h;
-  }
-
   return { drawGear, drawTrain, drawDifferential, drawHelix, drawSpiralCone, drawSection,
-           drawToolpath, pathFromOutline, drawMultiStageTop, drawMultiStageSide,
-           drawHoleCircle, drawCrankSVG, drawChangeGearsSVG, drawWormDriveSVG, drawWorkpieceSVG };
+           drawToolpath, pathFromOutline, drawMultiStageTop, drawMultiStageSide };
 })();
 
 /* ============================================================================
- * THREE.JS 3D
+ * THREE.JS 3D GEAR ENGINE
  * ==========================================================================*/
 const Gear3D = (function(){
   let renderer, scene, camera, root, pitchCircle, axesHelper;
@@ -2240,7 +1912,6 @@ const Gear3D = (function(){
   const camState = { theta: 0.9, phi: 1.05, dist: 260, target: new THREE.Vector3(0,0,0) };
   function init(container){
     if (initialized) return;
-    if (!container) return;
     renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, preserveDrawingBuffer:true});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -2267,7 +1938,6 @@ const Gear3D = (function(){
       camera.updateProjectionMatrix();
     });
     animate();
-    updateCamera();
   }
   function attachOrbit(el){
     let dragging = false, lastX = 0, lastY = 0;
@@ -2292,7 +1962,6 @@ const Gear3D = (function(){
   }
   function updateCamera(){
     const {theta, phi, dist} = camState;
-    if (!camera) return;
     camera.position.set(
       camState.target.x + dist*Math.sin(phi)*Math.sin(theta),
       camState.target.y + dist*Math.cos(phi),
@@ -2414,13 +2083,7 @@ const Gear3D = (function(){
   function reportInfo(g){
     const box = document.getElementById('meshInfo');
     if (!box) return;
-    box.innerHTML =
-      `<div class="calc-row"><span>Type</span><b>${g.type}</b></div>` +
-      `<div class="calc-row"><span>Pitch Ø</span><b class="hl">${fmtLen(g.d,2)} ${LEN()}</b></div>` +
-      `<div class="calc-row"><span>Outside Ø</span><b>${fmtLen(g.da,2)} ${LEN()}</b></div>` +
-      `<div class="calc-row"><span>Teeth</span><b>${g.z}</b></div>` +
-      `<div class="calc-row"><span>Face width</span><b>${fmtLen(State.faceWidth,2)} ${LEN()}</b></div>` +
-      `<div class="calc-row"><span>Material</span><b>${State.material.split(' ')[0]}</b></div>`;
+    box.innerHTML = `Type: <b>${g.type}</b><br>Pitch Ø: <b>${fmtLen(g.d,2)} ${LEN()}</b><br>Outside Ø: <b>${fmtLen(g.da,2)} ${LEN()}</b>`;
   }
   function animate(){
     requestAnimationFrame(animate);
@@ -2436,14 +2099,14 @@ const Gear3D = (function(){
     init, render, setView,
     setSpin(v){ spinning = v; },
     setExplode(v){ if (root) root.position.z = v ? 40 : 0; },
-    setWire(v){ wire = v; if (root) root.traverse(o => { if (o.material && o.material.wireframe !== undefined) o.material.wireframe = v; }); },
+    setWire(v){ wire = v; root.traverse(o => { if (o.material && o.material.wireframe !== undefined) o.material.wireframe = v; }); },
     setAxes(v){ if (axesHelper) axesHelper.visible = v; },
     setPitchVisible(v){ if (pitchCircle) pitchCircle.visible = v; }
   };
 })();
 
 /* ============================================================================
- * APPLICATION
+ * APPLICATION CONTROLLER
  * ==========================================================================*/
 const App = (function(){
   let currentGear = null;
@@ -2453,9 +2116,9 @@ const App = (function(){
   let spiralAltResults = [];
 
   const $ = id => document.getElementById(id);
-  const val = id => { const el = $(id); return el ? parseFloat(el.value) : 0; };
-  const intVal = id => { const el = $(id); return el ? parseInt(el.value, 10) : 0; };
-  const selVal = id => { const el = $(id); return el ? el.value : ''; };
+  const val = id => parseFloat($(id).value);
+  const intVal = id => parseInt($(id).value, 10);
+  const selVal = id => $(id).value;
 
   function readInputs(){
     State.units = selVal('unitSystem');
@@ -2485,28 +2148,28 @@ const App = (function(){
     State.rollerDia = lenIn(val('inRoller'));
   }
   function writeInputs(){
-    if ($('unitSystem')) $('unitSystem').value = State.units;
-    if ($('calcBasis')) $('calcBasis').value = State.basis;
-    if ($('gearType')) $('gearType').value = State.gearType;
-    if ($('inModule')) $('inModule').value = fmt(isMetric() ? State.module : UnitConv.module2dp(State.module), 4);
-    if ($('inTeeth')) $('inTeeth').value = State.teeth;
-    if ($('inMate')) $('inMate').value = State.mateTeeth;
-    if ($('inPA')) $('inPA').value = State.pressureAngle;
-    if ($('inHelix')) $('inHelix').value = State.helixAngle;
-    if ($('inSpiral')) $('inSpiral').value = State.spiralAngle;
-    if ($('inHand')) $('inHand').value = State.hand;
-    if ($('inFace')) $('inFace').value = fmt(lenOut(State.faceWidth), 4);
-    if ($('inBore')) $('inBore').value = fmt(lenOut(State.bore), 4);
-    if ($('inShift')) $('inShift').value = State.profileShift;
-    if ($('inHaC')) $('inHaC').value = State.addendumCoeff;
-    if ($('inHfC')) $('inHfC').value = State.dedendumCoeff;
-    if ($('inBacklash')) $('inBacklash').value = fmt(lenOut(State.backlash), 4);
-    if ($('inWormQ')) $('inWormQ').value = State.wormQ;
-    if ($('inShaftAngle')) $('inShaftAngle').value = State.shaftAngle;
-    if ($('inRpm')) $('inRpm').value = State.rpm;
-    if ($('inPower')) $('inPower').value = fmt(isMetric() ? State.power : UnitConv.kw2hp(State.power), 4);
-    if ($('inChainPitch')) $('inChainPitch').value = fmt(lenOut(State.chainPitch), 4);
-    if ($('inRoller')) $('inRoller').value = fmt(lenOut(State.rollerDia), 4);
+    $('unitSystem').value = State.units;
+    $('calcBasis').value = State.basis;
+    $('gearType').value = State.gearType;
+    $('inModule').value = fmt(isMetric() ? State.module : UnitConv.module2dp(State.module), 4);
+    $('inTeeth').value = State.teeth;
+    $('inMate').value = State.mateTeeth;
+    $('inPA').value = State.pressureAngle;
+    $('inHelix').value = State.helixAngle;
+    $('inSpiral').value = State.spiralAngle;
+    $('inHand').value = State.hand;
+    $('inFace').value = fmt(lenOut(State.faceWidth), 4);
+    $('inBore').value = fmt(lenOut(State.bore), 4);
+    $('inShift').value = State.profileShift;
+    $('inHaC').value = State.addendumCoeff;
+    $('inHfC').value = State.dedendumCoeff;
+    $('inBacklash').value = fmt(lenOut(State.backlash), 4);
+    $('inWormQ').value = State.wormQ;
+    $('inShaftAngle').value = State.shaftAngle;
+    $('inRpm').value = State.rpm;
+    $('inPower').value = fmt(isMetric() ? State.power : UnitConv.kw2hp(State.power), 4);
+    $('inChainPitch').value = fmt(lenOut(State.chainPitch), 4);
+    $('inRoller').value = fmt(lenOut(State.rollerDia), 4);
     updateUnitLabels();
     updateFieldVisibility();
   }
@@ -2516,7 +2179,7 @@ const App = (function(){
       .forEach(id => { const el = $(id); if (el) el.textContent = U; });
     if ($('uPower')) $('uPower').textContent = isMetric() ? 'kW' : 'HP';
     if ($('uVc')) $('uVc').textContent = isMetric() ? 'm/min' : 'ft/min';
-    if ($('lblModule')) $('lblModule').textContent = isMetric() ? 'Module m' : 'Diametral pitch DP';
+    if ($('lblModule')) $('lblModule').textContent = isMetric() ? 'Module m (mm)' : 'Diametral pitch DP (1/in)';
   }
   function updateFieldVisibility(){
     const t = State.gearType;
@@ -2530,6 +2193,7 @@ const App = (function(){
     if ($('fModule')) $('fModule').style.display = (t === 'sprocket') ? 'none' : '';
   }
 
+  /* ---------- TAB VISIBILITY BY GEAR TYPE ---------- */
   function updateTabVisibility(){
     const visible = TABS_FOR_TYPE[State.gearType] || TABS_FOR_TYPE.spur;
     const visibleSet = new Set(visible);
@@ -2544,7 +2208,44 @@ const App = (function(){
     }
   }
 
-  function renderInputSummary(){ /* merged into results table now */ }
+  /* ---------- INPUT SUMMARY ---------- */
+  function renderInputSummary(){
+    const box = $('inputSummary');
+    if (!box) return;
+    const items = [
+      ['Gear type', State.gearType],
+      ['Module / DP', isMetric() ? fmt(State.module,3)+' mm' : fmt(UnitConv.module2dp(State.module),3)+' DP'],
+      ['Teeth z', String(State.teeth)],
+      ['Mating teeth z₂', String(State.mateTeeth||'—')],
+      ['Pressure angle α', State.pressureAngle+'°'],
+      ['Face width b', fmtLen(State.faceWidth,3)+' '+LEN()],
+      ['Bore Ø', fmtLen(State.bore,3)+' '+LEN()],
+      ['Profile shift x', fmt(State.profileShift,3)],
+      ['Addendum hₐ*', fmt(State.addendumCoeff,3)],
+      ['Dedendum h_f*', fmt(State.dedendumCoeff,3)],
+      ['Backlash j', fmtLen(State.backlash,4)+' '+LEN()],
+      ['Speed', State.rpm+' RPM'],
+      ['Power', isMetric() ? fmt(State.power,3)+' kW' : fmt(UnitConv.kw2hp(State.power),3)+' HP']
+    ];
+    if (State.gearType === 'helical'){
+      items.splice(5,0, ['Helix angle β', State.helixAngle+'°'], ['Hand', State.hand]);
+    }
+    if (State.gearType === 'spiralbevel'){
+      items.splice(5,0, ['Spiral angle β_m', State.spiralAngle+'°'], ['Shaft angle Σ', State.shaftAngle+'°']);
+    }
+    if (State.gearType === 'worm' || State.gearType === 'wormwheel'){
+      items.push(['Worm q factor', fmt(State.wormQ,2)]);
+    }
+    if (State.gearType === 'sprocket'){
+      items.push(['Chain pitch', fmtLen(State.chainPitch,3)+' '+LEN()]);
+      items.push(['Roller Ø', fmtLen(State.rollerDia,3)+' '+LEN()]);
+    }
+    let html = '';
+    for (const [k,v] of items){
+      html += `<div class="summary-item"><span>${k}</span><b>${v}</b></div>`;
+    }
+    box.innerHTML = html;
+  }
 
   function recompute(){
     readInputs();
@@ -2572,10 +2273,10 @@ const App = (function(){
 
     updateTabVisibility();
     renderValidation(validate(State, g));
+    renderInputSummary();
     renderResults(g);
     renderTrace(g);
     renderSvg(g);
-    renderSvgClone(g);
     renderToothPanel(g);
     setTimeout(() => { Gear3D.init($('threeWrap')); Gear3D.render(g, State); }, 40);
     updateLeadVisuals(g);
@@ -2588,144 +2289,71 @@ const App = (function(){
     SvgDrawing.drawToolpath($('toolpathSvg'), g, State, 0);
     computeIndexing();
     updateKinematicBox();
-    renderIndexingMechanism();
-    updateStatusCards(g);
-  }
-
-  function updateStatusCards(g){
-    const list = validate(State, g);
-    const errCount = list.filter(x=>x.lv==='err').length;
-    const warnCount = list.filter(x=>x.lv==='warn').length;
-    const ico = $('statusIco'), ttl = $('statusTitle'), sub = $('statusSub');
-    if (errCount > 0){
-      ico.className = 'ico err'; ico.textContent = '✕';
-      ttl.textContent = `${errCount} error${errCount>1?'s':''} found`;
-      sub.textContent = 'Please review the validation messages.';
-    } else if (warnCount > 0){
-      ico.className = 'ico warn'; ico.textContent = '⚠';
-      ttl.textContent = `${warnCount} warning${warnCount>1?'s':''}`;
-      sub.textContent = 'Gear can be used, but please review warnings.';
-    } else {
-      ico.className = 'ico ok'; ico.textContent = '✓';
-      ttl.textContent = 'All checks passed';
-      sub.textContent = 'Gear geometry is valid and ready for manufacturing.';
-    }
-    let sf = null;
-    if (currentPair && currentPair.Ft > 0 && g.m > 0){
-      const mat = MATERIAL_DB[State.material];
-      const Y = Math.max(0.05, 0.154 - 0.912/State.teeth);
-      const sigmaB = currentPair.Ft / (State.faceWidth * g.m * Y);
-      if (mat && sigmaB > 0) sf = mat.sigmaAllow/sigmaB;
-    }
-    if ($('sfVal')) $('sfVal').textContent = sf !== null ? fmt(sf,2) : '—';
-    if ($('sfSub')) $('sfSub').textContent = sf === null ? 'Enter power and mating teeth to compute.' :
-      sf >= 1.5 ? 'Within recommended range for standard applications.' :
-      sf >= 1.0 ? 'Marginal — review material and loads.' :
-      'Below 1.0 — strength may be insufficient.';
   }
 
   function renderValidation(list){
     const box = $('validationBox');
-    if (!box) return;
-    if (!list.length){ box.innerHTML = ''; return; }
+    if (!list.length){ box.innerHTML = '<div class="msg ok">No issues.</div>'; return; }
     box.innerHTML = list.map(x => `<div class="msg ${x.lv}">${x.m}</div>`).join('');
   }
-
   function renderResults(g){
     const t = $('resultsTable');
-    if (!t) return;
-    // Build three blocks: MAIN DIMENSIONS, DERIVED VALUES, MATING GEAR
     let html = '';
-    const findRow = (labelPart) => g.rows.find(r => r.l && r.l.toLowerCase().includes(labelPart.toLowerCase()) && !r.sec);
-    const num = (r) => {
-      if (!r || typeof r.v !== 'number') return '—';
+    const conv = r => {
       let v = r.v;
       if (r.conv === 'len') v = lenOut(r.v);
       if (r.conv === 'module') v = isMetric() ? r.v : UnitConv.module2dp(r.v);
-      return fmt(v, 4);
+      return v;
     };
-
-    html += `<div class="calc-block"><h4>Main Dimensions</h4>`;
-    const mainList = [
-      ['Pitch diameter', findRow('Pitch diameter')],
-      ['Outside diameter', findRow('Outside diameter')],
-      ['Root diameter', findRow('Root diameter')],
-      ['Whole depth', findRow('Whole depth')]
-    ];
-    mainList.forEach(([lbl, r])=>{
-      if (r) html += `<div class="calc-row"><span>${lbl}</span><b class="${lbl==='Pitch diameter'?'hl':''}">${num(r)} <span style="color:var(--dim);font-weight:400">${LEN()}</span></b></div>`;
-    });
-    if (currentPair && currentPair.epsTotal)
-      html += `<div class="calc-row"><span>Contact ratio</span><b>${fmt(currentPair.epsTotal,4)}</b></div>`;
-    html += `</div>`;
-
-    html += `<div class="calc-block"><h4>Derived Values</h4>`;
-    const derivList = [
-      ['Base diameter', findRow('Base diameter') || findRow('Base Ø')],
-      ['Addendum', findRow('Addendum')],
-      ['Dedendum', findRow('Dedendum')],
-      ['Circular pitch', findRow('Circular pitch')],
-      ['Tooth thickness', findRow('Tooth thickness')]
-    ];
-    derivList.forEach(([lbl, r])=>{
-      if (r) html += `<div class="calc-row"><span>${lbl}</span><b>${num(r)} <span style="color:var(--dim);font-weight:400">${LEN()}</span></b></div>`;
-    });
-    if (g.lead && isFinite(g.lead))
-      html += `<div class="calc-row"><span>Lead</span><b class="hl">${fmtLen(g.lead,3)} ${LEN()}</b></div>`;
-    html += `</div>`;
-
-    if (State.mateTeeth > 0 && currentPair){
-      const m = (g.type === 'helical') ? g.mt : g.m;
-      const ratio = State.mateTeeth / State.teeth;
-      html += `<div class="calc-block"><h4>Mating Gear</h4>`;
-      html += `<div class="calc-row"><span>Mating teeth</span><b>${State.mateTeeth}</b></div>`;
-      html += `<div class="calc-row"><span>Centre distance</span><b>${fmtLen(currentPair.a,3)} ${LEN()}</b></div>`;
-      html += `<div class="calc-row"><span>Gear ratio</span><b>1 : ${fmt(ratio,4)}</b></div>`;
-      html += `</div>`;
+    for (const r of g.rows){
+      if (r.sec){ html += `<tr class="sec"><td colspan="3">${r.sec}</td></tr>`; continue; }
+      let shown, unit = r.u;
+      if (typeof r.v === 'number'){
+        shown = r.conv ? fmt(conv(r), 4) : fmt(r.v, 4);
+        if (r.conv === 'module') unit = isMetric() ? 'mm' : 'DP';
+      } else shown = r.v;
+      html += `<tr><td>${r.l}</td><td class="val">${shown}<span class="unit">${unit||''}</span></td></tr>`;
+    }
+    if (currentPair){
+      const p = currentPair;
+      html += `<tr class="sec"><td colspan="3">Gear pair / meshing</td></tr>`;
+      html += `<tr><td>Ratio i = z₂/z₁</td><td class="val">${fmt(p.ratio,4)}<span class="unit">:1</span></td></tr>`;
+      html += `<tr><td>Centre distance a</td><td class="val">${fmtLen(p.a,4)}<span class="unit">${LEN()}</span></td></tr>`;
+      html += `<tr><td>Transverse contact ratio ε_α</td><td class="val">${fmt(p.epsAlpha,4)}</td></tr>`;
+      html += `<tr><td>Total contact ratio ε_γ</td><td class="val">${fmt(p.epsTotal,4)}</td></tr>`;
+      html += `<tr><td>Tangential force F_t</td><td class="val">${fmt(p.Ft,2)}<span class="unit">N</span></td></tr>`;
     }
     t.innerHTML = html;
-    if ($('basisBadge')) $('basisBadge').textContent = State.basis.toUpperCase();
+    if ($('basisBadge')) $('basisBadge').textContent = State.basis.toUpperCase() + ' / REFERENCE';
   }
-
   function renderTrace(g){
     const el = $('traceContent');
-    if (!el) return;
     let html = '';
     for (const t of g.trace){
       html += `<span class="t">${t.t}</span>\n  ${t.f}\n  ${t.s}\n  <span class="r">${t.r}</span>\n\n`;
     }
     el.innerHTML = html || '<span style="color:#8b97a6">No trace available.</span>';
   }
-
   function renderSvg(g){
     let scale = 1;
     if (g.ra > 0){ scale = 290/Math.max(g.ra, State.faceWidth/2); }
     SvgDrawing.drawGear($('gearSvg'), g, State, {
       scale,
-      showPitch: $('chkPitch') ? $('chkPitch').checked : true,
-      showBase: $('chkBase') ? $('chkBase').checked : true,
-      showRoot: $('chkRoot') ? $('chkRoot').checked : false,
-      showDims: $('chkDims') ? $('chkDims').checked : true,
-      showTeethNo: $('chkTeethNo') ? $('chkTeethNo').checked : false,
-      highlight: $('inToothSel') ? (parseInt($('inToothSel').value, 10) || 0) : 0
+      showPitch: $('chkPitch').checked,
+      showBase: $('chkBase').checked,
+      showRoot: $('chkRoot').checked,
+      showDims: $('chkDims').checked,
+      showTeethNo: $('chkTeethNo').checked,
+      highlight: parseInt($('inToothSel').value, 10) || 0
     });
   }
-  function renderSvgClone(g){
-    const s = $('gearSvgClone');
-    if (!s) return;
-    let scale = 1;
-    if (g.ra > 0){ scale = 290/Math.max(g.ra, State.faceWidth/2); }
-    SvgDrawing.drawGear(s, g, State, { scale, showPitch:true, showBase:true, showRoot:true, showDims:true, showTeethNo:false, highlight:0 });
-  }
-
   function renderToothPanel(g){
-    const sel = clamp(parseInt(($('inToothSel')||{value:1}).value,10) || 1, 1, State.teeth);
-    if ($('inToothSel')) $('inToothSel').value = sel;
+    const sel = clamp(parseInt($('inToothSel').value,10) || 1, 1, State.teeth);
+    $('inToothSel').value = sel;
     const z = State.teeth;
     const ang = (sel-1)*360/z;
     const mUse = (g.type === 'helical') ? g.mt : g.m;
     const el = $('toothPanel');
-    if (!el) return;
     el.innerHTML =
       `<div><span class="k">TOOTH #</span> <b>${sel}</b> of ${z}</div>` +
       `<div><span class="k">Angular position:</span> <b>${fmt(ang,4)}°</b></div>` +
@@ -2744,16 +2372,14 @@ const App = (function(){
       const phi = ToothGeometry.involuteAngleAtRadius(r, g.rb, phiP, invP);
       rows.push(`r=${fmt(r,3).padStart(9)}  φ=${fmt(phi*R2D,4).padStart(8)}°  x=${fmt(r*Math.cos(phi),3).padStart(9)}  y=${fmt(r*Math.sin(phi),3).padStart(9)}`);
     }
-    if ($('involuteTable')) $('involuteTable').textContent = rows.join('\n');
+    $('involuteTable').textContent = rows.join('\n');
   }
-
   function updateLeadVisuals(g){
     if (g.type === 'helical' || g.type === 'worm'){
       const d = g.d, beta = g.type === 'helical' ? g.betaDeg : g.leadAngleDeg;
       SvgDrawing.drawHelix($('helixSvg'), d, beta, State.faceWidth, g.lead, State.hand);
     }
   }
-
   function renderInspection(g){
     const items = [
       { n:'Outside diameter', nom:g.da, tol:0.05 },
@@ -2773,7 +2399,7 @@ const App = (function(){
         <td class="val" id="insp_dev_${i}">0.000</td>
         <td id="insp_st_${i}"><span class="badge ok">PASS</span></td></tr>`;
     });
-    if ($('inspectionTable')) $('inspectionTable').innerHTML = html;
+    $('inspectionTable').innerHTML = html;
     items.forEach((it,i)=>{
       const upd = () => {
         const tol = parseFloat($(`insp_tol_${i}`).value) || 0;
@@ -2787,18 +2413,16 @@ const App = (function(){
       upd();
     });
   }
-
   function renderStrength(g){
     const box = $('strengthBox');
-    if (!box) return;
     if (!currentPair || currentPair.Ft <= 0){
       box.innerHTML = '<div class="msg info">Enter RPM, power and a mating gear to enable the strength check.</div>';
       return;
     }
     const mat = MATERIAL_DB[State.material] || MATERIAL_DB["Alloy steel (4140 / EN19)"];
     const p = currentPair;
-    const Y = Math.max(0.05, 0.154 - 0.912/State.teeth);
-    const sigmaB = (p.Ft)/(State.faceWidth*(g.m||1)*Y);
+    const Y = 0.154 - 0.912/State.teeth;
+    const sigmaB = (p.Ft)/(State.faceWidth*(g.m||1)*Math.max(Y, 0.05));
     const sfB = mat.sigmaAllow/Math.max(sigmaB, 1e-6);
     box.innerHTML =
       `<div class="kv"><span>Tangential force F_t</span><b>${fmt(p.Ft,2)} N</b></div>` +
@@ -2809,14 +2433,12 @@ const App = (function(){
   function renderBacklash(g){
     const j = State.backlash;
     const m = (g.type === 'helical') ? g.mt : g.m;
-    if (!$('backlashBox')) return;
     $('backlashBox').innerHTML =
       `<div class="kv"><span>Circular pitch p</span><b>${fmtLen(Math.PI*m,4)} ${LEN()}</b></div>` +
       `<div class="kv"><span>Nominal tooth thickness</span><b>${fmtLen(Math.PI*m/2,4)} ${LEN()}</b></div>` +
-      `<div class="kv"><span>Effective tooth thickness</span><b>${fmtLen(Math.PI*m/2 - j/2,4)} ${LEN()}</b></div>` +
+      `<div class="kv"><span>Effective tooth thickness (per gear)</span><b>${fmtLen(Math.PI*m/2 - j/2,4)} ${LEN()}</b></div>` +
       `<div class="kv"><span>Total backlash (pair)</span><b>${fmtLen(j,4)} ${LEN()}</b></div>`;
   }
-
   function computeCnc(){
     State.toolDiameter = lenIn(val('inToolD'));
     State.toolFlutes = intVal('inFlutes');
@@ -2826,33 +2448,25 @@ const App = (function(){
     State.widthOfCut = lenIn(val('inAe'));
     State.cutLength = lenIn(val('inCutLen'));
     const r = cncParameters(State);
-    if ($('cncResults')) $('cncResults').innerHTML =
+    $('cncResults').innerHTML =
       `<div class="kv"><span>Spindle speed n</span><b>${fmt(r.rpm,2)} RPM</b></div>` +
       `<div class="kv"><span>Table feed V_f</span><b>${fmt(r.Vf,3)} mm/min</b></div>` +
-      `<div class="kv"><span>Feed per rev f</span><b>${fmt(r.fRev,4)} mm/rev</b></div>` +
-      `<div class="kv"><span>MRR Q</span><b>${fmt(r.MRR,3)} cm³/min</b></div>` +
-      `<div class="kv"><span>Estimated time</span><b>${fmt(r.time,3)} min</b></div>`;
-    if ($('kpiSpindle')) $('kpiSpindle').innerHTML = `${fmt(r.rpm,0)}<span class="k-unit">RPM</span>`;
-    if ($('kpiFeed'))    $('kpiFeed').innerHTML = `${fmt(r.Vf,1)}<span class="k-unit">mm/min</span>`;
-    if ($('kpiMrr'))     $('kpiMrr').innerHTML = `${fmt(r.MRR,2)}<span class="k-unit">cm³/min</span>`;
-    if ($('kpiTime'))    $('kpiTime').innerHTML = `${fmt(r.time,2)}<span class="k-unit">min</span>`;
-    if ($('cncTrace')) $('cncTrace').innerHTML =
-      `<span class="t">Spindle speed</span>\n  n = (${State.cuttingSpeed} × 1000) / (π × ${State.toolDiameter})\n  <span class="r">n = ${fmt(r.rpm,2)} RPM</span>\n\n` +
-      `<span class="t">Feed rate</span>\n  V_f = ${fmt(r.rpm,2)} × ${State.toolFlutes} × ${State.feedPerTooth}\n  <span class="r">V_f = ${fmt(r.Vf,3)} mm/min</span>`;
+      `<div class="kv"><span>Material removal rate Q</span><b>${fmt(r.MRR,3)} cm³/min</b></div>` +
+      `<div class="kv"><span>Estimated machining time</span><b>${fmt(r.time,3)} min</b></div>`;
+    $('cncTrace').innerHTML = `<span class="t">Spindle speed</span>\n  n = (${State.cuttingSpeed} × 1000) / (π × ${State.toolDiameter})\n  <span class="r">n = ${fmt(r.rpm,2)} RPM</span>`;
   }
   function computeMilling(g){
     const D = lenIn(val('inCutD'));
     const zt = intVal('inCutTeeth');
     const rpm = (State.cuttingSpeed*1000)/(Math.PI*D);
     const Vf = rpm*zt*State.feedPerTooth;
-    if ($('millingResults')) $('millingResults').innerHTML =
+    $('millingResults').innerHTML =
       `<div class="kv"><span>Spindle speed</span><b>${fmt(rpm,2)} RPM</b></div>` +
       `<div class="kv"><span>Table feed</span><b>${fmt(Vf,3)} mm/min</b></div>` +
       `<div class="kv"><span>Whole depth</span><b>${fmtLen(g.h,4)} ${LEN()}</b></div>`;
     const c = recommendCutter(State.teeth);
-    if ($('cutterResult')) $('cutterResult').innerHTML = c
-      ? `<div class="msg info">Recommended involute gear cutter: <b>No. ${c.no}</b> (covers ${c.min}–${c.max} teeth).</div>`
-      : '<div class="msg warn">No standard cutter number matched.</div>';
+    if (c) $('cutterResult').innerHTML = `<div class="msg info">Recommended involute gear cutter: <b>No. ${c.no}</b> (covers ${c.min}–${c.max} teeth).</div>`;
+    else $('cutterResult').innerHTML = '<div class="msg warn">No standard cutter number matched.</div>';
   }
 
   function parseHoleCirclesFromUI(){
@@ -2893,16 +2507,12 @@ const App = (function(){
   }
   function updateIdxMethodUI(){
     const m = selVal('idxMethod');
-    if ($('idxDirectExtra')) $('idxDirectExtra').style.display = (m === 'direct') ? '' : 'none';
-    if ($('idxSimpleExtra')) $('idxSimpleExtra').style.display = (m === 'simple') ? '' : 'none';
-    if ($('idxDiffExtra'))   $('idxDiffExtra').style.display = (m === 'differential') ? '' : 'none';
-    if ($('idxAngularExtra'))$('idxAngularExtra').style.display = (m === 'angular') ? '' : 'none';
+    $('idxDirectExtra').style.display = (m === 'direct') ? '' : 'none';
+    $('idxSimpleExtra').style.display = (m === 'simple') ? '' : 'none';
+    $('idxDiffExtra').style.display = (m === 'differential') ? '' : 'none';
+    $('idxAngularExtra').style.display = (m === 'angular') ? '' : 'none';
     const r = selVal('idxRatio');
-    if ($('fIdxRatioCustom')) $('fIdxRatioCustom').style.display = (r === 'custom') ? '' : 'none';
-    // sync toggle buttons
-    document.querySelectorAll('#idxMethodToggle button').forEach(b=>{
-      b.classList.toggle('active', b.dataset.method === m);
-    });
+    $('fIdxRatioCustom').style.display = (r === 'custom') ? '' : 'none';
   }
 
   function computeIndexing(){
@@ -2915,51 +2525,41 @@ const App = (function(){
       const circles = parseHoleCirclesFromUI();
       let html = '';
       let trace = '';
-      let visuals = '';
 
       if (method === 'direct'){
         if (24 % N !== 0) throw new Error(`N = ${N} is not a divisor of 24.`);
         const holes = 24/N;
-        html = `<div class="idx-result-row"><span class="lbl">Crank movement per step</span><span class="val hl">${fmt(holes,4)} <span style="font-size:12px;color:var(--dim)">holes</span></span></div><div class="msg ok">Direct indexing possible.</div>`;
+        html = `<div class="kv"><span>Crank movement per step</span><b>${fmt(holes,4)} holes</b></div><div class="msg ok">Direct indexing possible.</div>`;
         trace = `Direct indexing\n  N = ${N}\n  24 / N = ${fmt(holes,6)} holes per step`;
-        $('idxDiffSvg').innerHTML = `<rect width="100%" height="100%" fill="#0a0e13"/><text x="490" y="210" fill="#8b97a6" font-size="13" text-anchor="middle" font-family="monospace">Direct indexing — no change-gear train needed</text>`;
+        $('idxDiffSvg').innerHTML = `<rect width="100%" height="100%" fill="#0a0e13"/><text x="450" y="160" fill="#8b97a6" font-size="13" text-anchor="middle" font-family="monospace">Direct indexing — no change-gear train needed</text>`;
       }
       else if (method === 'simple'){
         const turns = ratio/N;
         const whole = Math.floor(turns + 1e-12);
         const frac = turns - whole;
-        html += `<div class="idx-result-row"><span class="lbl">Crank turns per step</span><span class="val hl">${fmt(turns,6)} <span style="font-size:12px;color:var(--dim)">= ${ratio} / ${N}</span></span></div>`;
+        html += `<div class="kv"><span>Crank turns per step</span><b>${fmt(turns,6)}</b></div>`;
         if (Math.abs(frac) < 1e-12){
-          html += `<div class="msg ok">Exact — whole turns only.</div>`;
+          html += `<div class="msg ok">Exact — no holes required.</div>`;
         } else {
           const num = Math.round(frac*N);
           const options = findHoleOptionsIdx(num, N, circles, whole);
           if (options.length){
-            html += `<div class="idx-result-row"><span class="lbl">Hole circle options</span></div>`;
-            options.slice(0,4).forEach(o=>{
-              html += `<div class="idx-result-row"><span class="lbl" style="font-family:var(--mono);font-size:11px">${o.circle} holes → ${o.full} turn${o.full!==1?'s':''} + ${o.holes} holes</span><span class="val" style="font-size:14px">${o.full}·${o.holes}/${o.circle}</span></div>`;
-            });
-            const first = options[0];
-            visuals = `<div class="idx-result-row"><span class="lbl">Visualisation</span><svg class="idx-hole-visual" id="idxHoleVis"></svg></div>`;
-            setTimeout(()=>{
-              const sv = $('idxHoleVis');
-              if (sv) SvgDrawing.drawHoleCircle(sv, first.circle, first.holes);
-            }, 20);
-          } else {
-            html += `<div class="msg warn">No exact hole circle. Use differential indexing.</div>`;
-          }
+            html += `<table class="res"><tr><th>Hole circle</th><th style="text-align:right">Full turns</th><th style="text-align:right">Holes</th></tr>`;
+            options.forEach(o=>{ html += `<tr><td>${o.circle}</td><td class="val">${o.full}</td><td class="val">${o.holes}</td></tr>`; });
+            html += `</table>`;
+          } else html += `<div class="msg warn">No exact hole circle. Use differential indexing.</div>`;
         }
         trace = `Simple indexing\n  Crank per step = ${ratio} / ${N} = ${fmt(turns,8)}`;
-        $('idxDiffSvg').innerHTML = `<rect width="100%" height="100%" fill="#0a0e13"/><text x="490" y="210" fill="#8b97a6" font-size="13" text-anchor="middle" font-family="monospace">Simple indexing — see hole table above</text>`;
+        $('idxDiffSvg').innerHTML = `<rect width="100%" height="100%" fill="#0a0e13"/><text x="450" y="160" fill="#8b97a6" font-size="13" text-anchor="middle" font-family="monospace">Simple indexing — see hole table above</text>`;
       }
       else if (method === 'angular'){
         const deg = parseFloat($('idxAngleDeg').value) || 0;
         const min = parseFloat($('idxAngleMin').value) || 0;
         const totalDeg = deg + min/60;
         const turns = totalDeg*ratio/360;
-        html += `<div class="idx-result-row"><span class="lbl">Crank turns</span><span class="val hl">${fmt(turns,6)}</span></div>`;
+        html += `<div class="kv"><span>Crank turns</span><b>${fmt(turns,6)}</b></div>`;
         trace = `Angular indexing\n  Angle = ${fmt(totalDeg,6)}°\n  Crank = ${fmt(turns,8)} turns`;
-        $('idxDiffSvg').innerHTML = `<rect width="100%" height="100%" fill="#0a0e13"/><text x="490" y="210" fill="#8b97a6" font-size="13" text-anchor="middle" font-family="monospace">Angular indexing</text>`;
+        $('idxDiffSvg').innerHTML = `<rect width="100%" height="100%" fill="#0a0e13"/><text x="450" y="160" fill="#8b97a6" font-size="13" text-anchor="middle" font-family="monospace">Angular indexing</text>`;
       }
       else if (method === 'differential'){
         const gearSet = parseGearSetStr($('idxDiffGearSet').value, [24,28,32,36,40,44,48,56,64,72,86,100], false);
@@ -2990,48 +2590,42 @@ const App = (function(){
         const turnsA = ratio/A;
         const wholeA = Math.floor(turnsA + 1e-12);
         const fracA = turnsA - wholeA;
-        const gearRatio = ratio*(A-N)/A;
-        const target = Math.abs(gearRatio);
-        const search = searchChangeGears(target, gearSet, 0.5, 12, true);
-        const direction = gearRatio < 0 ? 'REVERSE (idler required)' : 'NORMAL';
-        html += `<div class="idx-result-row"><span class="lbl">Required N</span><span class="val">${N}</span></div>`;
-        html += `<div class="idx-result-row"><span class="lbl">Approximate N′</span><span class="val hl">${A}</span></div>`;
+        let simpleTable = '';
         if (Math.abs(fracA) < 1e-12){
-          html += `<div class="idx-result-row"><span class="lbl">Simple crank at N′</span><span class="val" style="font-size:14px">${wholeA} turns</span></div>`;
+          simpleTable = `<table class="res"><tr><th>Hole circle</th><th style="text-align:right">Full turns</th><th style="text-align:right">Holes</th></tr><tr><td>—</td><td class="val">${wholeA}</td><td class="val">0</td></tr></table>`;
         } else {
           const optsA = findHoleOptionsIdx(Math.round(fracA*A), A, circles, wholeA);
           if (optsA.length){
-            const o = optsA[0];
-            html += `<div class="idx-result-row"><span class="lbl">Simple crank at N′</span><span class="val" style="font-size:14px">${o.full}·${o.holes}/${o.circle}</span></div>`;
-          }
+            simpleTable = `<table class="res"><tr><th>Hole circle</th><th style="text-align:right">Full turns</th><th style="text-align:right">Holes</th></tr>`;
+            optsA.forEach(o=>{ simpleTable += `<tr><td>${o.circle}</td><td class="val">${o.full}</td><td class="val">${o.holes}</td></tr>`; });
+            simpleTable += `</table>`;
+          } else simpleTable = `<div class="msg warn">A = ${A} is not simply indexable.</div>`;
         }
-        html += `<div class="idx-result-row"><span class="lbl">Change-gear ratio |i|</span><span class="val hl">${fmt(Math.abs(gearRatio),6)}</span></div>`;
-        html += `<div class="idx-result-row"><span class="lbl">Direction</span><span class="val" style="font-size:13px;color:${gearRatio<0?'#f85149':'#3fb950'}">${direction}</span></div>`;
+        const gearRatio = ratio*(A-N)/A;
+        const target = Math.abs(gearRatio);
+        const search = searchChangeGears(target, gearSet, 0.5, 12, true);
+        const direction = gearRatio < 0 ? 'REVERSE (one idler required)' : 'NORMAL';
+        html += `<div class="kv"><span>Required N</span><b>${N}</b></div>`;
+        html += `<div class="kv"><span>Approximate N′</span><b>${A}</b></div>`;
+        html += simpleTable;
+        html += `<div class="kv" style="margin-top:10px"><span>Change-gear ratio |i|</span><b>${fmt(Math.abs(gearRatio),6)}</b></div>`;
+        html += `<div class="kv"><span>Direction</span><b>${direction}</b></div>`;
         if (search.length){
           const b = search[0];
           const train = b.stages === 1 ? `${b.a} / ${b.b}` : `(${b.a}/${b.b}) × (${b.c}/${b.d})`;
-          html += `<div class="idx-result-row"><span class="lbl">Selected gears</span><span class="val" style="font-size:14px">${train}</span></div>`;
-          html += `<div class="idx-result-row"><span class="lbl">Ratio error</span><span class="val" style="font-size:14px">${fmt(b.errPct,6)} %</span></div>`;
+          html += `<div class="kv"><span>Selected gears</span><b>${train}</b></div>`;
+          html += `<div class="kv"><span>Ratio error</span><b>${fmt(b.errPct,6)} %</b></div>`;
         } else html += `<div class="msg warn">No change-gear combination found within 0.5 %.</div>`;
         trace = `Differential indexing\n  N = ${N}, N′ = ${A}\n  i = ${fmt(gearRatio,8)}\n  ${direction}`;
         const res = { N, A, ratio, idx: { turns: turnsA, best: (function(){ if (Math.abs(fracA)<1e-12) return null; for (const h of circles){ const ex = fracA*h; if (Math.abs(ex-Math.round(ex))<1e-9) return {holes:h, count:Math.round(ex)}; } return null; })() }, gearRatio, direction, search };
         SvgDrawing.drawDifferential($('idxDiffSvg'), res);
       }
       $('idxResults').innerHTML = html;
-      if ($('idxResultsVisual')) $('idxResultsVisual').innerHTML = visuals;
       $('idxTrace').textContent = trace;
     } catch (e){
       $('idxResults').innerHTML = `<div class="msg err">${e.message || 'Invalid input.'}</div>`;
-      if ($('idxResultsVisual')) $('idxResultsVisual').innerHTML = '';
       $('idxTrace').textContent = '';
     }
-  }
-
-  function renderIndexingMechanism(){
-    const a = $('mechCrank'); if (a) SvgDrawing.drawCrankSVG(a);
-    const b = $('mechGears'); if (b) SvgDrawing.drawChangeGearsSVG(b, 48, 32);
-    const c = $('mechWorm'); if (c) SvgDrawing.drawWormDriveSVG(c);
-    const d = $('mechWorkpiece'); if (d) SvgDrawing.drawWorkpieceSVG(d);
   }
 
   function positiveNumberOrThrow(v, name){
@@ -3114,14 +2708,13 @@ const App = (function(){
       case 'gearHobber': return { text: `Gear hobbing machine (differential)\n  i = Ls / L`, ratio: Ls/L };
       case 'gearMillSetup': return { text: `Gear milling setup (direct)\n  i = 40 · Ls / L`, ratio: 40*Ls/L };
     }
-    return { text:'', ratio:1 };
   }
   function updateKinematicBox(){
     const Ls = lenIn(val('inLeadScrew'));
     const L = lenIn(val('inReqLead'));
     const cfg = selVal('inMachine');
     const rel = machineRelation(cfg, Ls, L);
-    if ($('kinematicBox')) $('kinematicBox').textContent = rel.text + `\n\nRequired ratio i = ${fmt(rel.ratio, 8)}`;
+    $('kinematicBox').textContent = rel.text + `\n\nRequired ratio i = ${fmt(rel.ratio, 8)}`;
     return rel.ratio;
   }
   function runGearSearch(){
@@ -3144,7 +2737,7 @@ const App = (function(){
         html += `<tr><td>${i+1}</td><td style="font-family:monospace">${txt}</td><td class="val">${fmt(r.ratio,6)}</td><td class="val">${fmt(r.errPct,6)}</td></tr>`;
       });
     }
-    if ($('changeGearTable')) $('changeGearTable').innerHTML = html;
+    $('changeGearTable').innerHTML = html;
     let gearsToDraw = [];
     if (changeGearResults.length){
       const b = changeGearResults[0];
@@ -3161,10 +2754,10 @@ const App = (function(){
     const hand = selVal('inLeadHand');
     const r = helicalLead(d, beta);
     const travel = b*Math.tan(r.beta);
-    if ($('leadResults')) $('leadResults').innerHTML =
+    $('leadResults').innerHTML =
       `<div class="kv"><span>Helix lead L</span><b>${fmtLen(r.lead,4)} ${LEN()}</b></div>` +
-      `<div class="kv"><span>Helix rise over face</span><b>${fmtLen(travel,4)} ${LEN()}</b></div>`;
-    if ($('leadTrace')) $('leadTrace').textContent = `L = π · d / tan β\n  L = π × ${fmt(d,4)} / tan ${fmt(beta,4)}°\n  L = ${fmt(r.lead,6)} mm`;
+      `<div class="kv"><span>Helix rise over face width</span><b>${fmtLen(travel,4)} ${LEN()}</b></div>`;
+    $('leadTrace').textContent = `L = π · d / tan β\n  L = π × ${fmt(d,4)} / tan ${fmt(beta,4)}°\n  L = ${fmt(r.lead,6)} mm`;
     SvgDrawing.drawHelix($('helixSvg'), d, beta, b, r.lead, hand);
   }
   function computeSpiralLead(){
@@ -3173,14 +2766,13 @@ const App = (function(){
     const b = lenIn(val('inSpiralB'));
     const hand = selVal('inSpiralHand');
     const r = spiralBevelLead(dm, beta);
-    if ($('spiralResults')) $('spiralResults').innerHTML =
+    $('spiralResults').innerHTML =
       `<div class="kv"><span>Spiral lead L_s</span><b>${fmtLen(r.lead,4)} ${LEN()}</b></div>`;
     SvgDrawing.drawSpiralCone($('spiralSvg'), dm, beta, b, hand);
   }
-
   function generateReport(){
     const g = currentGear;
-    if (!g){ if ($('reportArea')) $('reportArea').innerHTML = '<div class="card"><div class="msg err">Calculate a gear first.</div></div>'; return; }
+    if (!g){ $('reportArea').innerHTML = '<div class="card"><div class="msg err">Calculate a gear first.</div></div>'; return; }
     const now = new Date();
     let html = `<div class="card"><h2>GEAR ENGINEERING REPORT</h2>`;
     html += `<div class="grid g3">`;
@@ -3198,7 +2790,7 @@ const App = (function(){
       html += `<tr><td>${r.l}</td><td class="val">${shown} ${r.u||''}</td></tr>`;
     }
     html += `</table></div>`;
-    if ($('reportArea')) $('reportArea').innerHTML = html;
+    $('reportArea').innerHTML = html;
   }
   function exportJson(){
     const data = JSON.parse(JSON.stringify(State));
@@ -3226,18 +2818,17 @@ const App = (function(){
 
   function wire(){
     const opts = Object.keys(MATERIAL_DB).map(k=>`<option>${k}</option>`).join('');
-    if ($('inMaterial')) $('inMaterial').innerHTML = opts;
-    if ($('inCncMaterial')) $('inCncMaterial').innerHTML = opts;
-    if ($('inMaterial')) $('inMaterial').value = State.material;
-    if ($('inCncMaterial')) $('inCncMaterial').value = State.cncMaterial;
+    $('inMaterial').innerHTML = opts;
+    $('inCncMaterial').innerHTML = opts;
+    $('inMaterial').value = State.material;
+    $('inCncMaterial').value = State.cncMaterial;
 
     document.querySelectorAll('#tabs button').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
         document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
         btn.classList.add('active');
-        const pane = $('tab-' + btn.dataset.tab);
-        if (pane) pane.classList.add('active');
+        $('tab-' + btn.dataset.tab).classList.add('active');
         if (btn.dataset.tab === 'model3d'){
           setTimeout(()=>{
             Gear3D.init($('threeWrap'));
@@ -3259,34 +2850,30 @@ const App = (function(){
         if (el.tagName === 'INPUT' && el.type === 'number')
           el.addEventListener('input', debounce(()=>recompute(), 260));
       });
-
-    if ($('btnCalc')) $('btnCalc').addEventListener('click', recompute);
-    if ($('btnReset')) $('btnReset').addEventListener('click', ()=>{ if (confirm('Reset all parameters?')) location.reload(); });
-    if ($('unitSystem')) $('unitSystem').addEventListener('change', () => { readInputs(); State.units = selVal('unitSystem'); writeInputs(); recompute(); });
-    if ($('calcBasis')) $('calcBasis').addEventListener('change', () => { State.basis = selVal('calcBasis'); if ($('basisBadge')) $('basisBadge').textContent = State.basis.toUpperCase(); });
-    if ($('btnTrace')) $('btnTrace').addEventListener('click', () => { const b = $('traceBox'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; });
+    $('btnCalc').addEventListener('click', recompute);
+    $('btnReset').addEventListener('click', ()=>{ if (confirm('Reset all parameters?')) location.reload(); });
+    $('unitSystem').addEventListener('change', () => { readInputs(); State.units = selVal('unitSystem'); writeInputs(); recompute(); });
+    $('calcBasis').addEventListener('change', () => { State.basis = selVal('calcBasis'); $('basisBadge').textContent = State.basis.toUpperCase() + ' / REFERENCE'; });
+    $('btnTrace').addEventListener('click', () => { const b = $('traceBox'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; });
 
     ['chkPitch','chkBase','chkRoot','chkDims','chkTeethNo'].forEach(id=>{
-      const el = $(id);
-      if (el) el.addEventListener('change', ()=>{ if (currentGear){ renderSvg(currentGear); } });
+      $(id).addEventListener('change', ()=>{ if (currentGear) renderSvg(currentGear); });
     });
-    if ($('inToothSel')) $('inToothSel').addEventListener('input', ()=>{ if (currentGear){ renderSvg(currentGear); renderToothPanel(currentGear); } });
-    if ($('btnToothPrev')) $('btnToothPrev').addEventListener('click', ()=>{
+    $('inToothSel').addEventListener('input', ()=>{ if (currentGear){ renderSvg(currentGear); renderToothPanel(currentGear); } });
+    $('btnToothPrev').addEventListener('click', ()=>{
       const v = (parseInt($('inToothSel').value,10)||1) - 1;
       $('inToothSel').value = v < 1 ? State.teeth : v;
       renderSvg(currentGear); renderToothPanel(currentGear);
     });
-    if ($('btnToothNext')) $('btnToothNext').addEventListener('click', ()=>{
+    $('btnToothNext').addEventListener('click', ()=>{
       const v = (parseInt($('inToothSel').value,10)||1) + 1;
       $('inToothSel').value = v > State.teeth ? 1 : v;
       renderSvg(currentGear); renderToothPanel(currentGear);
     });
-    if ($('btnToothAll')) $('btnToothAll').addEventListener('click', ()=>{ $('inToothSel').value = 1; renderSvg(currentGear); renderToothPanel(currentGear); });
-
+    $('btnToothAll').addEventListener('click', ()=>{ $('inToothSel').value = 1; renderSvg(currentGear); renderToothPanel(currentGear); });
     document.querySelectorAll('[data-svg]').forEach(b => {
       b.addEventListener('click', () => {
         const svg = $('gearSvg');
-        if (!svg) return;
         const vb = svg.getAttribute('viewBox').split(' ').map(Number);
         let [x,y,w,h] = vb;
         if (b.dataset.svg === 'zoomin'){ w*=0.8; h*=0.8; }
@@ -3296,59 +2883,38 @@ const App = (function(){
         svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
       });
     });
-
     document.querySelectorAll('[data-view]').forEach(b => {
       b.addEventListener('click', () => Gear3D.setView(b.dataset.view));
     });
-    if ($('btnExplode')) $('btnExplode').addEventListener('click', ()=>{ Gear3D.setExplode(true); setTimeout(()=>Gear3D.setExplode(false), 1600); });
-    if ($('btnSpin')) $('btnSpin').addEventListener('click', ()=>{ App._spin = !App._spin; Gear3D.setSpin(App._spin); });
-    if ($('chkAxes')) $('chkAxes').addEventListener('change', ()=>Gear3D.setAxes($('chkAxes').checked));
-    if ($('chkPitch3d')) $('chkPitch3d').addEventListener('change', ()=>Gear3D.setPitchVisible($('chkPitch3d').checked));
-    if ($('chkWire')) $('chkWire').addEventListener('change', ()=>Gear3D.setWire($('chkWire').checked));
-    if ($('chkExplode')) $('chkExplode').addEventListener('change', ()=>Gear3D.setExplode($('chkExplode').checked));
+    $('btnExplode').addEventListener('click', ()=>{ Gear3D.setExplode(true); setTimeout(()=>Gear3D.setExplode(false), 1600); });
+    $('btnSpin').addEventListener('click', ()=>{ App._spin = !App._spin; Gear3D.setSpin(App._spin); });
+    $('chkAxes').addEventListener('change', ()=>Gear3D.setAxes($('chkAxes').checked));
+    $('chkPitch3d').addEventListener('change', ()=>Gear3D.setPitchVisible($('chkPitch3d').checked));
+    $('chkWire').addEventListener('change', ()=>Gear3D.setWire($('chkWire').checked));
 
-    ['rotX','rotY','rotZ'].forEach(id=>{
-      const el = $(id);
-      if (el) el.addEventListener('input', ()=>{
-        const v = parseInt(el.value,10)||0;
-        const out = $('rotXv');
-        if ($(id+'v')) $(id+'v').textContent = v + '°';
-        // manual rotate - simple mock
-      });
-    });
+    /* Indexing wiring */
+    $('idxMethod').addEventListener('change', ()=>{ updateIdxMethodUI(); computeIndexing(); });
+    $('idxRatio').addEventListener('change', ()=>{ updateIdxMethodUI(); computeIndexing(); });
+    $('idxRatioCustom').addEventListener('input', ()=>computeIndexing());
+    $('idxN').addEventListener('input', ()=>{ if ($('idxSyncTeeth').checked) $('idxN').value = State.teeth; computeIndexing(); });
+    $('idxSyncTeeth').addEventListener('change', ()=>{ if ($('idxSyncTeeth').checked) $('idxN').value = State.teeth; computeIndexing(); });
+    $('idxHolePreset').addEventListener('change', ()=>computeIndexing());
+    $('idxCustomHoles').addEventListener('input', ()=>computeIndexing());
+    $('idxApproxA').addEventListener('input', ()=>computeIndexing());
+    $('idxDiffGearSet').addEventListener('input', ()=>computeIndexing());
+    $('idxAngleDeg').addEventListener('input', ()=>computeIndexing());
+    $('idxAngleMin').addEventListener('input', ()=>computeIndexing());
+    $('btnIdxCalc').addEventListener('click', ()=>computeIndexing());
 
-    /* Indexing */
-    if ($('idxMethod')) $('idxMethod').addEventListener('change', ()=>{ updateIdxMethodUI(); computeIndexing(); });
-    if ($('idxMethodToggle')){
-      document.querySelectorAll('#idxMethodToggle button').forEach(b=>{
-        b.addEventListener('click', ()=>{
-          $('idxMethod').value = b.dataset.method;
-          updateIdxMethodUI();
-          computeIndexing();
-        });
-      });
-    }
-    if ($('idxRatio')) $('idxRatio').addEventListener('change', ()=>{ updateIdxMethodUI(); computeIndexing(); });
-    if ($('idxRatioCustom')) $('idxRatioCustom').addEventListener('input', ()=>computeIndexing());
-    if ($('idxN')) $('idxN').addEventListener('input', ()=>{ if ($('idxSyncTeeth').checked) $('idxN').value = State.teeth; computeIndexing(); });
-    if ($('idxSyncTeeth')) $('idxSyncTeeth').addEventListener('change', ()=>{ if ($('idxSyncTeeth').checked) $('idxN').value = State.teeth; computeIndexing(); });
-    if ($('idxHolePreset')) $('idxHolePreset').addEventListener('change', ()=>computeIndexing());
-    if ($('idxCustomHoles')) $('idxCustomHoles').addEventListener('input', ()=>computeIndexing());
-    if ($('idxApproxA')) $('idxApproxA').addEventListener('input', ()=>computeIndexing());
-    if ($('idxDiffGearSet')) $('idxDiffGearSet').addEventListener('input', ()=>computeIndexing());
-    if ($('idxAngleDeg')) $('idxAngleDeg').addEventListener('input', ()=>computeIndexing());
-    if ($('idxAngleMin')) $('idxAngleMin').addEventListener('input', ()=>computeIndexing());
-    if ($('btnIdxCalc')) $('btnIdxCalc').addEventListener('click', ()=>computeIndexing());
+    /* Change-gear wiring */
+    $('btnGearSearch').addEventListener('click', runGearSearch);
+    ['inMachine','inLeadScrew','inReqLead'].forEach(id => $(id).addEventListener('change', ()=>{ updateKinematicBox(); }));
+    $('btnTrainAnim').addEventListener('click', ()=>{ const svg = $('trainSvg'); svg.style.filter = `hue-rotate(${Math.random()*180}deg)`; setTimeout(()=>{ svg.style.filter = 'none'; }, 900); });
 
-    /* Change gears */
-    if ($('btnGearSearch')) $('btnGearSearch').addEventListener('click', runGearSearch);
-    ['inMachine','inLeadScrew','inReqLead'].forEach(id => { const el = $(id); if (el) el.addEventListener('change', ()=>{ updateKinematicBox(); }); });
-    if ($('btnTrainAnim')) $('btnTrainAnim').addEventListener('click', ()=>{ const svg = $('trainSvg'); svg.style.filter = `hue-rotate(${Math.random()*180}deg)`; setTimeout(()=>{ svg.style.filter = 'none'; }, 900); });
-
-    /* Lead */
-    if ($('btnLeadCalc')) $('btnLeadCalc').addEventListener('click', computeLead);
-    if ($('btnSpiralCalc')) $('btnSpiralCalc').addEventListener('click', computeSpiralLead);
-    if ($('btnLeadFromGear')) $('btnLeadFromGear').addEventListener('click', ()=>{
+    /* Lead wiring */
+    $('btnLeadCalc').addEventListener('click', computeLead);
+    $('btnSpiralCalc').addEventListener('click', computeSpiralLead);
+    $('btnLeadFromGear').addEventListener('click', ()=>{
       if (!currentGear) return;
       $('inLeadD').value = fmt(lenOut(currentGear.d), 4);
       $('inLeadBeta').value = fmt(currentGear.type === 'helical' ? currentGear.betaDeg : (currentGear.leadAngleDeg||20), 4);
@@ -3356,10 +2922,10 @@ const App = (function(){
       $('inLeadHand').value = State.hand;
       computeLead();
     });
-    if ($('leadMode')) $('leadMode').addEventListener('change', ()=>{ $('fManualLead').style.display = (selVal('leadMode') === 'manual') ? '' : 'none'; });
-    if ($('leadGearPreset')) $('leadGearPreset').addEventListener('change', ()=>{ $('leadGearSet').value = selVal('leadGearPreset'); });
-    if ($('btnLeadGearCalc')) $('btnLeadGearCalc').addEventListener('click', ()=>runLeadGearSearch('helical'));
-    if ($('leadAltSelect')) $('leadAltSelect').addEventListener('change', ()=>{
+    $('leadMode').addEventListener('change', ()=>{ $('fManualLead').style.display = (selVal('leadMode') === 'manual') ? '' : 'none'; });
+    $('leadGearPreset').addEventListener('change', ()=>{ $('leadGearSet').value = selVal('leadGearPreset'); });
+    $('btnLeadGearCalc').addEventListener('click', ()=>runLeadGearSearch('helical'));
+    $('leadAltSelect').addEventListener('change', ()=>{
       const i = parseInt($('leadAltSelect').value, 10);
       if (leadAltResults[i]){
         const ls = parseFloat($('leadLS').value) || 5;
@@ -3367,10 +2933,10 @@ const App = (function(){
         renderLeadTrain('helical', leadAltResults[i], lead/(ls*40), lead, ls);
       }
     });
-    if ($('spiralLeadMode')) $('spiralLeadMode').addEventListener('change', ()=>{ $('fSpiralManualLead').style.display = (selVal('spiralLeadMode') === 'manual') ? '' : 'none'; });
-    if ($('spiralLeadGearPreset')) $('spiralLeadGearPreset').addEventListener('change', ()=>{ $('spiralLeadGearSet').value = selVal('spiralLeadGearPreset'); });
-    if ($('btnSpiralGearCalc')) $('btnSpiralGearCalc').addEventListener('click', ()=>runLeadGearSearch('spiral'));
-    if ($('spiralAltSelect')) $('spiralAltSelect').addEventListener('change', ()=>{
+    $('spiralLeadMode').addEventListener('change', ()=>{ $('fSpiralManualLead').style.display = (selVal('spiralLeadMode') === 'manual') ? '' : 'none'; });
+    $('spiralLeadGearPreset').addEventListener('change', ()=>{ $('spiralLeadGearSet').value = selVal('spiralLeadGearPreset'); });
+    $('btnSpiralGearCalc').addEventListener('click', ()=>runLeadGearSearch('spiral'));
+    $('spiralAltSelect').addEventListener('change', ()=>{
       const i = parseInt($('spiralAltSelect').value, 10);
       if (spiralAltResults[i]){
         const ls = parseFloat($('spiralLS').value) || 5;
@@ -3380,46 +2946,42 @@ const App = (function(){
     });
 
     /* CNC */
-    if ($('btnCnc')) $('btnCnc').addEventListener('click', ()=>{ computeCnc(); computeMilling(currentGear); });
-    if ($('inCncMaterial')) $('inCncMaterial').addEventListener('change', ()=>{
+    $('btnCnc').addEventListener('click', ()=>{ computeCnc(); computeMilling(currentGear); });
+    $('inCncMaterial').addEventListener('change', ()=>{
       const mat = MATERIAL_DB[selVal('inCncMaterial')];
       if (mat) $('inVc').value = fmt((mat.vcMin+mat.vcMax)/2, 3);
       computeCnc();
     });
-    if ($('btnGcode')) $('btnGcode').addEventListener('click', ()=>{
+    $('btnGcode').addEventListener('click', ()=>{
       const box = $('gcodeBox');
-      box.textContent =
-        '(Generated for gear ' + State.gearType + ' z=' + State.teeth + ' m=' + State.module + ')\n' +
-        'N10 G21 G90 G94\nN20 G54\nN30 T1 M06\nN40 S' + Math.round(cncParameters(State).rpm) + ' M03\n' +
-        'N50 G00 X0 Y0 Z10\nN60 G01 Z-2 F100\nN70 G01 X50 F191\nN80 G02 X50 Y0 I-50 J0\nN90 G00 Z10\nN100 M05\nN110 M30';
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      if (box.style.display === 'block') box.textContent = '(G-code generation is a demonstration — verify before use)\nG21 G90 G94\nG54\nM03 S1000\nG00 Z10\nM05\nM30';
     });
-    if ($('btnToolpathSim')) $('btnToolpathSim').addEventListener('click', ()=>{ SvgDrawing.drawToolpath($('toolpathSvg'), currentGear, State, Math.floor(Math.random()*10)); });
+    $('btnToolpathSim').addEventListener('click', ()=>{ SvgDrawing.drawToolpath($('toolpathSvg'), currentGear, State, Math.floor(Math.random()*10)); });
 
     /* Report */
-    if ($('btnGenReport')) $('btnGenReport').addEventListener('click', generateReport);
-    if ($('btnPrintReport')) $('btnPrintReport').addEventListener('click', ()=>window.print());
-    if ($('btnCsv')) $('btnCsv').addEventListener('click', exportCsv);
-    if ($('btnExportJson')) $('btnExportJson').addEventListener('click', exportJson);
-    if ($('btnSave')) $('btnSave').addEventListener('click', ()=>{ localStorage.setItem('gearProject', JSON.stringify(State)); alert('Saved.'); });
-    if ($('btnLoad')) $('btnLoad').addEventListener('click', ()=>{
+    $('btnGenReport').addEventListener('click', generateReport);
+    $('btnPrintReport').addEventListener('click', ()=>window.print());
+    $('btnCsv').addEventListener('click', exportCsv);
+    $('btnExportJson').addEventListener('click', exportJson);
+    $('btnSave').addEventListener('click', ()=>{ localStorage.setItem('gearProject', JSON.stringify(State)); alert('Saved.'); });
+    $('btnLoad').addEventListener('click', ()=>{
       const s = localStorage.getItem('gearProject');
       if (!s){ alert('No saved project.'); return; }
       Object.assign(State, JSON.parse(s));
       writeInputs(); recompute();
     });
-    if ($('btnPrint')) $('btnPrint').addEventListener('click', ()=>window.print());
+    $('btnPrint').addEventListener('click', ()=>window.print());
 
     /* SVG export */
-    const doSvgFile = (id) => {
-      const svg = $(id); if (!svg) return;
-      const s = svg.outerHTML;
-      const blob = new Blob([s], { type:'image/svg+xml' });
+    $('btnSvgFile').addEventListener('click', ()=>{
+      const svg = $('gearSvg').outerHTML;
+      const blob = new Blob([svg], { type:'image/svg+xml' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob); a.download = 'gear-drawing.svg'; a.click();
-    };
-    const doSvgPng = (id) => {
-      const svg = $(id); if (!svg) return;
-      const s = new XMLSerializer().serializeToString(svg);
+    });
+    $('btnSvgPng').addEventListener('click', ()=>{
+      const s = new XMLSerializer().serializeToString($('gearSvg'));
       const img = new Image();
       const blob = new Blob([s], { type:'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -3431,11 +2993,7 @@ const App = (function(){
         URL.revokeObjectURL(url);
       };
       img.src = url;
-    };
-    if ($('btnSvgFile')) $('btnSvgFile').addEventListener('click', ()=>doSvgFile('gearSvg'));
-    if ($('btnSvgPng')) $('btnSvgPng').addEventListener('click', ()=>doSvgPng('gearSvg'));
-    if ($('btnSvgFile2')) $('btnSvgFile2').addEventListener('click', ()=>doSvgFile('gearSvgClone'));
-    if ($('btnSvgPng2')) $('btnSvgPng2').addEventListener('click', ()=>doSvgPng('gearSvgClone'));
+    });
   }
 
   function init(){
@@ -3447,7 +3005,6 @@ const App = (function(){
     computeSpiralLead();
     updateKinematicBox();
     computeIndexing();
-    renderIndexingMechanism();
     try { runLeadGearSearch('helical'); } catch(e){}
     try { runLeadGearSearch('spiral'); } catch(e){}
   }
@@ -3456,7 +3013,7 @@ const App = (function(){
 
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
-  console.log('%c=== GEAR PLATFORM READY ===', 'color:#ffbe3c;font-weight:bold');
+  console.log('%c=== GEAR PLATFORM READY ===', 'color:#4da3ff;font-weight:bold');
 });
 </script>
 </body>
