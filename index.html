@@ -1113,8 +1113,6 @@ const TABS_FOR_TYPE = {
 
 /* ============================================================================
  * SECTION 6 — PER-GEAR-TYPE INPUT FIELD CONFIGURATION
- * Declares which input wrappers each gear type shows, plus the type-specific
- * labels. "{U}" is replaced by the current length unit at render time.
  * ==========================================================================*/
 const GEAR_TYPE_CONFIG = {
   spur: {
@@ -1526,8 +1524,11 @@ function calcWorm(s){
 }
 
 function calcWormWheel(s){
-  const w = calcWorm(s);
-  const m = w.m, z2 = w.z2, d2 = w.d2;
+  const wheelTeeth = s.teeth;
+  let wormStarts = (s.mateTeeth && s.mateTeeth > 0) ? s.mateTeeth : 1;
+  const s2 = Object.assign({}, s, { teeth: wormStarts, mateTeeth: wheelTeeth });
+  const w = calcWorm(s2);
+  const m = w.m, z2 = wheelTeeth, d2 = w.d2;
   const da2 = d2 + 2*m, df2 = d2 - 2.4*m;
   const faceWidth = Math.min(s.faceWidth, 0.75*w.d);
   const throatRadius = w.d/2 + 0.5*m;
@@ -1538,10 +1539,12 @@ function calcWormWheel(s){
   w.faceWidth = faceWidth;
   w.throatRadius = throatRadius;
   w.throatDia = d2 + 2*m;
+  w.starts = wormStarts;
   w.rows = [];
   w.rows.push({sec:'Worm wheel — basic geometry'});
   w.rows.push({l:'Module m', v:m, u:'mm', raw:'mm', conv:'module'});
-  w.rows.push({l:'Number of teeth z₂', v:z2, u:''});
+  w.rows.push({l:'Number of wheel teeth z₂', v:z2, u:''});
+  w.rows.push({l:'Worm starts z₁', v:wormStarts, u:''});
   w.rows.push({l:'Pressure angle α', v:w.alphaDeg, u:'°'});
   w.rows.push({l:'Hand', v:s.hand==='right'?'Right':'Left', u:''});
   w.rows.push({sec:'Wheel dimensions'});
@@ -3325,8 +3328,6 @@ const App = (function(){
     if ($('lblModule')) $('lblModule').textContent = moduleLabels[State.gearType] || 'Module m';
   }
 
-  /* Show only the input fields relevant to the current gear type and set the
-     type-specific labels. The "{U}" placeholder is replaced by the length unit. */
   function applyGearTypeConfig(){
     const cfg = GEAR_TYPE_CONFIG[State.gearType] || GEAR_TYPE_CONFIG.spur;
     const visible = new Set(cfg.fields);
@@ -3400,7 +3401,6 @@ const App = (function(){
     }
   }
 
-  /* Type-aware input summary — shows only the data relevant to each gear type */
   function renderInputSummary(){
     const box = $('inputSummary');
     if (!box) return;
@@ -3481,6 +3481,7 @@ const App = (function(){
 
   function recompute(){
     readInputs();
+    applyGearTypeConfig(); // <--- FIXED: Makes the layout update instantly when gear type changes
     let g;
     switch (State.gearType){
       case 'helical':     g = calcHelicalGear(State); break;
