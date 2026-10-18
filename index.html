@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Gear Engineering &amp; Manufacturing Platform</title>
 <style>
 :root{
@@ -78,15 +78,26 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 .trace .r{color:#7ee08a}
 
 .svg-wrap{background:#0a0e13;border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
-.svg-wrap svg{display:block;width:100%;height:auto;cursor:grab;touch-action:none}
+.svg-wrap svg{display:block;width:100%;height:auto;cursor:grab;touch-action:none;user-select:none}
 .svg-wrap svg:active{cursor:grabbing}
-#threeWrap{width:100%;height:520px;background:#0a0e13;border:1px solid var(--line);border-radius:6px;
+
+#threeWrap{width:100%;height:clamp(360px,62vh,760px);background:#0a0e13;border:1px solid var(--line);border-radius:6px;
   position:relative;overflow:hidden;touch-action:none}
 #threeWrap canvas{display:block}
 .view-btns{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;z-index:5}
 .view-btns button{background:rgba(22,27,34,.9);border:1px solid var(--line);color:var(--txt);
   border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
 .view-btns button:hover{background:var(--accent2);border-color:var(--accent)}
+
+/* ---- SVG zoom overlay (auto-injected on every drawing) ---- */
+.svg-zoom{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;z-index:6}
+.svg-zoom button{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(22,27,34,.92);border:1px solid var(--line);color:var(--txt);border-radius:4px;
+  font-size:14px;line-height:1;cursor:pointer}
+.svg-zoom button:hover{background:var(--accent2);border-color:var(--accent)}
+
+/* ---- 3D tab layout ---- */
+.g3d{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) 320px}
 
 .btn{background:#1f2937;border:1px solid var(--line);color:var(--txt);padding:7px 13px;border-radius:5px;
   cursor:pointer;font-size:12.5px}
@@ -118,8 +129,37 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 .summary-item span{color:var(--dim)}
 .summary-item b{font-family:var(--mono);color:#eaf2ff;font-weight:600}
 
+/* ============================ RESPONSIVE ============================ */
+@media (max-width: 980px){
+  .g3d{grid-template-columns:1fr}
+}
+@media (max-width: 760px){
+  html,body{font-size:13.5px}
+  .topbar{position:static;padding:8px 10px;gap:8px}
+  .brand{width:100%;font-size:13px;letter-spacing:.06em}
+  .topbar-controls{width:100%;gap:8px}
+  .topbar-controls label{flex:1 1 46%}
+  .topbar-controls .btn{flex:1 1 auto}
+  .tabs{position:sticky;top:0;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;
+    padding:6px 8px;-webkit-overflow-scrolling:touch}
+  .tabs button{flex:0 0 auto;padding:8px 11px;font-size:12px}
+  main{padding:10px}
+  .grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr}
+  .card{padding:11px}
+  input,select,textarea{font-size:16px;padding:7px 8px}
+  .btn{padding:9px 13px}
+  .btn.small{padding:7px 11px;font-size:12px}
+  #threeWrap{height:58vh;min-height:320px}
+  .view-btns{flex-direction:row;flex-wrap:wrap;max-width:170px;justify-content:flex-end}
+  .view-btns button{padding:6px 9px;font-size:11.5px}
+  .svg-zoom button{width:34px;height:34px;font-size:16px}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .trace{font-size:11px}
+  .slider-row span{width:44px}
+}
+
 @media print{
-  .topbar,.tabs,.no-print,.view-btns{display:none !important}
+  .topbar,.tabs,.no-print,.view-btns,.svg-zoom{display:none !important}
   body{background:#fff;color:#000}
   .card{border:1px solid #999;background:#fff;color:#000;break-inside:avoid}
   .tab-pane{display:block !important}
@@ -368,6 +408,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <input type="checkbox" id="chkTeethNo"> Tooth numbers
         </label>
       </div>
+      <div class="note" style="margin-top:6px">Drag to pan · Wheel / pinch to zoom · Double-click to reset</div>
     </div>
 
     <div class="card">
@@ -390,10 +431,12 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 </section>
 
 <section id="tab-model3d" class="tab-pane">
-  <div class="grid" style="grid-template-columns:1fr 300px">
+  <div class="grid g3d">
     <div class="card tight">
       <div id="threeWrap">
         <div class="view-btns">
+          <button data-view="zoomin">＋</button>
+          <button data-view="zoomout">−</button>
           <button data-view="iso">ISO</button>
           <button data-view="front">Front</button>
           <button data-view="rear">Rear</button>
@@ -430,7 +473,8 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
       <div class="note" style="margin-top:12px">
         The 3D solid is generated directly from the calculated involute tooth profile.
-        Every parameter change regenerates the mesh. Drag to orbit, wheel/pinch to zoom.
+        Every parameter change regenerates the mesh. Drag to orbit, wheel/pinch to zoom,
+        use ＋ / − for step zoom.
       </div>
       <div id="meshInfo" class="note" style="margin-top:10px"></div>
     </div>
@@ -628,9 +672,10 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 </section>
 
 <section id="tab-lead" class="tab-pane">
-  <div class="grid g2">
+  <!-- ===== HELICAL / WORM LEAD BLOCK (id added) ===== -->
+  <div class="grid g2" id="helicalLeadGroup">
     <div class="card">
-      <h2>Helical / Spiral Lead Calculation</h2>
+      <h2 id="helicalLeadTitle">Helical Lead Calculation</h2>
       <div class="grid g2">
         <div class="field">
           <label>Pitch diameter d <span class="unit" id="uPd">mm</span></label>
@@ -666,10 +711,12 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       <div class="row" style="margin-top:8px">
         <button class="btn small" id="btnHelixAnim">Animate one revolution</button>
       </div>
+      <div class="note" style="margin-top:6px">Drag to pan · Wheel / pinch to zoom</div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:14px">
+  <!-- ===== HELICAL CHANGE-GEAR SEARCH (id added) ===== -->
+  <div class="card" id="helicalGearTrainCard" style="margin-top:14px">
     <h2>Helical Lead — Change-Gear Train Search</h2>
     <div class="grid g2">
       <div>
@@ -734,7 +781,8 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
     </div>
   </div>
 
-  <div class="card" style="margin-top:14px">
+  <!-- ===== SPIRAL BEVEL BLOCK (id added) ===== -->
+  <div class="card" id="spiralBevelGroup" style="margin-top:14px">
     <h2>Spiral Bevel Lead</h2>
     <div class="grid g2">
       <div>
@@ -1050,9 +1098,6 @@ function lcm(a,b){ return Math.abs(a*b)/gcd(a,b); }
 
 /* ============================================================================
  * PER-GEAR-TYPE TAB CONFIGURATION
- *
- * Each gear type only exposes the tabs that actually apply to it.
- * NOTE: indexing is available for ALL types (including rack & sprocket).
  * ==========================================================================*/
 const TABS_FOR_TYPE = {
   spur:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
@@ -1612,11 +1657,11 @@ const SvgDrawing = (function(){
     opts = opts || {};
     const scale = opts.scale || 1;
     let html = '';
-    html += `<rect x="-320" y="-320" width="640" height="640" fill="#0a0e13"/>`;
+    html += `<rect x="-2000" y="-2000" width="4000" height="4000" fill="#0a0e13"/>`;
     html += `<g stroke="#131a23" stroke-width="0.5">`;
-    for (let i=-300;i<=300;i+=20){
-      html += `<line x1="${i}" y1="-300" x2="${i}" y2="300"/>`;
-      html += `<line x1="-300" y1="${i}" x2="300" y2="${i}"/>`;
+    for (let i=-1000;i<=1000;i+=20){
+      html += `<line x1="${i}" y1="-1000" x2="${i}" y2="1000"/>`;
+      html += `<line x1="-1000" y1="${i}" x2="1000" y2="${i}"/>`;
     }
     html += `</g>`;
     const d = pathFromOutline(g.outline, scale);
@@ -1643,6 +1688,8 @@ const SvgDrawing = (function(){
       html += `<text x="${R+22}" y="-8" fill="#4da3ff" font-size="10" font-family="monospace">d_a = ${fmtLen(g.da,2)} ${LEN()}</text>`;
       html += `<text x="${g.rp*scale*0.62}" y="${-g.rp*scale*0.62-6}" fill="#ffbe3c" font-size="10" font-family="monospace">d = ${fmtLen(g.d,2)}</text>`;
       html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">z = ${s.teeth}   m = ${fmtLen(s.module,3)} ${LEN()==='mm'?'mm':'DP'}</text>`;
+      if (opts.label)
+        html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">${opts.label}</text>`;
     }
     if (opts.showTeethNo){
       const step = s.teeth > 40 ? 5 : 1;
@@ -1805,7 +1852,7 @@ const SvgDrawing = (function(){
     const W=640, H=400;
     const cx=320, cy=200, coneH = 150, coneR = 130;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
-    html += `<path d="M ${cx} ${cy-coneH} L ${cx-coneR} ${cy+coneH*0.45} L ${cx-coneR} ${cy+coneH*0.75} Z" fill="#141b24" stroke="#3a4756"/>`;
+    html += `<path d="M ${cx} ${cy-coneH} L ${cx+coneR} ${cy+coneH*0.45} L ${cx-coneR} ${cy+coneH*0.75} Z" fill="#141b24" stroke="#3a4756"/>`;
     const beta = betaDeg*D2R;
     for (let k=0;k<7;k++){
       const u0 = k/7;
@@ -1832,9 +1879,8 @@ const SvgDrawing = (function(){
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
     html += `<text x="20" y="30" fill="#d6dee8" font-size="13" font-family="monospace">SECTION A–A</text>`;
     const rr = ra*scale, ri = boreR*scale;
-    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="#1e2833" stroke="#5fa8ff" stroke-width="1.2"/>`;
     html += `<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#3a4756" stroke-width="1"/></pattern></defs>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="url(#hatch)"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="url(#hatch)" stroke="#5fa8ff" stroke-width="1.2"/>`;
     if (boreR > 0) html += `<circle cx="${cx}" cy="${cy}" r="${fmt(ri,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1.2"/>`;
     svg.innerHTML = html;
   }
@@ -1904,21 +1950,186 @@ const SvgDrawing = (function(){
 })();
 
 /* ============================================================================
+ * SVG ZOOM / PAN CONTROLLER  (applies to EVERY 2D drawing)
+ *   - wheel zoom (desktop)
+ *   - drag pan (mouse + touch)
+ *   - pinch zoom (touch)
+ *   - double click / double tap reset
+ *   - auto-injected ＋ / − / ⤢ buttons on each .svg-wrap
+ * ==========================================================================*/
+const SvgZoom = (function(){
+  const MIN_SCALE = 0.15;   // relative to base viewBox
+  const MAX_SCALE = 40;
+
+  function readViewBox(el){
+    const a = (el.getAttribute('viewBox')||'').trim().split(/[\s,]+/).map(Number);
+    if (a.length === 4 && a.every(n=>isFinite(n)) && a[2] > 0 && a[3] > 0) return a;
+    try{
+      const bb = el.getBBox();
+      if (bb && bb.width > 0 && bb.height > 0){
+        const pad = Math.max(bb.width, bb.height)*0.06;
+        return [bb.x-pad, bb.y-pad, bb.width+2*pad, bb.height+2*pad];
+      }
+    }catch(e){}
+    return [0,0,100,100];
+  }
+
+  function attach(svg){
+    if (!svg) return null;
+    if (svg.__svgZoom) return svg.__svgZoom;
+
+    const wrap = svg.closest('.svg-wrap') || svg.parentElement;
+    const base = readViewBox(svg);
+    const st = { base: base.slice(), vb: base.slice() };
+
+    const apply = ()=> svg.setAttribute('viewBox', st.vb.map(v=>+(+v).toFixed(4)).join(' '));
+    const scaleFactor = ()=> st.vb[2] / st.base[2];
+
+    function zoomAt(ux, uy, factor){
+      if (!isFinite(factor) || factor <= 0) return;
+      const ns = clamp(scaleFactor()*factor, MIN_SCALE, MAX_SCALE);
+      const realF = ns / scaleFactor();
+      if (Math.abs(realF - 1) < 1e-9) return;
+      const [x,y,w,h] = st.vb;
+      st.vb = [ux-(ux-x)*realF, uy-(uy-y)*realF, w*realF, h*realF];
+      apply();
+    }
+    function zoomCenter(f){
+      const [x,y,w,h] = st.vb;
+      zoomAt(x + w/2, y + h/2, f);
+    }
+    function reset(){ st.vb = st.base.slice(); apply(); }
+
+    function toUser(clientX, clientY){
+      const r = svg.getBoundingClientRect();
+      const [vx,vy,vw,vh] = st.vb;
+      const s = Math.min(r.width/vw, r.height/vh) || 1;
+      const ox = (r.width  - vw*s)/2;
+      const oy = (r.height - vh*s)/2;
+      return { x: vx + (clientX - r.left - ox)/s,
+               y: vy + (clientY - r.top  - oy)/s };
+    }
+    function panBy(dxPx, dyPx){
+      const r = svg.getBoundingClientRect();
+      const [x,y,w,h] = st.vb;
+      const s = Math.min(r.width/w, r.height/h) || 1;
+      st.vb = [x - dxPx/s, y - dyPx/s, w, h];
+      apply();
+    }
+
+    /* ---- wheel ---- */
+    svg.addEventListener('wheel', e=>{
+      e.preventDefault();
+      const p = toUser(e.clientX, e.clientY);
+      zoomAt(p.x, p.y, e.deltaY > 0 ? 1.15 : 1/1.15);
+    }, {passive:false});
+
+    /* ---- mouse drag ---- */
+    let drag = null;
+    svg.addEventListener('mousedown', e=>{
+      if (e.button !== 0) return;
+      drag = { x:e.clientX, y:e.clientY };
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e=>{
+      if (!drag) return;
+      panBy(e.clientX - drag.x, e.clientY - drag.y);
+      drag = { x:e.clientX, y:e.clientY };
+    });
+    window.addEventListener('mouseup', ()=>{ drag = null; });
+
+    /* ---- touch ---- */
+    const tdist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    let tPrev = null, tPinch = null;
+    svg.addEventListener('touchstart', e=>{
+      if (e.touches.length === 1){
+        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+        tPinch = null;
+      } else if (e.touches.length === 2){
+        tPinch = { d: tdist(e.touches) };
+        tPrev = null;
+      }
+    }, {passive:true});
+    svg.addEventListener('touchmove', e=>{
+      if (e.touches.length === 1 && tPrev){
+        e.preventDefault();
+        const t = e.touches[0];
+        panBy(t.clientX - tPrev.x, t.clientY - tPrev.y);
+        tPrev = { x:t.clientX, y:t.clientY };
+      } else if (e.touches.length === 2 && tPinch){
+        e.preventDefault();
+        const d  = tdist(e.touches);
+        const cx = (e.touches[0].clientX + e.touches[1].clientX)/2;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY)/2;
+        const p  = toUser(cx, cy);
+        zoomAt(p.x, p.y, d / Math.max(tPinch.d, 1));
+        tPinch = { d };
+      }
+    }, {passive:false});
+    svg.addEventListener('touchend', e=>{
+      if (e.touches.length === 0){ tPrev = null; tPinch = null; }
+      else if (e.touches.length === 1){
+        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+        tPinch = null;
+      }
+    }, {passive:true});
+
+    /* ---- double click reset ---- */
+    svg.addEventListener('dblclick', e=>{ e.preventDefault(); reset(); });
+
+    /* ---- overlay buttons ---- */
+    if (wrap){
+      let ctrl = wrap.querySelector('.svg-zoom');
+      if (!ctrl){
+        ctrl = document.createElement('div');
+        ctrl.className = 'svg-zoom';
+        ctrl.innerHTML =
+          '<button type="button" data-z="in" title="Zoom in">+</button>' +
+          '<button type="button" data-z="out" title="Zoom out">−</button>' +
+          '<button type="button" data-z="reset" title="Reset view">⤢</button>';
+        wrap.appendChild(ctrl);
+        ctrl.addEventListener('click', ev=>{
+          const b = ev.target.closest('button');
+          if (!b) return;
+          ev.preventDefault(); ev.stopPropagation();
+          if (b.dataset.z === 'in') zoomCenter(1/1.3);
+          else if (b.dataset.z === 'out') zoomCenter(1.3);
+          else reset();
+        });
+      }
+    }
+
+    const api = { zoomIn:()=>zoomCenter(1/1.3), zoomOut:()=>zoomCenter(1.3), reset, zoomAt };
+    svg.__svgZoom = api;
+    return api;
+  }
+
+  function attachAll(){
+    document.querySelectorAll('.svg-wrap svg').forEach(svg => {
+      try { attach(svg); } catch(e){ console.warn('SvgZoom attach failed', e); }
+    });
+  }
+
+  return { attach, attachAll };
+})();
+
+/* ============================================================================
  * THREE.JS 3D GEAR ENGINE
  * ==========================================================================*/
 const Gear3D = (function(){
   let renderer, scene, camera, root, pitchCircle, axesHelper;
   let initialized = false, spinning = false, spinT = 0, wire = false;
   const camState = { theta: 0.9, phi: 1.05, dist: 260, target: new THREE.Vector3(0,0,0) };
+
   function init(container){
     if (initialized) return;
     renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, preserveDrawingBuffer:true});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(container.clientWidth || 600, container.clientHeight || 400);
     renderer.setClearColor(0x0a0e13, 1);
     container.appendChild(renderer.domElement);
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(42, container.clientWidth/container.clientHeight, 0.1, 20000);
+    camera = new THREE.PerspectiveCamera(42, (container.clientWidth||600)/(container.clientHeight||400), 0.1, 20000);
     scene.add(new THREE.AmbientLight(0xffffff, 0.45));
     const d1 = new THREE.DirectionalLight(0xffffff, 0.85); d1.position.set(300, 400, 500); scene.add(d1);
     const d2 = new THREE.DirectionalLight(0x88bbff, 0.45); d2.position.set(-400, -200, -300); scene.add(d2);
@@ -1929,23 +2140,30 @@ const Gear3D = (function(){
     scene.add(axesHelper);
     attachOrbit(container);
     initialized = true;
-    window.addEventListener('resize', () => {
-      if (!renderer) return;
-      const c = document.getElementById('threeWrap');
-      if (!c) return;
-      renderer.setSize(c.clientWidth, c.clientHeight);
-      camera.aspect = c.clientWidth/c.clientHeight;
-      camera.updateProjectionMatrix();
-    });
+    window.addEventListener('resize', resize);
+    window.addEventListener('orientationchange', ()=>setTimeout(resize, 250));
+    resize();
     animate();
   }
+
+  function resize(){
+    if (!renderer) return;
+    const c = document.getElementById('threeWrap');
+    if (!c) return;
+    const w = c.clientWidth || 600, h = c.clientHeight || 400;
+    renderer.setSize(w, h);
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+  }
+
   function attachOrbit(el){
+    /* ---------- mouse ---------- */
     let dragging = false, lastX = 0, lastY = 0;
-    const onDown = e => { dragging = true; const p = point(e); lastX = p.x; lastY = p.y; };
+    const onDown = e => { dragging = true; lastX = e.clientX; lastY = e.clientY; };
     const onMove = e => {
       if (!dragging) return;
-      const p = point(e); const dx = p.x-lastX, dy = p.y-lastY;
-      lastX = p.x; lastY = p.y;
+      const dx = e.clientX-lastX, dy = e.clientY-lastY;
+      lastX = e.clientX; lastY = e.clientY;
       camState.theta -= dx*0.008;
       camState.phi = clamp(camState.phi - dy*0.008, 0.05, Math.PI-0.05);
       updateCamera();
@@ -1954,12 +2172,52 @@ const Gear3D = (function(){
     const onWheel = e => { e.preventDefault();
       camState.dist *= (1 + Math.sign(e.deltaY)*0.1);
       camState.dist = clamp(camState.dist, 10, 5000); updateCamera(); };
-    const point = e => e.touches ? {x:e.touches[0].clientX, y:e.touches[0].clientY} : {x:e.clientX, y:e.clientY};
+
     el.addEventListener('mousedown', onDown);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     el.addEventListener('wheel', onWheel, {passive:false});
+
+    /* ---------- touch (orbit + pinch zoom) ---------- */
+    const tdist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    let tPrev = null, tPinch = null;
+
+    el.addEventListener('touchstart', e=>{
+      if (e.touches.length === 1){
+        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+        tPinch = null;
+      } else if (e.touches.length === 2){
+        tPinch = { d: tdist(e.touches) };
+        tPrev = null;
+      }
+    }, {passive:true});
+
+    el.addEventListener('touchmove', e=>{
+      if (e.touches.length === 1 && tPrev){
+        e.preventDefault();
+        const t = e.touches[0];
+        camState.theta -= (t.clientX - tPrev.x)*0.008;
+        camState.phi = clamp(camState.phi - (t.clientY - tPrev.y)*0.008, 0.05, Math.PI-0.05);
+        tPrev = { x:t.clientX, y:t.clientY };
+        updateCamera();
+      } else if (e.touches.length === 2 && tPinch){
+        e.preventDefault();
+        const d = tdist(e.touches);
+        camState.dist = clamp(camState.dist * (tPinch.d / Math.max(d,1)), 10, 5000);
+        tPinch = { d };
+        updateCamera();
+      }
+    }, {passive:false});
+
+    el.addEventListener('touchend', e=>{
+      if (e.touches.length === 0){ tPrev = null; tPinch = null; }
+      else if (e.touches.length === 1){
+        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+        tPinch = null;
+      }
+    }, {passive:true});
   }
+
   function updateCamera(){
     const {theta, phi, dist} = camState;
     camera.position.set(
@@ -1969,6 +2227,7 @@ const Gear3D = (function(){
     );
     camera.lookAt(camState.target);
   }
+
   function setView(v){
     switch(v){
       case 'front':  camState.theta = 0; camState.phi = Math.PI/2; break;
@@ -1979,9 +2238,12 @@ const Gear3D = (function(){
       case 'right':  camState.theta = Math.PI/2; camState.phi = Math.PI/2; break;
       case 'iso':    camState.theta = 0.9; camState.phi = 1.05; break;
       case 'reset':  camState.theta = 0.9; camState.phi = 1.05; camState.dist = 260; break;
+      case 'zoomin': camState.dist = clamp(camState.dist*0.8, 10, 5000); break;
+      case 'zoomout':camState.dist = clamp(camState.dist*1.25, 10, 5000); break;
     }
     updateCamera();
   }
+
   function buildGearSolid(profile, width, twist, boreR){
     const group = new THREE.Group();
     const pts = profile.outline;
@@ -2014,6 +2276,7 @@ const Gear3D = (function(){
     sideGeo.setIndex(idx);
     sideGeo.computeVertexNormals();
     group.add(new THREE.Mesh(sideGeo, makeMaterial()));
+
     const shape = new THREE.Shape(pts.map(p=>new THREE.Vector2(p.x, p.y)));
     if (boreR > 0.001){
       const hole = new THREE.Path();
@@ -2036,12 +2299,14 @@ const Gear3D = (function(){
     }
     return group;
   }
+
   function makeMaterial(color){
     return new THREE.MeshStandardMaterial({
       color: color === undefined ? 0x9aa7b5 : color,
       metalness: 0.72, roughness: 0.36, side: THREE.DoubleSide, wireframe: wire
     });
   }
+
   function render(g, s){
     if (!initialized) return;
     while (root.children.length) disposeTree(root.children.pop());
@@ -2074,17 +2339,20 @@ const Gear3D = (function(){
     }
     reportInfo(g);
   }
+
   function disposeTree(obj){
     obj.traverse(o => {
       if (o.geometry) o.geometry.dispose();
       if (o.material){ Array.isArray(o.material) ? o.material.forEach(m=>m.dispose()) : o.material.dispose(); }
     });
   }
+
   function reportInfo(g){
     const box = document.getElementById('meshInfo');
     if (!box) return;
     box.innerHTML = `Type: <b>${g.type}</b><br>Pitch Ø: <b>${fmtLen(g.d,2)} ${LEN()}</b><br>Outside Ø: <b>${fmtLen(g.da,2)} ${LEN()}</b>`;
   }
+
   function animate(){
     requestAnimationFrame(animate);
     if (!renderer) return;
@@ -2095,8 +2363,9 @@ const Gear3D = (function(){
     }
     renderer.render(scene, camera);
   }
+
   return {
-    init, render, setView,
+    init, render, setView, resize,
     setSpin(v){ spinning = v; },
     setExplode(v){ if (root) root.position.z = v ? 40 : 0; },
     setWire(v){ wire = v; root.traverse(o => { if (o.material && o.material.wireframe !== undefined) o.material.wireframe = v; }); },
@@ -2208,6 +2477,58 @@ const App = (function(){
     }
   }
 
+  /* ---------- GEAR-TYPE SPECIFIC PANELS ----------
+   * Helical selected  -> only helical / worm lead panels are shown.
+   * Spiral bevel      -> only the spiral bevel panel is shown.
+   * No foreign (bevel / spiral bevel) information is displayed for a helical gear.
+   */
+  function showEl(id, vis){
+    const el = $(id);
+    if (el) el.style.display = vis ? '' : 'none';
+  }
+  function updateTypeSpecificUI(){
+    const t = State.gearType;
+    const leadLike   = (t === 'helical' || t === 'worm' || t === 'wormwheel');
+    const spiralLike = (t === 'spiralbevel');
+
+    showEl('helicalLeadGroup', leadLike);
+    showEl('helicalGearTrainCard', leadLike);
+    showEl('spiralBevelGroup', spiralLike);
+
+    const ht = $('helicalLeadTitle');
+    if (ht){
+      ht.textContent = (t === 'worm' || t === 'wormwheel')
+        ? 'Worm Lead Calculation'
+        : 'Helical Lead Calculation';
+    }
+  }
+
+  /* ---------- SYNC LEAD TAB WITH THE ACTIVE GEAR ---------- */
+  function syncLeadFromGear(){
+    const g = currentGear;
+    if (!g) return;
+    const t = State.gearType;
+
+    if (t === 'helical' || t === 'worm'){
+      if ($('inLeadD'))   $('inLeadD').value   = fmt(lenOut(g.d), 4);
+      if ($('inLeadBeta'))$('inLeadBeta').value= fmt(g.type === 'helical' ? g.betaDeg : (g.leadAngleDeg || 20), 4);
+      if ($('inLeadB'))   $('inLeadB').value   = fmt(lenOut(State.faceWidth), 4);
+      if ($('inLeadHand'))$('inLeadHand').value= State.hand;
+      computeLead();
+      if (selVal('leadMode') === 'auto' && g.lead && $('inReqLead')){
+        $('inReqLead').value = fmt(lenOut(g.lead), 4);
+        updateKinematicBox();
+      }
+    }
+    if (t === 'spiralbevel'){
+      if ($('inSpiralDm'))   $('inSpiralDm').value   = fmt(lenOut(g.dm1), 4);
+      if ($('inSpiralBeta')) $('inSpiralBeta').value = fmt(State.spiralAngle, 4);
+      if ($('inSpiralB'))    $('inSpiralB').value    = fmt(lenOut(State.faceWidth), 4);
+      if ($('inSpiralHand')) $('inSpiralHand').value = State.hand;
+      computeSpiralLead();
+    }
+  }
+
   /* ---------- INPUT SUMMARY ---------- */
   function renderInputSummary(){
     const box = $('inputSummary');
@@ -2272,13 +2593,14 @@ const App = (function(){
     currentPair = calcPair(g, State);
 
     updateTabVisibility();
+    updateTypeSpecificUI();
     renderValidation(validate(State, g));
     renderInputSummary();
     renderResults(g);
     renderTrace(g);
     renderSvg(g);
     renderToothPanel(g);
-    setTimeout(() => { Gear3D.init($('threeWrap')); Gear3D.render(g, State); }, 40);
+    setTimeout(() => { Gear3D.init($('threeWrap')); Gear3D.render(g, State); Gear3D.resize(); }, 40);
     updateLeadVisuals(g);
     computeCnc();
     computeMilling(g);
@@ -2289,6 +2611,7 @@ const App = (function(){
     SvgDrawing.drawToolpath($('toolpathSvg'), g, State, 0);
     computeIndexing();
     updateKinematicBox();
+    syncLeadFromGear();
   }
 
   function renderValidation(list){
@@ -2337,8 +2660,13 @@ const App = (function(){
   function renderSvg(g){
     let scale = 1;
     if (g.ra > 0){ scale = 290/Math.max(g.ra, State.faceWidth/2); }
+    let label = State.gearType.toUpperCase();
+    if (g.type === 'helical')     label += `   β = ${fmt(g.betaDeg,2)}°   ${String(State.hand).toUpperCase()} HAND`;
+    if (g.type === 'worm')        label += `   γ = ${fmt(g.leadAngleDeg,2)}°`;
+    if (g.type === 'spiralbevel') label += `   β_m = ${fmt(g.spiralAngle,2)}°   ${String(State.hand).toUpperCase()} HAND`;
     SvgDrawing.drawGear($('gearSvg'), g, State, {
       scale,
+      label,
       showPitch: $('chkPitch').checked,
       showBase: $('chkBase').checked,
       showRoot: $('chkRoot').checked,
@@ -2832,11 +3160,13 @@ const App = (function(){
         if (btn.dataset.tab === 'model3d'){
           setTimeout(()=>{
             Gear3D.init($('threeWrap'));
+            Gear3D.resize();
             if (currentGear) Gear3D.render(currentGear, State);
             window.dispatchEvent(new Event('resize'));
           }, 60);
         }
         if (btn.dataset.tab === 'report') generateReport();
+        if (btn.dataset.tab === 'lead') SvgZoom.attachAll();
       });
     });
 
@@ -2871,18 +3201,18 @@ const App = (function(){
       renderSvg(currentGear); renderToothPanel(currentGear);
     });
     $('btnToothAll').addEventListener('click', ()=>{ $('inToothSel').value = 1; renderSvg(currentGear); renderToothPanel(currentGear); });
+
+    /* gear drawing zoom buttons -> shared controller */
     document.querySelectorAll('[data-svg]').forEach(b => {
       b.addEventListener('click', () => {
-        const svg = $('gearSvg');
-        const vb = svg.getAttribute('viewBox').split(' ').map(Number);
-        let [x,y,w,h] = vb;
-        if (b.dataset.svg === 'zoomin'){ w*=0.8; h*=0.8; }
-        else if (b.dataset.svg === 'zoomout'){ w*=1.25; h*=1.25; }
-        else { x=-320; y=-320; w=640; h=640; }
-        if (b.dataset.svg !== 'reset'){ const cx = x + w/2, cy = y + h/2; x = cx - w/2; y = cy - h/2; }
-        svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+        const ctl = SvgZoom.attach($('gearSvg'));
+        if (!ctl) return;
+        if (b.dataset.svg === 'zoomin') ctl.zoomIn();
+        else if (b.dataset.svg === 'zoomout') ctl.zoomOut();
+        else ctl.reset();
       });
     });
+
     document.querySelectorAll('[data-view]').forEach(b => {
       b.addEventListener('click', () => Gear3D.setView(b.dataset.view));
     });
@@ -3000,6 +3330,7 @@ const App = (function(){
     wire();
     writeInputs();
     updateIdxMethodUI();
+    updateTypeSpecificUI();
     recompute();
     computeLead();
     computeSpiralLead();
@@ -3007,6 +3338,8 @@ const App = (function(){
     computeIndexing();
     try { runLeadGearSearch('helical'); } catch(e){}
     try { runLeadGearSearch('spiral'); } catch(e){}
+    /* enable zoom / pan on every 2D drawing */
+    SvgZoom.attachAll();
   }
   return { init, recompute, _spin:false, get gear(){ return currentGear; } };
 })();
