@@ -235,11 +235,11 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <label id="lblModule">Module m</label>
           <input type="number" id="inModule" step="0.01" min="0.1" value="3">
         </div>
-        <div class="field">
+        <div class="field" id="fTeeth">
           <label id="lblTeeth">Number of teeth z</label>
           <input type="number" id="inTeeth" step="1" min="1" value="24">
         </div>
-        <div class="field">
+        <div class="field" id="fMate">
           <label id="lblMate">Mating gear teeth z₂ <span class="hint">(0 = none)</span></label>
           <input type="number" id="inMate" step="1" min="0" value="48">
         </div>
@@ -265,26 +265,26 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <label>Hand</label>
           <select id="inHand"><option value="right">Right hand</option><option value="left">Left hand</option></select>
         </div>
-        <div class="field">
-          <label>Face width b <span class="unit" id="uFace">mm</span></label>
+        <div class="field" id="fFace">
+          <label id="lblFace">Face width b <span class="unit" id="uFace">mm</span></label>
           <input type="number" id="inFace" step="0.5" min="1" value="30">
         </div>
-        <div class="field">
+        <div class="field" id="fBore">
           <label>Bore Ø <span class="unit" id="uBore">mm</span></label>
           <input type="number" id="inBore" step="0.5" min="0" value="20">
         </div>
       </div>
 
       <div class="grid g3">
-        <div class="field">
+        <div class="field" id="fShift">
           <label>Profile shift x</label>
           <input type="number" id="inShift" step="0.05" value="0">
         </div>
-        <div class="field">
+        <div class="field" id="fHaC">
           <label>Addendum coeff hₐ*</label>
           <input type="number" id="inHaC" step="0.05" value="1.0">
         </div>
-        <div class="field">
+        <div class="field" id="fHfC">
           <label>Dedendum coeff h_f*</label>
           <input type="number" id="inHfC" step="0.05" value="1.25">
         </div>
@@ -306,7 +306,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
 
       <div class="grid g3">
-        <div class="field">
+        <div class="field" id="fRpm">
           <label>Speed <span class="hint">(RPM)</span></label>
           <input type="number" id="inRpm" step="10" min="0" value="500">
         </div>
@@ -314,14 +314,14 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
           <label>Power <span class="unit" id="uPower">kW</span></label>
           <input type="number" id="inPower" step="0.1" min="0" value="5">
         </div>
-        <div class="field">
+        <div class="field" id="fMaterial">
           <label>Material</label>
           <select id="inMaterial"></select>
         </div>
       </div>
 
       <div class="grid g3">
-        <div class="field">
+        <div class="field" id="fMethod">
           <label>Manufacturing method</label>
           <select id="inMethod">
             <option>Gear milling (form cutter)</option>
@@ -333,11 +333,11 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
             <option>Manual milling</option>
           </select>
         </div>
-        <div class="field">
+        <div class="field" id="fChainPitch">
           <label>Chain pitch p <span class="hint">(sprocket only)</span></label>
           <input type="number" id="inChainPitch" step="0.05" min="1" value="12.7">
         </div>
-        <div class="field">
+        <div class="field" id="fRoller">
           <label>Roller Ø <span class="hint">(sprocket only)</span></label>
           <input type="number" id="inRoller" step="0.05" min="0.1" value="7.75">
         </div>
@@ -1098,7 +1098,7 @@ function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } retu
 function lcm(a,b){ return Math.abs(a*b)/gcd(a,b); }
 
 /* ============================================================================
- * PER-GEAR-TYPE TAB CONFIGURATION
+ * SECTION 5 — TAB VISIBILITY (per gear type)
  * ==========================================================================*/
 const TABS_FOR_TYPE = {
   spur:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
@@ -1112,7 +1112,90 @@ const TABS_FOR_TYPE = {
 };
 
 /* ============================================================================
- * INVOLUTE TOOTH GEOMETRY ENGINE
+ * SECTION 6 — GEAR TYPE → FIELD CONFIGURATION
+ *
+ * Each entry declares exactly which input wrappers are shown, and the
+ * type-specific label HTML to render into them. Labels that carry a
+ * unit span use the "{U}" placeholder, which is substituted with the
+ * current length unit so the UI stays correct in both metric & imperial.
+ * ==========================================================================*/
+const GEAR_TYPE_CONFIG = {
+  spur: {
+    fields: ['fModule','fTeeth','fMate','fPA','fShift','fHaC','fHfC',
+             'fBacklash','fFace','fBore','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of teeth z',
+      lblMate:  'Mating gear teeth z₂ <span class="hint">(0 = none)</span>',
+      lblFace:  'Face width b <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  helical: {
+    fields: ['fModule','fTeeth','fMate','fPA','fHelix','fHand','fShift','fHaC','fHfC',
+             'fBacklash','fFace','fBore','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of teeth z',
+      lblMate:  'Mating gear teeth z₂ <span class="hint">(0 = none)</span>',
+      lblFace:  'Face width b <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  bevel: {
+    fields: ['fModule','fTeeth','fMate','fPA','fShaftAngle',
+             'fBacklash','fFace','fBore','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of teeth z₁',
+      lblMate:  'Mating gear teeth z₂',
+      lblFace:  'Face width b <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  spiralbevel: {
+    fields: ['fModule','fTeeth','fMate','fPA','fSpiral','fHand','fShaftAngle',
+             'fBacklash','fFace','fBore','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of teeth z₁',
+      lblMate:  'Mating gear teeth z₂',
+      lblFace:  'Face width b <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  worm: {
+    fields: ['fModule','fTeeth','fMate','fWormQ','fPA','fHand',
+             'fBacklash','fFace','fBore','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of starts z₁',
+      lblMate:  'Wheel teeth z₂ <span class="hint">(0 = 40)</span>',
+      lblFace:  'Worm length L <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  wormwheel: {
+    fields: ['fModule','fTeeth','fMate','fWormQ','fPA','fHand',
+             'fBacklash','fFace','fBore','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of wheel teeth z₂',
+      lblMate:  'Worm starts z₁ <span class="hint">(1–4)</span>',
+      lblFace:  'Face width b₂ <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  rack: {
+    fields: ['fModule','fTeeth','fPA','fBacklash',
+             'fFace','fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of teeth z',
+      lblMate:  'Mating gear teeth z₂ <span class="hint">(0 = none)</span>',
+      lblFace:  'Rack face width b <span class="unit" id="uFace">{U}</span>'
+    }
+  },
+  sprocket: {
+    fields: ['fTeeth','fChainPitch','fRoller','fFace','fBore',
+             'fRpm','fPower','fMaterial','fMethod'],
+    labels: {
+      lblTeeth: 'Number of sprocket teeth z',
+      lblMate:  'Mating gear teeth z₂',
+      lblFace:  'Face width b <span class="unit" id="uFace">{U}</span>'
+    }
+  }
+};
+
+/* ============================================================================
+ * SECTION 7 — INVOLUTE TOOTH GEOMETRY ENGINE
  * ==========================================================================*/
 const ToothGeometry = (function(){
   function involuteAngleAtRadius(r, rb, phiPitch, invAlphaPitch){
@@ -1221,7 +1304,7 @@ const ToothGeometry = (function(){
 })();
 
 /* ============================================================================
- * CALCULATION ENGINES
+ * SECTION 8 — CALCULATION ENGINES
  * ==========================================================================*/
 
 function calcSpurGear(s){
@@ -1446,9 +1529,13 @@ function calcWorm(s){
            faceWidth:s.faceWidth, bore:s.bore, hand:s.hand, q, rows, trace, warnings };
 }
 
+/* Worm wheel: interpret inTeeth as wheel teeth z₂ and inMate as worm starts z₁ */
 function calcWormWheel(s){
-  const w = calcWorm(s);
-  const m = w.m, z2 = w.z2, d2 = w.d2;
+  const wheelTeeth = s.teeth;
+  let wormStarts = (s.mateTeeth && s.mateTeeth > 0) ? s.mateTeeth : 1;
+  const s2 = Object.assign({}, s, { teeth: wormStarts, mateTeeth: wheelTeeth });
+  const w = calcWorm(s2);
+  const m = w.m, z2 = wheelTeeth, d2 = w.d2;
   const da2 = d2 + 2*m, df2 = d2 - 2.4*m;
   const faceWidth = Math.min(s.faceWidth, 0.75*w.d);
   const throatRadius = w.d/2 + 0.5*m;
@@ -1459,10 +1546,12 @@ function calcWormWheel(s){
   w.faceWidth = faceWidth;
   w.throatRadius = throatRadius;
   w.throatDia = d2 + 2*m;
+  w.starts = wormStarts;
   w.rows = [];
   w.rows.push({sec:'Worm wheel — basic geometry'});
   w.rows.push({l:'Module m', v:m, u:'mm', raw:'mm', conv:'module'});
-  w.rows.push({l:'Number of teeth z₂', v:z2, u:''});
+  w.rows.push({l:'Number of wheel teeth z₂', v:z2, u:''});
+  w.rows.push({l:'Worm starts z₁', v:wormStarts, u:''});
   w.rows.push({l:'Pressure angle α', v:w.alphaDeg, u:'°'});
   w.rows.push({l:'Hand', v:s.hand==='right'?'Right':'Left', u:''});
   w.rows.push({sec:'Wheel dimensions'});
@@ -1543,7 +1632,10 @@ function calcSprocket(s){
            rows, trace:[], warnings, helixAngle:0 };
 }
 
+/* Pair metrics — only for involute gear pairs. Null for worm/wormwheel/rack/sprocket
+   because their contact-ratio / centre-distance formulas are different. */
 function calcPair(g, s){
+  if (['worm','wormwheel','rack','sprocket'].includes(g.type)) return null;
   if (!s.mateTeeth || s.mateTeeth <= 0) return null;
   const z1 = s.teeth, z2 = s.mateTeeth;
   const m  = g.type==='helical' ? g.mt : g.m;
@@ -1575,7 +1667,7 @@ function validate(s, g){
   const ok = m=>out.push({lv:'ok',m}), warn = m=>out.push({lv:'warn',m}), err = m=>out.push({lv:'err',m});
   if (!(s.module > 0) && g.type!=='sprocket') err('Module must be > 0.');
   if (!(s.teeth >= 1) || !Number.isInteger(s.teeth)) err('Teeth must be a positive integer.');
-  if (s.pressureAngle < 10 || s.pressureAngle > 30) err('Pressure angle 10°–30°.');
+  if (g.type !== 'sprocket' && (s.pressureAngle < 10 || s.pressureAngle > 30)) err('Pressure angle 10°–30°.');
   if (s.faceWidth <= 0) err('Face width > 0.');
   if (s.backlash < 0) err('Backlash cannot be negative.');
   if (!g) return out;
@@ -1587,6 +1679,8 @@ function validate(s, g){
     if (s.teeth < zmin && s.profileShift <= 0.001 && s.pressureAngle <= 21)
       warn(`Undercut risk: z = ${s.teeth} < ${zmin}.`);
   }
+  if (g.type === 'wormwheel' && s.mateTeeth > 4)
+    warn(`Worm starts z₁ = ${s.mateTeeth} is unusually high — typical 1–4.`);
   if (out.filter(x=>x.lv==='err').length === 0 && out.filter(x=>x.lv==='warn').length === 0)
     ok('All checks passed.');
   return out;
@@ -1703,7 +1797,7 @@ function recommendCutter(z){
 }
 
 /* ============================================================================
- * SVG 2D DRAWING ENGINE
+ * SECTION 9 — SVG 2D DRAWING ENGINE
  * ==========================================================================*/
 const SvgDrawing = (function(){
   const BG = `<rect x="-2000" y="-2000" width="4000" height="4000" fill="#0a0e13"/>`;
@@ -2161,7 +2255,7 @@ const SvgDrawing = (function(){
 })();
 
 /* ============================================================================
- * SVG ZOOM / PAN CONTROLLER
+ * SECTION 10 — SVG ZOOM / PAN CONTROLLER
  * ==========================================================================*/
 const SvgZoom = (function(){
   const MIN_SCALE = 0.15;
@@ -2303,7 +2397,7 @@ const SvgZoom = (function(){
 })();
 
 /* ============================================================================
- * THREE.JS 3D GEAR ENGINE
+ * SECTION 11 — THREE.JS 3D GEAR ENGINE
  * ==========================================================================*/
 const Gear3D = (function(){
   let renderer, scene, camera, root, pitchCircle, axesHelper;
@@ -2751,7 +2845,7 @@ const Gear3D = (function(){
 })();
 
 /* ============================================================================
- * G-CODE GENERATOR — per-gear-type strategy
+ * SECTION 12 — G-CODE GENERATOR
  * ==========================================================================*/
 const GcodeGenerator = (function(){
   const FT = v => (Number(v) || 0).toFixed(3);
@@ -3160,7 +3254,7 @@ const GcodeGenerator = (function(){
 })();
 
 /* ============================================================================
- * APPLICATION CONTROLLER
+ * SECTION 13 — APPLICATION CONTROLLER
  * ==========================================================================*/
 const App = (function(){
   let currentGear = null;
@@ -3224,28 +3318,47 @@ const App = (function(){
     $('inPower').value = fmt(isMetric() ? State.power : UnitConv.kw2hp(State.power), 4);
     $('inChainPitch').value = fmt(lenOut(State.chainPitch), 4);
     $('inRoller').value = fmt(lenOut(State.rollerDia), 4);
-    updateUnitLabels();
-    updateFieldVisibility();
+    applyGearTypeConfig();
   }
+
   function updateUnitLabels(){
     const U = LEN();
     ['uFace','uBore','uBl','uLead','uLead2','uPd','uFw','uSpd','uSb','uTool','ufz','uAp','uAe','uLen','uCutD']
       .forEach(id => { const el = $(id); if (el) el.textContent = U; });
     if ($('uPower')) $('uPower').textContent = isMetric() ? 'kW' : 'HP';
     if ($('uVc')) $('uVc').textContent = isMetric() ? 'm/min' : 'ft/min';
-    if ($('lblModule')) $('lblModule').textContent = isMetric() ? 'Module m (mm)' : 'Diametral pitch DP (1/in)';
+    const moduleLabels = {
+      spur:        isMetric() ? 'Module m (mm)'         : 'Diametral pitch DP (1/in)',
+      helical:     isMetric() ? 'Normal module mₙ (mm)' : 'Normal DPₙ (1/in)',
+      bevel:       isMetric() ? 'Module m (mm)'         : 'Diametral pitch DP (1/in)',
+      spiralbevel: isMetric() ? 'Module m (mm)'         : 'Diametral pitch DP (1/in)',
+      worm:        isMetric() ? 'Axial module mₓ (mm)'  : 'Axial DP (1/in)',
+      wormwheel:   isMetric() ? 'Module m (mm)'         : 'Diametral pitch DP (1/in)',
+      rack:        isMetric() ? 'Module m (mm)'         : 'Diametral pitch DP (1/in)'
+    };
+    if ($('lblModule')) $('lblModule').textContent = moduleLabels[State.gearType] || 'Module m';
   }
-  function updateFieldVisibility(){
-    const t = State.gearType;
-    if ($('fHelix')) $('fHelix').style.display = (t === 'helical') ? '' : 'none';
-    if ($('fHand')) $('fHand').style.display = (t === 'helical' || t === 'worm' || t === 'wormwheel' || t === 'spiralbevel') ? '' : 'none';
-    if ($('fSpiral')) $('fSpiral').style.display = (t === 'spiralbevel') ? '' : 'none';
-    if ($('fShaftAngle')) $('fShaftAngle').style.display = (t === 'bevel' || t === 'spiralbevel') ? '' : 'none';
-    if ($('fWormQ')) $('fWormQ').style.display = (t === 'worm' || t === 'wormwheel') ? '' : 'none';
-    if ($('fPA')) $('fPA').style.display = (t === 'sprocket') ? 'none' : '';
-    if ($('fBacklash')) $('fBacklash').style.display = (t === 'sprocket' || t === 'rack') ? 'none' : '';
-    if ($('fModule')) $('fModule').style.display = (t === 'sprocket') ? 'none' : '';
+
+  /* The core per-gear-type field configuration pass. */
+  function applyGearTypeConfig(){
+    const cfg = GEAR_TYPE_CONFIG[State.gearType] || GEAR_TYPE_CONFIG.spur;
+    const visible = new Set(cfg.fields);
+    const allFields = ['fModule','fTeeth','fMate','fPA','fHelix','fSpiral','fHand','fShaftAngle',
+                       'fWormQ','fShift','fHaC','fHfC','fBacklash','fFace','fBore','fRpm','fPower',
+                       'fMaterial','fMethod','fChainPitch','fRoller'];
+    allFields.forEach(id=>{
+      const el = $(id);
+      if (el) el.style.display = visible.has(id) ? '' : 'none';
+    });
+    if (cfg.labels){
+      for (const [id, html] of Object.entries(cfg.labels)){
+        const el = $(id);
+        if (el) el.innerHTML = html.replace('{U}', LEN());
+      }
+    }
+    updateUnitLabels();
   }
+
   function updateTabVisibility(){
     const visible = TABS_FOR_TYPE[State.gearType] || TABS_FOR_TYPE.spur;
     const visibleSet = new Set(visible);
@@ -3300,37 +3413,73 @@ const App = (function(){
     }
   }
 
+  /* Type-aware input summary — each gear type only shows its own data. */
   function renderInputSummary(){
     const box = $('inputSummary');
     if (!box) return;
-    const items = [
-      ['Gear type', State.gearType],
-      ['Module / DP', isMetric() ? fmt(State.module,3)+' mm' : fmt(UnitConv.module2dp(State.module),3)+' DP'],
-      ['Teeth z', String(State.teeth)],
-      ['Mating teeth z₂', String(State.mateTeeth||'—')],
-      ['Pressure angle α', State.pressureAngle+'°'],
-      ['Face width b', fmtLen(State.faceWidth,3)+' '+LEN()],
-      ['Bore Ø', fmtLen(State.bore,3)+' '+LEN()],
-      ['Profile shift x', fmt(State.profileShift,3)],
-      ['Addendum hₐ*', fmt(State.addendumCoeff,3)],
-      ['Dedendum h_f*', fmt(State.dedendumCoeff,3)],
-      ['Backlash j', fmtLen(State.backlash,4)+' '+LEN()],
-      ['Speed', State.rpm+' RPM'],
-      ['Power', isMetric() ? fmt(State.power,3)+' kW' : fmt(UnitConv.kw2hp(State.power),3)+' HP']
-    ];
-    if (State.gearType === 'helical'){
-      items.splice(5,0, ['Helix angle β', State.helixAngle+'°'], ['Hand', State.hand]);
+    const t = State.gearType;
+    const items = [];
+    items.push(['Gear type', t]);
+    if (t !== 'sprocket'){
+      items.push(['Module / DP', isMetric()
+        ? fmt(State.module,3)+' mm'
+        : fmt(UnitConv.module2dp(State.module),3)+' DP']);
     }
-    if (State.gearType === 'spiralbevel'){
-      items.splice(5,0, ['Spiral angle β_m', State.spiralAngle+'°'], ['Shaft angle Σ', State.shaftAngle+'°']);
+    if (t === 'worm'){
+      items.push(['Starts z₁', String(State.teeth)]);
+      items.push(['Wheel teeth z₂', String(State.mateTeeth||'—')]);
+    } else if (t === 'wormwheel'){
+      items.push(['Wheel teeth z₂', String(State.teeth)]);
+      items.push(['Worm starts z₁', String(State.mateTeeth||'1')]);
+    } else if (t === 'rack'){
+      items.push(['Teeth z', String(State.teeth)]);
+    } else if (t === 'sprocket'){
+      items.push(['Sprocket teeth z', String(State.teeth)]);
+    } else {
+      items.push(['Teeth z', String(State.teeth)]);
+      items.push(['Mating teeth z₂', String(State.mateTeeth||'—')]);
     }
-    if (State.gearType === 'worm' || State.gearType === 'wormwheel'){
+    if (t !== 'sprocket'){
+      items.push(['Pressure angle α', State.pressureAngle+'°']);
+    }
+    if (t === 'helical'){
+      items.push(['Helix angle β', State.helixAngle+'°']);
+      items.push(['Hand', State.hand]);
+    }
+    if (t === 'spiralbevel'){
+      items.push(['Spiral angle β_m', State.spiralAngle+'°']);
+      items.push(['Shaft angle Σ', State.shaftAngle+'°']);
+      items.push(['Hand', State.hand]);
+    }
+    if (t === 'bevel'){
+      items.push(['Shaft angle Σ', State.shaftAngle+'°']);
+    }
+    if (t === 'worm' || t === 'wormwheel'){
       items.push(['Worm q factor', fmt(State.wormQ,2)]);
+      items.push(['Hand', State.hand]);
     }
-    if (State.gearType === 'sprocket'){
+    if (t === 'spur' || t === 'helical'){
+      items.push(['Profile shift x', fmt(State.profileShift,3)]);
+      items.push(['Addendum hₐ*', fmt(State.addendumCoeff,3)]);
+      items.push(['Dedendum h_f*', fmt(State.dedendumCoeff,3)]);
+    }
+    if (t !== 'sprocket'){
+      items.push(['Backlash j', fmtLen(State.backlash,4)+' '+LEN()]);
+    }
+    const faceLabel = (t === 'worm') ? 'Worm length L'
+                    : (t === 'wormwheel') ? 'Face width b₂'
+                    : (t === 'rack') ? 'Rack width b'
+                    : 'Face width b';
+    items.push([faceLabel, fmtLen(State.faceWidth,3)+' '+LEN()]);
+    if (t !== 'rack'){
+      items.push(['Bore Ø', fmtLen(State.bore,3)+' '+LEN()]);
+    }
+    if (t === 'sprocket'){
       items.push(['Chain pitch', fmtLen(State.chainPitch,3)+' '+LEN()]);
       items.push(['Roller Ø', fmtLen(State.rollerDia,3)+' '+LEN()]);
     }
+    items.push(['Speed', State.rpm+' RPM']);
+    items.push(['Power', isMetric() ? fmt(State.power,3)+' kW' : fmt(UnitConv.kw2hp(State.power),3)+' HP']);
     let html = '';
     for (const [k,v] of items){
       html += `<div class="summary-item"><span>${k}</span><b>${v}</b></div>`;
@@ -3382,7 +3531,6 @@ const App = (function(){
     computeIndexing();
     updateKinematicBox();
     syncLeadFromGear();
-    // Reset gcode view when inputs change
     if ($('gcodeBox')){
       $('gcodeBox').textContent = '';
       $('gcodeBox').style.display = 'none';
@@ -3508,7 +3656,8 @@ const App = (function(){
     } else if (t === 'wormwheel'){
       el.innerHTML =
         `<div><span class="k">GEAR TYPE:</span> <b>Worm Wheel</b></div>` +
-        `<div><span class="k">Number of teeth z₂:</span> <b>${g.z2}</b></div>` +
+        `<div><span class="k">Number of wheel teeth z₂:</span> <b>${g.z2}</b></div>` +
+        `<div><span class="k">Worm starts z₁:</span> <b>${g.starts||'—'}</b></div>` +
         `<div><span class="k">Module m:</span> <b>${fmtLen(g.m,3)} ${LEN()}</b></div>` +
         `<div><span class="k">Pitch Ø d₂:</span> <b>${fmtLen(g.d,3)} ${LEN()}</b></div>` +
         `<div><span class="k">Outside Ø d_a2:</span> <b>${fmtLen(g.da,3)} ${LEN()}</b></div>` +
@@ -4158,7 +4307,6 @@ const App = (function(){
       computeCnc();
     });
 
-    // ---- FULL WORKING G-CODE GENERATION ----
     $('btnGcode').addEventListener('click', ()=>{
       if (!currentGear){
         alert('Calculate a gear first (click Recalculate).');
