@@ -89,14 +89,12 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
   border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer}
 .view-btns button:hover{background:var(--accent2);border-color:var(--accent)}
 
-/* ---- SVG zoom overlay (auto-injected on every drawing) ---- */
 .svg-zoom{position:absolute;top:8px;right:8px;display:flex;flex-direction:column;gap:4px;z-index:6}
 .svg-zoom button{width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;
   background:rgba(22,27,34,.92);border:1px solid var(--line);color:var(--txt);border-radius:4px;
   font-size:14px;line-height:1;cursor:pointer}
 .svg-zoom button:hover{background:var(--accent2);border-color:var(--accent)}
 
-/* ---- 3D tab layout ---- */
 .g3d{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) 320px}
 
 .btn{background:#1f2937;border:1px solid var(--line);color:var(--txt);padding:7px 13px;border-radius:5px;
@@ -129,10 +127,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 .summary-item span{color:var(--dim)}
 .summary-item b{font-family:var(--mono);color:#eaf2ff;font-weight:600}
 
-/* ============================ RESPONSIVE ============================ */
-@media (max-width: 980px){
-  .g3d{grid-template-columns:1fr}
-}
+@media (max-width: 980px){ .g3d{grid-template-columns:1fr} }
 @media (max-width: 760px){
   html,body{font-size:13.5px}
   .topbar{position:static;padding:8px 10px;gap:8px}
@@ -173,7 +168,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 <body>
 
 <header class="topbar">
-  <div class="brand">⚙ GEAR <span>ENGINEERING</span> PLATFORM</div>
+  <div class="brand">⚙ GEAR <span>ENGINEERING</span> By Gizie Melkamu</div>
   <div class="topbar-controls">
     <label>Units
       <select id="unitSystem">
@@ -380,7 +375,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
   <div class="grid g2">
     <div class="card">
       <div class="row">
-        <h2 style="margin:0">2D Engineering Drawing</h2>
+        <h2 style="margin:0" id="drawingTitle">2D Engineering Drawing</h2>
         <div class="spacer"></div>
         <button class="btn small" id="btnSvgPng">Export PNG</button>
         <button class="btn small" id="btnSvgFile">Export SVG</button>
@@ -424,7 +419,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
       <div class="tooth-panel" id="toothPanel"></div>
 
-      <h3 style="margin-top:16px">Involute Sample Points</h3>
+      <h3 style="margin-top:16px">Profile Sample Points</h3>
       <div class="trace" id="involuteTable" style="max-height:240px"></div>
     </div>
   </div>
@@ -472,9 +467,10 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         </label>
       </div>
       <div class="note" style="margin-top:12px">
-        The 3D solid is generated directly from the calculated involute tooth profile.
-        Every parameter change regenerates the mesh. Drag to orbit, wheel/pinch to zoom,
-        use ＋ / − for step zoom.
+        The 3D solid is generated from the profile of each specific gear type —
+        spur/helical/wormwheel use involute extrusion, bevel/spiral bevel use a
+        tapered cone body, worm uses a helix on a cylinder, rack is an extruded
+        straight-tooth bar, and sprocket is a disc with roller pockets.
       </div>
       <div id="meshInfo" class="note" style="margin-top:10px"></div>
     </div>
@@ -672,7 +668,6 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 </section>
 
 <section id="tab-lead" class="tab-pane">
-  <!-- ===== HELICAL / WORM LEAD BLOCK (id added) ===== -->
   <div class="grid g2" id="helicalLeadGroup">
     <div class="card">
       <h2 id="helicalLeadTitle">Helical Lead Calculation</h2>
@@ -715,7 +710,6 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
     </div>
   </div>
 
-  <!-- ===== HELICAL CHANGE-GEAR SEARCH (id added) ===== -->
   <div class="card" id="helicalGearTrainCard" style="margin-top:14px">
     <h2>Helical Lead — Change-Gear Train Search</h2>
     <div class="grid g2">
@@ -781,7 +775,6 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
     </div>
   </div>
 
-  <!-- ===== SPIRAL BEVEL BLOCK (id added) ===== -->
   <div class="card" id="spiralBevelGroup" style="margin-top:14px">
     <h2>Spiral Bevel Lead</h2>
     <div class="grid g2">
@@ -1020,6 +1013,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
+
 /* ============================================================================
  * SECTION 1 — ENGINEERING CONSTANTS
  * ==========================================================================*/
@@ -1108,12 +1102,6 @@ const TABS_FOR_TYPE = {
   wormwheel:   ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report'],
   rack:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
   sprocket:    ['design','tooth','model3d','indexing','cnc','inspection','report']
-};
-
-const TAB_LABEL = {
-  design:'Gear Design', tooth:'Tooth Geometry', model3d:'3D Model',
-  indexing:'Indexing', changegears:'Change Gears', lead:'Lead / Helical',
-  cnc:'CNC & Milling', inspection:'Inspection', report:'Report'
 };
 
 /* ============================================================================
@@ -1226,8 +1214,10 @@ const ToothGeometry = (function(){
 })();
 
 /* ============================================================================
- * CALCULATION ENGINES
+ * CALCULATION ENGINES  — every gear type exposes a full geometry table,
+ * effectiveTeeth (used for profile generation), and type-specific rows
  * ==========================================================================*/
+
 function calcSpurGear(s){
   const m = s.module, z = s.teeth, alphaDeg = s.pressureAngle;
   const alpha = alphaDeg*D2R, x = s.profileShift;
@@ -1265,7 +1255,7 @@ function calcSpurGear(s){
   const warnings = [];
   if (z < ENGINEERING_CONSTANTS.minTeethNoUndercut20 && alphaDeg <= 21 && x <= 0.001)
     warnings.push({lv:'warn', m:`Undercut likely: z = ${z} < ${ENGINEERING_CONSTANTS.minTeethNoUndercut20}.`});
-  return { type:'spur', m, z, alpha, alphaDeg, x, haC, hfC, backlash:j,
+  return { type:'spur', m, z, effectiveTeeth:z, alpha, alphaDeg, x, haC, hfC, backlash:j,
            d, db, da, df, ha, hf, h, p, pb, sPitch, toothSpace, rp, rb, ra, rf,
            faceWidth:s.faceWidth, bore:s.bore, hand:null, rows, trace, warnings,
            helixAngle:0, lead:null };
@@ -1298,17 +1288,19 @@ function calcHelicalGear(s){
   rows.push({l:'Transverse pressure angle α_t', v:atDeg, u:'°'});
   rows.push({sec:'Diameters'});
   rows.push({l:'Pitch diameter d', v:d, u:LEN(), raw:'mm', conv:'len'});
+  rows.push({l:'Base diameter d_b', v:db, u:LEN(), raw:'mm', conv:'len'});
   rows.push({l:'Outside diameter d_a', v:da, u:LEN(), raw:'mm', conv:'len'});
   rows.push({l:'Root diameter d_f', v:df, u:LEN(), raw:'mm', conv:'len'});
-  rows.push({sec:'Pitches & lead'});
+  rows.push({sec:'Pitches, lead & contact'});
   rows.push({l:'Normal pitch p_n', v:pn, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Transverse pitch p_t', v:pt, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Axial pitch p_x', v:px, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Lead L', v:L, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Overlap ratio ε_β', v:epsBeta, u:''});
+  rows.push({l:'Face width b', v:b, u:'mm', raw:'mm', conv:'len'});
   trace.push({t:'Transverse module', f:'m_t = m_n / cos β', s:`m_t = ${mn} / cos ${betaDeg}°`, r:`m_t = ${fmt(mt,4)} mm`});
   trace.push({t:'Lead', f:'L = π·d / tan β', s:`L = π × ${fmt(d,4)} / tan ${betaDeg}°`, r:`L = ${fmt(L,4)} mm`});
-  return { type:'helical', m:mn, mt, z, alpha:an, alphaT:at, alphaDeg:anDeg, alphaTDeg:atDeg,
+  return { type:'helical', m:mn, mt, z, effectiveTeeth:z, alpha:an, alphaT:at, alphaDeg:anDeg, alphaTDeg:atDeg,
            beta, betaDeg, hand:s.hand, x, haC:s.addendumCoeff, hfC:s.dedendumCoeff, backlash:j,
            d, db, da, df, ha, hf, h, p:pn, pb:pbt, sPitch:sT, toothSpace:pt-sT,
            rp, rb, ra, rf, pt, pn, px, lead:L, faceWidth:b, bore:s.bore,
@@ -1331,29 +1323,48 @@ function calcBevelGear(s){
   const da1 = d1 + 2*hae, df1 = d1 - 2*hfe;
   const k = 1 - 0.5*b/R;
   const dm1 = d1*k, mm = m*k;
+  const Rm = R - 0.5*b;
+  const faceCone1 = delta1 + Math.atan(ha/R);
+  const rootCone1 = delta1 - Math.atan(hf/R);
   const sPitch = Math.PI*m/2 - s.backlash/2;
   const rows=[], trace=[], warnings=[];
-  rows.push({sec:'Bevel gear'});
+  rows.push({sec:'Bevel gear — basic geometry'});
   rows.push({l:'Module m', v:m, u:'mm', raw:'mm', conv:'module'});
   rows.push({l:'Teeth z₁', v:z1, u:''});
   rows.push({l:'Teeth z₂', v:z2, u:''});
+  rows.push({l:'Number of teeth (effective)', v:z1, u:''});
+  rows.push({l:'Pressure angle α', v:alphaDeg, u:'°'});
   rows.push({l:'Shaft angle Σ', v:s.shaftAngle, u:'°'});
-  rows.push({l:'Pitch cone δ₁', v:delta1*R2D, u:'°'});
-  rows.push({l:'Pitch cone δ₂', v:delta2*R2D, u:'°'});
+  rows.push({sec:'Cone geometry'});
+  rows.push({l:'Pitch cone angle δ₁', v:delta1*R2D, u:'°'});
+  rows.push({l:'Pitch cone angle δ₂', v:delta2*R2D, u:'°'});
+  rows.push({l:'Face cone angle δ_a1', v:faceCone1*R2D, u:'°'});
+  rows.push({l:'Root cone angle δ_f1', v:rootCone1*R2D, u:'°'});
   rows.push({l:'Outer cone distance R', v:R, u:'mm', raw:'mm', conv:'len'});
-  rows.push({l:'Face width b', v:b, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Mean cone distance R_m', v:Rm, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Face width b (limited to R/3)', v:b, u:'mm', raw:'mm', conv:'len'});
+  rows.push({sec:'Outer dimensions'});
   rows.push({l:'Pitch Ø d₁', v:d1, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Pitch Ø d₂', v:d2, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Outside Ø d_a1', v:da1, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Root Ø d_f1', v:df1, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Addendum at outer h_ae', v:hae, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Dedendum at outer h_fe', v:hfe, u:'mm', raw:'mm', conv:'len'});
   rows.push({sec:'Mean section'});
   rows.push({l:'Mean module m_m', v:mm, u:'mm', raw:'mm', conv:'module'});
   rows.push({l:'Mean pitch Ø d_m1', v:dm1, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Circular pitch at mean p_m', v:Math.PI*mm, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Tooth thickness s (outer)', v:sPitch, u:'mm', raw:'mm', conv:'len'});
+  trace.push({t:'Pitch cone angle', f:'δ₁ = atan[ sin Σ / (z₂/z₁ + cos Σ) ]',
+              s:`δ₁ = atan[ sin ${s.shaftAngle}° / (${z2}/${z1} + cos ${s.shaftAngle}°) ]`,
+              r:`δ₁ = ${fmt(delta1*R2D,3)}°`});
+  trace.push({t:'Outer cone distance', f:'R = ½·√(d₁² + d₂²)',
+              s:`R = ½ × √(${fmt(d1,3)}² + ${fmt(d2,3)}²)`, r:`R = ${fmt(R,3)} mm`});
   if (s.faceWidth > bMax) warnings.push({lv:'warn', m:`Face width limited to R/3 = ${fmt(bMax,2)} mm.`});
-  return { type:'bevel', m, z:z1, z2, alpha, alphaDeg, x:0, haC:1.0, hfC:1.2, backlash:s.backlash,
+  return { type:'bevel', m, z:z1, z2, effectiveTeeth:z1, alpha, alphaDeg, x:0, haC:1.0, hfC:1.2, backlash:s.backlash,
            d:d1, d2, db:d1*Math.cos(alpha), da:da1, df:df1, ha, hf, h:ha+hf,
            p:Math.PI*m, pb:Math.PI*m*Math.cos(alpha), sPitch, rp:d1/2, rb:d1*Math.cos(alpha)/2,
-           ra:da1/2, rf:df1/2, delta1, delta2, R, Rm:R-0.5*b, b, dm1, mm,
+           ra:da1/2, rf:df1/2, delta1, delta2, faceCone1, rootCone1, R, Rm, b, dm1, mm,
            faceWidth:b, bore:s.bore, hand:null, rows, trace, warnings, helixAngle:0 };
 }
 
@@ -1370,11 +1381,16 @@ function calcSpiralBevel(s){
   base.spiralAxialPitch = pxm;
   base.spiralTravel = spiralTravel;
   base.hand = s.hand;
-  base.rows.push({sec:'Spiral (mean section)'});
+  base.rows.push({sec:'Spiral bevel — mean section'});
   base.rows.push({l:'Spiral angle β_m', v:betaMDeg, u:'°'});
+  base.rows.push({l:'Hand', v:s.hand==='right'?'Right':'Left', u:''});
   base.rows.push({l:'Spiral lead L_s', v:Lspiral, u:'mm', raw:'mm', conv:'len'});
+  base.rows.push({l:'Spiral axial pitch p_xm', v:pxm, u:'mm', raw:'mm', conv:'len'});
+  base.rows.push({l:'Spiral rise across face', v:spiralTravel, u:'mm', raw:'mm', conv:'len'});
   base.trace.push({t:'Spiral lead', f:'L_s = π·d_m / tan β_m',
     s:`L_s = π × ${fmt(dm,4)} / tan ${betaMDeg}°`, r:`L_s = ${fmt(Lspiral,4)} mm`});
+  base.trace.push({t:'Spiral rise', f:'Δ = b · tan β_m',
+    s:`Δ = ${fmt(base.b,3)} × tan ${betaMDeg}°`, r:`Δ = ${fmt(spiralTravel,4)} mm`});
   return base;
 }
 
@@ -1389,26 +1405,38 @@ function calcWorm(s){
   const da1 = d1 + 2*m, df1 = d1 - 2.4*m;
   const a = (d1 + d2)/2, ratio = z2/z1;
   const eta = Math.tan(gamma)/Math.tan(gamma + Math.atan(0.05));
+  const mn = m*Math.cos(gamma);
+  const throatDia = d2 + 2*m;
   const rows=[], trace=[], warnings=[];
-  rows.push({sec:'Worm shaft'});
+  rows.push({sec:'Worm shaft — basic geometry'});
   rows.push({l:'Axial module m_x', v:m, u:'mm', raw:'mm', conv:'module'});
+  rows.push({l:'Normal module m_n', v:mn, u:'mm', raw:'mm', conv:'module'});
   rows.push({l:'Number of starts z₁', v:z1, u:''});
+  rows.push({l:'Diameter factor q', v:q, u:''});
+  rows.push({l:'Pressure angle α', v:alphaDeg, u:'°'});
+  rows.push({l:'Hand', v:s.hand==='right'?'Right':'Left', u:''});
+  rows.push({sec:'Worm dimensions'});
   rows.push({l:'Pitch Ø worm d₁', v:d1, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Outside Ø d_a1', v:da1, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Root Ø d_f1', v:df1, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Axial pitch p_x', v:px, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Lead p_z', v:pz, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Lead angle γ', v:gammaDeg, u:'°'});
+  rows.push({l:'Worm length L', v:s.faceWidth, u:'mm', raw:'mm', conv:'len'});
+  rows.push({sec:'Mating wheel'});
   rows.push({l:'Wheel pitch Ø d₂', v:d2, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Wheel throat Ø (approx.)', v:throatDia, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Centre distance a', v:a, u:'mm', raw:'mm', conv:'len'});
+  rows.push({sec:'Kinematics'});
   rows.push({l:'Ratio i = z₂/z₁', v:ratio, u:''});
-  rows.push({l:'Efficiency η', v:eta*100, u:'%'});
+  rows.push({l:'Efficiency η (estimate)', v:eta*100, u:'%'});
   trace.push({t:'Lead', f:'p_z = π · m · z₁', s:`p_z = π × ${m} × ${z1}`, r:`p_z = ${fmt(pz,4)} mm`});
-  return { type:'worm', m, z:z1, z2, alpha, alphaDeg, x:0, haC:1.0, hfC:1.2, backlash:s.backlash,
+  trace.push({t:'Lead angle', f:'γ = atan(z₁ / q)', s:`γ = atan(${z1} / ${q})`, r:`γ = ${fmt(gammaDeg,3)}°`});
+  return { type:'worm', m, z:z1, z2, effectiveTeeth:z1, alpha, alphaDeg, x:0, haC:1.0, hfC:1.2, backlash:s.backlash,
            d:d1, d2, db:d1*Math.cos(alpha), da:da1, df:df1, ha:m, hf:1.2*m, h:2.2*m,
            p:px, pb:px*Math.cos(alpha), sPitch:px/2 - s.backlash/2,
            rp:d1/2, rb:d1*Math.cos(alpha)/2, ra:da1/2, rf:df1/2,
-           lead:pz, leadAngle:gamma, leadAngleDeg:gammaDeg, ratio, centreDistance:a,
+           lead:pz, leadAngle:gamma, leadAngleDeg:gammaDeg, ratio, centreDistance:a, throatDia,
            faceWidth:s.faceWidth, bore:s.bore, hand:s.hand, q, rows, trace, warnings };
 }
 
@@ -1417,19 +1445,33 @@ function calcWormWheel(s){
   const m = w.m, z2 = w.z2, d2 = w.d2;
   const da2 = d2 + 2*m, df2 = d2 - 2.4*m;
   const faceWidth = Math.min(s.faceWidth, 0.75*w.d);
+  const throatRadius = w.d/2 + 0.5*m; // wrap-around radius (approx)
   w.type = 'wormwheel';
-  w.rows = [];
-  w.rows.push({sec:'Worm wheel'});
-  w.rows.push({l:'Module m', v:m, u:'mm', raw:'mm', conv:'module'});
-  w.rows.push({l:'Number of teeth z₂', v:z2, u:''});
-  w.rows.push({l:'Pitch Ø d₂', v:d2, u:'mm', raw:'mm', conv:'len'});
-  w.rows.push({l:'Outside Ø d_a2', v:da2, u:'mm', raw:'mm', conv:'len'});
-  w.rows.push({l:'Root Ø d_f2', v:df2, u:'mm', raw:'mm', conv:'len'});
-  w.rows.push({l:'Face width b₂', v:faceWidth, u:'mm', raw:'mm', conv:'len'});
-  w.rows.push({l:'Centre distance a', v:w.centreDistance, u:'mm', raw:'mm', conv:'len'});
+  w.effectiveTeeth = z2;
   w.d = d2; w.da = da2; w.df = df2; w.ra = da2/2; w.rf = df2/2; w.rp = d2/2;
   w.rb = d2*Math.cos(w.alpha)/2; w.db = d2*Math.cos(w.alpha);
   w.faceWidth = faceWidth;
+  w.throatRadius = throatRadius;
+  w.throatDia = d2 + 2*m;
+  w.rows = [];
+  w.rows.push({sec:'Worm wheel — basic geometry'});
+  w.rows.push({l:'Module m', v:m, u:'mm', raw:'mm', conv:'module'});
+  w.rows.push({l:'Number of teeth z₂', v:z2, u:''});
+  w.rows.push({l:'Pressure angle α', v:w.alphaDeg, u:'°'});
+  w.rows.push({l:'Hand', v:s.hand==='right'?'Right':'Left', u:''});
+  w.rows.push({sec:'Wheel dimensions'});
+  w.rows.push({l:'Pitch Ø d₂', v:d2, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Outside Ø d_a2', v:da2, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Root Ø d_f2', v:df2, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Throat Ø d_th', v:w.throatDia, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Throat radius r_th', v:throatRadius, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Face width b₂', v:faceWidth, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Circular pitch p_t', v:Math.PI*m, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Tooth thickness', v:w.sPitch, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({sec:'Assembly'});
+  w.rows.push({l:'Worm pitch Ø d₁', v:w.d, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Centre distance a', v:w.centreDistance, u:'mm', raw:'mm', conv:'len'});
+  w.rows.push({l:'Ratio i = z₂/z₁', v:w.ratio, u:''});
   return w;
 }
 
@@ -1439,13 +1481,22 @@ function calcRack(s){
   const ha = m*1.0, hf = m*1.25, h = ha+hf;
   const length = p*z;
   const rows=[];
-  rows.push({sec:'Rack'});
+  rows.push({sec:'Rack — basic geometry'});
   rows.push({l:'Module m', v:m, u:'mm', raw:'mm', conv:'module'});
   rows.push({l:'Number of teeth z', v:z, u:''});
+  rows.push({l:'Pressure angle α', v:s.pressureAngle, u:'°'});
+  rows.push({sec:'Tooth dimensions'});
   rows.push({l:'Circular pitch p', v:p, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Addendum h_a', v:ha, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Dedendum h_f', v:hf, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Whole depth h', v:h, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Tooth thickness s', v:p/2 - s.backlash/2, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Tooth space', v:p/2 + s.backlash/2, u:'mm', raw:'mm', conv:'len'});
+  rows.push({sec:'Body'});
   rows.push({l:'Total length L', v:length, u:'mm', raw:'mm', conv:'len'});
-  return { type:'rack', m, z, alpha:s.pressureAngle*D2R, alphaDeg:s.pressureAngle,
+  rows.push({l:'Body height (ha+hf)', v:h, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Face width b', v:s.faceWidth, u:'mm', raw:'mm', conv:'len'});
+  return { type:'rack', m, z, effectiveTeeth:z, alpha:s.pressureAngle*D2R, alphaDeg:s.pressureAngle,
            x:0, haC:1.0, hfC:1.25, backlash:s.backlash,
            d:length, db:length, da:length+2*ha, df:length-2*hf, ha, hf, h,
            p, pb:p*Math.cos(s.pressureAngle*D2R), sPitch:p/2-s.backlash/2,
@@ -1460,19 +1511,29 @@ function calcSprocket(s){
   const d = p/Math.sin(alpha);
   const da = p*(0.6 + 1/Math.tan(alpha));
   const df = d - dr;
+  const rollerSeatRadius = d/2 - dr/2;
+  const toothTopWidth = p*0.5;
+  const toothRootRadius = d/2 - dr/2 - 0.4*p;
   const rows=[], warnings=[];
-  rows.push({sec:'Sprocket'});
+  rows.push({sec:'Sprocket — basic geometry'});
   rows.push({l:'Chain pitch p', v:p, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Roller Ø d_r', v:dr, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Number of teeth z', v:z, u:''});
+  rows.push({sec:'Pitch & diameters'});
   rows.push({l:'Pitch Ø d', v:d, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Outside Ø d_a', v:da, u:'mm', raw:'mm', conv:'len'});
   rows.push({l:'Root Ø d_f', v:df, u:'mm', raw:'mm', conv:'len'});
+  rows.push({sec:'Tooth features'});
+  rows.push({l:'Roller seating radius r_s', v:rollerSeatRadius, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Tooth top width', v:toothTopWidth, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Tooth root radius', v:toothRootRadius, u:'mm', raw:'mm', conv:'len'});
+  rows.push({l:'Seating angle (approx.)', v:60*0.5 + 120/z, u:'°'});
   if (z < 13) warnings.push({lv:'warn', m:'Fewer than 13 teeth — chain articulation is severe.'});
-  return { type:'sprocket', m:0, z, alpha:alpha*1, alphaDeg:0, x:0, haC:0, hfC:0, backlash:0,
+  return { type:'sprocket', m:0, z, effectiveTeeth:z, alpha:alpha, alphaDeg:0, x:0, haC:0, hfC:0, backlash:0,
            d, db:d*Math.cos(alpha), da, df, ha:(da-d)/2, hf:(d-df)/2, h:(da-df)/2,
            p:p, pb:p, sPitch:p/2, rp:d/2, rb:d*Math.cos(alpha)/2, ra:da/2, rf:df/2,
-           chainPitch:p, rollerDia:dr, faceWidth:s.faceWidth, bore:s.bore, hand:null,
+           chainPitch:p, rollerDia:dr, rollerSeatRadius, toothTopWidth, toothRootRadius,
+           faceWidth:s.faceWidth, bore:s.bore, hand:null,
            rows, trace:[], warnings, helixAngle:0 };
 }
 
@@ -1506,15 +1567,15 @@ function calcPair(g, s){
 function validate(s, g){
   const out = [];
   const ok = m=>out.push({lv:'ok',m}), warn = m=>out.push({lv:'warn',m}), err = m=>out.push({lv:'err',m});
-  if (!(s.module > 0)) err('Module must be > 0.');
+  if (!(s.module > 0) && g.type!=='sprocket') err('Module must be > 0.');
   if (!(s.teeth >= 1) || !Number.isInteger(s.teeth)) err('Teeth must be a positive integer.');
   if (s.pressureAngle < 10 || s.pressureAngle > 30) err('Pressure angle 10°–30°.');
   if (s.faceWidth <= 0) err('Face width > 0.');
   if (s.backlash < 0) err('Backlash cannot be negative.');
   if (!g) return out;
-  if (g.rf <= 0) err('Root diameter ≤ 0.');
-  if (s.bore > 0 && s.bore >= 2*g.rf) err('Bore ≥ root diameter.');
-  else if (s.bore > 0 && s.bore > 2*g.rf*0.85) warn('Bore > 85% of root diameter.');
+  if (g.rf <= 0 && g.type!=='rack' && g.type!=='sprocket') err('Root diameter ≤ 0.');
+  if (s.bore > 0 && g.rf > 0 && s.bore >= 2*g.rf) err('Bore ≥ root diameter.');
+  else if (s.bore > 0 && g.rf > 0 && s.bore > 2*g.rf*0.85) warn('Bore > 85% of root diameter.');
   if (g.type === 'spur' || g.type === 'helical'){
     const zmin = ENGINEERING_CONSTANTS.minTeethNoUndercut20;
     if (s.teeth < zmin && s.profileShift <= 0.001 && s.pressureAngle <= 21)
@@ -1617,7 +1678,6 @@ function spiralBevelLead(dm, betaDeg){
   const beta = betaDeg*D2R;
   return { dm, beta, betaDeg, lead: Math.PI*dm/Math.tan(beta) };
 }
-
 function cncParameters(s){
   const D = s.toolDiameter, Vc = s.cuttingSpeed, z = s.toolFlutes;
   const fz = s.feedPerTooth, ap = s.depthOfCut, ae = s.widthOfCut;
@@ -1626,7 +1686,6 @@ function cncParameters(s){
   const MRR = ap*ae*Vf/1000, time = s.cutLength/Vf;
   return { rpm, Vf, fRev, MRR, time, trace:[] };
 }
-
 const GEAR_CUTTERS = [
   { no:1, min:12, max:13 }, { no:2, min:14, max:16 }, { no:3, min:17, max:20 },
   { no:4, min:21, max:25 }, { no:5, min:26, max:34 }, { no:6, min:35, max:54 },
@@ -1638,9 +1697,20 @@ function recommendCutter(z){
 }
 
 /* ============================================================================
- * SVG 2D DRAWING ENGINE
+ * SVG 2D DRAWING ENGINE — one drawing function per gear type
  * ==========================================================================*/
 const SvgDrawing = (function(){
+  const BG = `<rect x="-2000" y="-2000" width="4000" height="4000" fill="#0a0e13"/>`;
+  function grid(){
+    let g = `<g stroke="#131a23" stroke-width="0.5">`;
+    for (let i=-1000;i<=1000;i+=20){
+      g += `<line x1="${i}" y1="-1000" x2="${i}" y2="1000"/>`;
+      g += `<line x1="-1000" y1="${i}" x2="1000" y2="${i}"/>`;
+    }
+    return g + `</g>`;
+  }
+
+  /* ---------- Involute gear (spur, helical, wormwheel) ---------- */
   function pathFromOutline(outline, scale){
     if (!outline || !outline.length) return '';
     let d = '';
@@ -1653,21 +1723,14 @@ const SvgDrawing = (function(){
     return `<circle cx="${fmt(cx,3)}" cy="${fmt(cy,3)}" r="${fmt(r,3)}" fill="none" ` +
            `stroke="${stroke}" stroke-width="${width||1}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
   }
-  function drawGear(svg, g, s, opts){
+
+  function drawInvoluteGear(svg, g, s, opts){
     opts = opts || {};
     const scale = opts.scale || 1;
-    let html = '';
-    html += `<rect x="-2000" y="-2000" width="4000" height="4000" fill="#0a0e13"/>`;
-    html += `<g stroke="#131a23" stroke-width="0.5">`;
-    for (let i=-1000;i<=1000;i+=20){
-      html += `<line x1="${i}" y1="-1000" x2="${i}" y2="1000"/>`;
-      html += `<line x1="-1000" y1="${i}" x2="1000" y2="${i}"/>`;
-    }
-    html += `</g>`;
-    const d = pathFromOutline(g.outline, scale);
-    html += `<path d="${d}" fill="#243040" stroke="#5fa8ff" stroke-width="1.1" fill-rule="evenodd"/>`;
-    if (opts.highlight > 0 && g.outline && s.teeth){
-      const per = Math.floor(g.outline.length/s.teeth);
+    let html = BG + grid();
+    html += `<path d="${pathFromOutline(g.outline, scale)}" fill="#243040" stroke="#5fa8ff" stroke-width="1.1" fill-rule="evenodd"/>`;
+    if (opts.highlight > 0 && g.outline && g.effectiveTeeth){
+      const per = Math.floor(g.outline.length/g.effectiveTeeth);
       const start = (opts.highlight-1)*per;
       let seg = '';
       for (let i=0;i<per+1;i++){
@@ -1687,20 +1750,253 @@ const SvgDrawing = (function(){
       const R = g.ra*scale;
       html += `<text x="${R+22}" y="-8" fill="#4da3ff" font-size="10" font-family="monospace">d_a = ${fmtLen(g.da,2)} ${LEN()}</text>`;
       html += `<text x="${g.rp*scale*0.62}" y="${-g.rp*scale*0.62-6}" fill="#ffbe3c" font-size="10" font-family="monospace">d = ${fmtLen(g.d,2)}</text>`;
-      html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">z = ${s.teeth}   m = ${fmtLen(s.module,3)} ${LEN()==='mm'?'mm':'DP'}</text>`;
+      html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">${(opts.typeLabel||g.type).toUpperCase()}   z = ${g.effectiveTeeth}   m = ${fmtLen(s.module,3)} ${LEN()==='mm'?'mm':'DP'}</text>`;
       if (opts.label)
         html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">${opts.label}</text>`;
     }
     if (opts.showTeethNo){
-      const step = s.teeth > 40 ? 5 : 1;
-      for (let i=0;i<s.teeth;i+=step){
-        const a = (i*2*Math.PI/s.teeth) - Math.PI/2;
+      const step = g.effectiveTeeth > 40 ? 5 : 1;
+      for (let i=0;i<g.effectiveTeeth;i+=step){
+        const a = (i*2*Math.PI/g.effectiveTeeth) - Math.PI/2;
         const rr = g.ra*scale + 16;
         html += `<text x="${fmt(rr*Math.cos(a),2)}" y="${fmt(rr*Math.sin(a)+3,2)}" fill="#8b97a6" font-size="9" text-anchor="middle" font-family="monospace">${i+1}</text>`;
       }
     }
     svg.innerHTML = html;
   }
+
+  /* ---------- Bevel gear (front view + cone side inset) ---------- */
+  function drawBevel2D(svg, g, s, opts){
+    opts = opts || {};
+    const isSpiral = (g.type === 'spiralbevel');
+    const scale = 220 / g.ra;
+    const ra = g.ra*scale, rp = g.rp*scale, rf = g.rf*scale;
+    const z = g.effectiveTeeth;
+    const step = 2*Math.PI/z;
+    const innerScale = Math.max(0.55, (g.R - g.b)/g.R);
+    let html = BG + grid();
+
+    // Tapered tooth representation — teeth drawn as trapezoids from inner to outer
+    for (let i=0;i<z;i++){
+      const a0 = i*step - step*0.20;
+      const a1 = i*step + step*0.20;
+      const ox1 = ra*Math.cos(a0), oy1 = -ra*Math.sin(a0);
+      const ox2 = ra*Math.cos(a1), oy2 = -ra*Math.sin(a1);
+      const ix1 = (rf*innerScale)*Math.cos(a0*1.05), iy1 = -(rf*innerScale)*Math.sin(a0*1.05);
+      const ix2 = (rf*innerScale)*Math.cos(a1*1.05), iy2 = -(rf*innerScale)*Math.sin(a1*1.05);
+      html += `<path d="M${fmt(ix1,2)} ${fmt(iy1,2)} L${fmt(ox1,2)} ${fmt(oy1,2)} L${fmt(ox2,2)} ${fmt(oy2,2)} L${fmt(ix2,2)} ${fmt(iy2,2)} Z" fill="#243040" stroke="#5fa8ff" stroke-width="0.85"/>`;
+      if (isSpiral){
+        // curved spiral line on the tooth face
+        const midR = (ra + rf*innerScale)/2;
+        const mx = midR*Math.cos((a0+a1)/2);
+        const my = -midR*Math.sin((a0+a1)/2);
+        const bend = 10 * (s.hand === 'left' ? -1 : 1);
+        html += `<path d="M${fmt(ox1,2)} ${fmt(oy1,2)} Q${fmt(mx+bend,2)} ${fmt(my+bend,2)} ${fmt(ix2,2)} ${fmt(iy2,2)}" fill="none" stroke="#ffbe3c" stroke-width="0.7" opacity="0.7"/>`;
+      }
+    }
+    // Root disc
+    html += `<circle cx="0" cy="0" r="${fmt(rf*innerScale,2)}" fill="#0a0e13" stroke="#8b97a6" stroke-width="0.8"/>`;
+    // Pitch & outer circles
+    html += circle(0,0,rp,'#ffbe3c','10 4 3 4',1.1);
+    html += circle(0,0,ra,'#5fa8ff','',0.6);
+    // Bore
+    if (s.bore > 0)
+      html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1"/>`;
+    // Centre crosses
+    html += `<line x1="${-ra-10}" y1="0" x2="${ra+10}" y2="0" stroke="#f85149" stroke-width="0.7" stroke-dasharray="10 3 3 3"/>`;
+    html += `<line x1="0" y1="${-ra-10}" x2="0" y2="${ra+10}" stroke="#f85149" stroke-width="0.7" stroke-dasharray="10 3 3 3"/>`;
+
+    // ----- Cone side-view inset (bottom) -----
+    const insetY = 220, apexX = -140;
+    const coneLen = 200;
+    const coneR = 95;
+    html += `<text x="${apexX}" y="${insetY-46}" fill="#4da3ff" font-size="10" font-family="monospace" letter-spacing="0.6">CONE SIDE VIEW</text>`;
+    // axis
+    html += `<line x1="${apexX}" y1="${insetY}" x2="${apexX+coneLen+10}" y2="${insetY}" stroke="#3a4756" stroke-dasharray="4,4"/>`;
+    // pitch cone (upper & lower)
+    const pcUx1 = apexX, pcUy1 = insetY;
+    const pcUx2 = apexX + coneLen*Math.cos(g.delta1);
+    const pcUy2 = insetY - coneLen*Math.sin(g.delta1);
+    const pcLx2 = pcUx2;
+    const pcLy2 = insetY + (insetY - pcUy2);
+    html += `<line x1="${fmt(pcUx1,2)}" y1="${fmt(pcUy1,2)}" x2="${fmt(pcUx2,2)}" y2="${fmt(pcUy2,2)}" stroke="#ffbe3c" stroke-width="1.4"/>`;
+    html += `<line x1="${fmt(pcUx1,2)}" y1="${fmt(pcUy1,2)}" x2="${fmt(pcLx2,2)}" y2="${fmt(pcLy2,2)}" stroke="#ffbe3c" stroke-width="1.4"/>`;
+    // back cone (outer face)
+    html += `<line x1="${fmt(pcUx2,2)}" y1="${fmt(pcUy2,2)}" x2="${fmt(pcLx2,2)}" y2="${fmt(pcLy2,2)}" stroke="#5fa8ff" stroke-width="1"/>`;
+    // inner (heal) line
+    const innerX = apexX + (coneLen - coneR*Math.cos(g.delta1)) * Math.cos(g.delta1);
+    const innerY = insetY - (coneLen - coneR) * Math.sin(g.delta1);
+    html += `<line x1="${fmt(innerX,2)}" y1="${fmt(innerY,2)}" x2="${fmt(innerX,2)}" y2="${fmt(insetY + (insetY - innerY),2)}" stroke="#8b97a6" stroke-width="0.7" stroke-dasharray="2,3"/>`;
+    // angle annotation
+    html += `<text x="${apexX+40}" y="${insetY+22}" fill="#d6dee8" font-size="10" font-family="monospace">δ₁ = ${fmt(g.delta1*R2D,2)}°</text>`;
+    html += `<text x="${apexX+40}" y="${insetY+36}" fill="#d6dee8" font-size="10" font-family="monospace">R = ${fmtLen(g.R,2)} ${LEN()}</text>`;
+    html += `<text x="${apexX+40}" y="${insetY+50}" fill="#d6dee8" font-size="10" font-family="monospace">b = ${fmtLen(g.b,2)} ${LEN()}</text>`;
+    html += `<text x="${apexX+40}" y="${insetY+64}" fill="#d6dee8" font-size="10" font-family="monospace">d_m = ${fmtLen(g.dm1,2)} ${LEN()}</text>`;
+
+    // Title / label
+    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">${isSpiral?'SPIRAL BEVEL':'STRAIGHT BEVEL'}   z₁ = ${z}   m = ${fmtLen(s.module,3)} mm</text>`;
+    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">${isSpiral?'β_m = ' + fmt(g.spiralAngle,2) + '°   L_s = ' + fmtLen(g.spiralLead,2) + ' mm':'δ₁ = ' + fmt(g.delta1*R2D,2) + '°'}</text>`;
+    svg.innerHTML = html;
+  }
+
+  /* ---------- Worm (side view: cylinder + helix) ---------- */
+  function drawWorm2D(svg, g, s, opts){
+    opts = opts || {};
+    const L = s.faceWidth;
+    const d = g.d;
+    const scale = 460 / Math.max(L, d*2);
+    const R = d/2*scale;
+    const halfL = L/2*scale;
+    const lead = g.lead;
+    const turns = Math.max(0.5, L/lead);
+    const hand = s.hand;
+
+    let html = BG + grid();
+
+    // Cylinder body
+    html += `<rect x="${-halfL}" y="${-R}" width="${2*halfL}" height="${2*R}" fill="#1e2833" stroke="#5fa8ff" stroke-width="1.3" rx="3"/>`;
+    // End ellipses
+    html += `<ellipse cx="${-halfL}" cy="0" rx="${R*0.18}" ry="${R}" fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
+    html += `<ellipse cx="${halfL}" cy="0" rx="${R*0.18}" ry="${R}" fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
+
+    // Helical threads — draw sinusoidal curves that only show on the front half
+    const numThreads = Math.max(3, Math.round(turns * 4));
+    for (let k=0; k<numThreads; k++){
+      let path = '';
+      let started = false;
+      for (let i=0; i<=120; i++){
+        const t = i/120;
+        const angle = (t * turns * 2 * Math.PI + k * Math.PI) * (hand === 'left' ? -1 : 1);
+        if (Math.cos(angle) > 0){
+          const x = -halfL + 2*halfL*t;
+          const y = R * Math.sin(angle) * 0.95;
+          path += (started?'L':'M') + fmt(x,2) + ' ' + fmt(y,2) + ' ';
+          started = true;
+        } else {
+          started = false;
+        }
+      }
+      if (path) html += `<path d="${path}" fill="none" stroke="#ffbe3c" stroke-width="1.7" opacity="0.85"/>`;
+    }
+
+    // Axis line + arrow
+    html += `<line x1="${-halfL-15}" y1="0" x2="${halfL+15}" y2="0" stroke="#f85149" stroke-width="0.7" stroke-dasharray="8 3 3 3"/>`;
+    // Axial pitch marks
+    const px = Math.PI*g.m;
+    for (let i=0;i<=z_pitchCount();i++){
+      const xp = -halfL + i*px*scale;
+      if (xp > halfL) break;
+      html += `<line x1="${fmt(xp,2)}" y1="${-R-6}" x2="${fmt(xp,2)}" y2="${-R}" stroke="#4da3ff" stroke-width="0.8"/>`;
+    }
+    function z_pitchCount(){ return Math.ceil(L/px); }
+
+    // Annotations
+    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">WORM SHAFT   z₁ = ${g.z}   m = ${fmtLen(g.m,3)} mm</text>`;
+    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">γ = ${fmt(g.leadAngleDeg,2)}°   L = ${fmtLen(L,2)} mm   p_z = ${fmtLen(lead,2)} mm   ${String(hand).toUpperCase()} HAND</text>`;
+    html += `<text x="${-halfL}" y="${R+30}" fill="#8b97a6" font-size="10" font-family="monospace">d₁ = ${fmtLen(d,2)}   d_a1 = ${fmtLen(g.da,2)}   d_f1 = ${fmtLen(g.df,2)}</text>`;
+    svg.innerHTML = html;
+  }
+
+  /* ---------- Rack (straight toothed bar) ---------- */
+  function drawRack2D(svg, g, s, opts){
+    opts = opts || {};
+    const m = g.m;
+    const z = g.effectiveTeeth;
+    const p = Math.PI*m;
+    const ha = g.ha, hf = g.hf, h = g.h;
+    const L = g.rackLength;
+
+    // Fit inside viewBox
+    const sx = 540 / L;
+    const sy = 160 / h;
+    const sFit = Math.min(sx, sy);
+
+    const halfL = L/2 * sFit;
+    const haS = ha * sFit, hfS = hf * sFit;
+    const pS = p * sFit;
+
+    let html = BG + grid();
+
+    // Rack outline
+    let path = `M${-halfL} ${hfS} L${halfL} ${hfS} L${halfL} ${-hfS} `;
+    for (let i=z-1; i>=0; i--){
+      const xc = -halfL + (i+0.5)*pS;
+      const haHW = pS * 0.20;
+      const rootHW = pS * 0.30;
+      path += `L${fmt(xc+rootHW,2)} ${-hfS} L${fmt(xc+haHW,2)} ${-hfS-haS} L${fmt(xc-haHW,2)} ${-hfS-haS} L${fmt(xc-rootHW,2)} ${-hfS} `;
+    }
+    path += `L${-halfL} ${-hfS} Z`;
+    html += `<path d="${path}" fill="#243040" stroke="#5fa8ff" stroke-width="1.2"/>`;
+
+    // Pitch line
+    html += `<line x1="${-halfL}" y1="0" x2="${halfL}" y2="0" stroke="#ffbe3c" stroke-width="1.2" stroke-dasharray="10 4 3 4"/>`;
+    html += `<text x="${halfL+8}" y="3" fill="#ffbe3c" font-size="10" font-family="monospace">pitch line</text>`;
+
+    // Annotations
+    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">RACK   z = ${z}   m = ${fmtLen(m,3)} mm</text>`;
+    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">L = ${fmtLen(L,2)} mm   p = ${fmtLen(p,2)} mm   hₐ = ${fmtLen(ha,2)}   h_f = ${fmtLen(hf,2)}</text>`;
+    svg.innerHTML = html;
+  }
+
+  /* ---------- Sprocket (disc with roller pockets) ---------- */
+  function drawSprocket2D(svg, g, s, opts){
+    opts = opts || {};
+    const z = g.effectiveTeeth;
+    const p = g.chainPitch;
+    const dr = g.rollerDia;
+    const d = g.d, da = g.da, df = g.df;
+    const scale = 210 / (da/2);
+    const ra = da/2*scale;
+    const rp = d/2*scale;
+    const rf = df/2*scale;
+    const rr = dr/2*scale;
+
+    let html = BG + grid();
+
+    // Outer disc
+    html += `<circle cx="0" cy="0" r="${fmt(ra,2)}" fill="#243040" stroke="#5fa8ff" stroke-width="1.2"/>`;
+    // Roller pockets
+    const Rroll = rp;
+    for (let i=0;i<z;i++){
+      const angle = i * 2*Math.PI/z - Math.PI/2;
+      const cx = Rroll * Math.cos(angle);
+      const cy = Rroll * Math.sin(angle);
+      html += `<circle cx="${fmt(cx,2)}" cy="${fmt(cy,2)}" r="${fmt(rr,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="0.8"/>`;
+      // Small tooth tip pointing outward
+      const tipR = ra - 2;
+      html += `<line x1="${fmt(Rroll*Math.cos(angle),2)}" y1="${fmt(Rroll*Math.sin(angle),2)}" x2="${fmt(tipR*Math.cos(angle),2)}" y2="${fmt(tipR*Math.sin(angle),2)}" stroke="#5fa8ff" stroke-width="1.2"/>`;
+    }
+
+    // Pitch & root circles
+    html += circle(0,0,rp,'#ffbe3c','10 4 3 4',1.1);
+    html += circle(0,0,rf,'#8b97a6','2 3',0.9);
+
+    // Bore
+    if (s.bore > 0)
+      html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1"/>`;
+
+    // Annotations
+    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">SPROCKET   z = ${z}   p = ${fmtLen(p,2)} mm   d_r = ${fmtLen(dr,2)} mm</text>`;
+    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">d = ${fmtLen(d,2)}   d_a = ${fmtLen(da,2)}   d_f = ${fmtLen(df,2)}</text>`;
+    svg.innerHTML = html;
+  }
+
+  /* ---------- Router ---------- */
+  function drawByType(svg, g, s, opts){
+    switch(g.type){
+      case 'bevel':
+      case 'spiralbevel': return drawBevel2D(svg, g, s, opts);
+      case 'worm':        return drawWorm2D(svg, g, s, opts);
+      case 'rack':        return drawRack2D(svg, g, s, opts);
+      case 'sprocket':    return drawSprocket2D(svg, g, s, opts);
+      case 'spur':
+      case 'helical':
+      case 'wormwheel':
+      default:            return drawInvoluteGear(svg, g, s, opts);
+    }
+  }
+
+  /* ---------- Change-gear train (unchanged) ---------- */
   function drawTrain(svg, gears, opts){
     const W = 1000, H = 520;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
@@ -1731,18 +2027,15 @@ const SvgDrawing = (function(){
     svg.innerHTML = html;
   }
 
+  /* ---------- Differential (unchanged) ---------- */
   function drawDifferential(svg, res){
     const W = 980, H = 420;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
     html += `<text x="${W/2}" y="30" text-anchor="middle" fill="#eaf2ff" font-size="14" font-weight="700" letter-spacing="1" font-family="monospace">DIFFERENTIAL INDEXING — SIGNAL PATH</text>`;
     html += `<text x="${W/2}" y="50" text-anchor="middle" fill="#8b97a6" font-size="11" font-family="monospace">The index plate is rotated by the crank AND by the change-gear train at the same time.</text>`;
     html += `<defs>
-      <marker id="darr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-        <polygon points="0 0,10 5,0 10" fill="#4da3ff"/>
-      </marker>
-      <marker id="darrOk" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-        <polygon points="0 0,10 5,0 10" fill="#3fb950"/>
-      </marker>
+      <marker id="darr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><polygon points="0 0,10 5,0 10" fill="#4da3ff"/></marker>
+      <marker id="darrOk" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><polygon points="0 0,10 5,0 10" fill="#3fb950"/></marker>
     </defs>`;
     if (!res){
       html += `<text x="${W/2}" y="${H/2}" fill="#8b97a6" font-size="14" text-anchor="middle" font-family="monospace">Select "Differential indexing" method to see the change-gear train</text>`;
@@ -1754,14 +2047,11 @@ const SvgDrawing = (function(){
         sub: res.idx.turns !== undefined ? `${fmt(res.idx.turns, 4)} turns` : '—',
         sub2: 'per workpiece tooth' },
       { x: 260, w: 220, label: 'CHANGE GEARS', color: '#3fb950',
-        sub: gearTrainText(res),
-        sub2: `ratio = ${fmt(Math.abs(res.gearRatio),4)}` },
+        sub: gearTrainText(res), sub2: `ratio = ${fmt(Math.abs(res.gearRatio),4)}` },
       { x: 530, w: 180, label: 'WORM DRIVE', color: '#f85149',
-        sub: `${res.ratio} : 1`,
-        sub2: 'dividing head' },
+        sub: `${res.ratio} : 1`, sub2: 'dividing head' },
       { x: 760, w: 190, label: 'WORKPIECE', color: '#ffbe3c',
-        sub: `${res.N} teeth`,
-        sub2: 'rotates 1 / N per step' }
+        sub: `${res.N} teeth`, sub2: 'rotates 1 / N per step' }
     ];
     html += `<line x1="20" y1="${boxY + boxH/2}" x2="${W-20}" y2="${boxY + boxH/2}" stroke="#1e2633" stroke-width="2" stroke-dasharray="4,6"/>`;
     stages.forEach((st, i)=>{
@@ -1781,48 +2071,21 @@ const SvgDrawing = (function(){
       const x2 = s2.x - 4;
       const y  = boxY + boxH/2;
       html += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#4da3ff" stroke-width="2" marker-end="url(#darr)"/>`;
-      const mid = (x1 + x2) / 2;
-      const lbl = (i === 0) ? 'drives' : (i === 1) ? 'gears down' : 'drives';
-      html += `<text x="${mid}" y="${y - 8}" text-anchor="middle" font-size="10" fill="#8b97a6" font-family="monospace">${lbl}</text>`;
     }
     const pY = boxY + boxH + 30;
     const pW = W - 60;
     const pH = 130;
     html += `<rect x="30" y="${pY}" width="${pW}" height="${pH}" rx="8" fill="#101822" stroke="#2a3441"/>`;
     html += `<text x="46" y="${pY+22}" fill="#4da3ff" font-size="11" font-weight="700" letter-spacing="1" font-family="monospace">HOW IT WORKS</text>`;
-    const colW = (pW - 60) / 3;
-    const c1 = 46, c2 = c1 + colW + 20, c3 = c2 + colW + 20;
-    const tY  = pY + 44;
-    const lh  = 15;
-    html += `<text x="${c1}" y="${tY}" fill="#8b97a6" font-size="10" letter-spacing="0.5" font-family="monospace">TARGET</text>`;
-    html += `<text x="${c1}" y="${tY+lh}"  fill="#d6dee8" font-size="11" font-family="monospace">Desired N = ${res.N} teeth</text>`;
-    html += `<text x="${c1}" y="${tY+lh*2}" fill="#d6dee8" font-size="11" font-family="monospace">Approximate N′ = ${res.A}</text>`;
-    html += `<text x="${c1}" y="${tY+lh*3}" fill="#8b97a6" font-size="10" font-family="monospace">(N′ must be simply indexable)</text>`;
-    html += `<text x="${c1}" y="${tY+lh*4}" fill="#eaf2ff" font-size="11" font-family="monospace">Difference = ${res.A - res.N >= 0 ? '+' : ''}${res.A - res.N} teeth</text>`;
-    html += `<text x="${c2}" y="${tY}" fill="#8b97a6" font-size="10" letter-spacing="0.5" font-family="monospace">SIMPLE INDEXING AT N′</text>`;
-    html += `<text x="${c2}" y="${tY+lh}"  fill="#d6dee8" font-size="11" font-family="monospace">Crank = ${res.ratio}/${res.A} = ${fmt(res.ratio/res.A,5)} turns</text>`;
-    const bestH = res.idx && res.idx.best ? `${res.idx.best.count} holes on ${res.idx.best.holes}-circle` : '—';
-    html += `<text x="${c2}" y="${tY+lh*2}" fill="#7ee08a" font-size="11" font-family="monospace">→ ${bestH}</text>`;
-    html += `<text x="${c2}" y="${tY+lh*4}" fill="#8b97a6" font-size="10" font-family="monospace">This gives approximately 1/ N′ revolution</text>`;
-    html += `<text x="${c2}" y="${tY+lh*5}" fill="#8b97a6" font-size="10" font-family="monospace">of the workpiece per step.</text>`;
-    html += `<text x="${c3}" y="${tY}" fill="#8b97a6" font-size="10" letter-spacing="0.5" font-family="monospace">CHANGE-GEAR CORRECTION</text>`;
-    html += `<text x="${c3}" y="${tY+lh}" fill="#d6dee8" font-size="11" font-family="monospace">i = (N′−N)/N′ × ${res.ratio}</text>`;
-    html += `<text x="${c3}" y="${tY+lh*2}" fill="#7ee08a" font-size="11" font-family="monospace">|i| = ${fmt(Math.abs(res.gearRatio),5)}</text>`;
-    html += `<text x="${c3}" y="${tY+lh*3}" fill="${res.gearRatio < 0 ? '#f85149' : '#3fb950'}" font-size="11" font-family="monospace">Direction: ${res.direction}</text>`;
-    if (res.search && res.search.length){
-      const b = res.search[0];
-      const t = b.stages === 1 ? `${b.a} / ${b.b}` : `(${b.a}/${b.b}) × (${b.c}/${b.d})`;
-      html += `<text x="${c3}" y="${tY+lh*5}" fill="#eaf2ff" font-size="11" font-family="monospace">→ ${t}  (error ${fmt(b.errPct,4)}%)</text>`;
-    }
     svg.innerHTML = html;
   }
-
   function gearTrainText(res){
     if (!res || !res.search || !res.search.length) return '—';
     const b = res.search[0];
     return b.stages === 1 ? `${b.a} / ${b.b}` : `${b.a}/${b.b} · ${b.c}/${b.d}`;
   }
 
+  /* ---------- Helix, spiral cone, section, toolpath (unchanged) ---------- */
   function drawHelix(svg, d, betaDeg, b, lead, hand){
     const W=640, H=400;
     const cx = 220, cy = 200, R = 110;
@@ -1873,11 +2136,11 @@ const SvgDrawing = (function(){
   }
   function drawSection(svg, g, s){
     const W=700, H=420;
-    const ra = g.ra, rf = g.rf, boreR = s.bore/2;
+    const ra = g.ra || 50, rf = g.rf || ra*0.8, boreR = s.bore/2;
     const scale = Math.min((W-120)/(2*ra+20), (H-140)/(2*ra+20), 3.5);
     const cx = W/2, cy = H/2 + 10;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
-    html += `<text x="20" y="30" fill="#d6dee8" font-size="13" font-family="monospace">SECTION A–A</text>`;
+    html += `<text x="20" y="30" fill="#d6dee8" font-size="13" font-family="monospace">SECTION A–A — ${g.type.toUpperCase()}</text>`;
     const rr = ra*scale, ri = boreR*scale;
     html += `<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#3a4756" stroke-width="1"/></pattern></defs>`;
     html += `<circle cx="${cx}" cy="${cy}" r="${fmt(rr,2)}" fill="url(#hatch)" stroke="#5fa8ff" stroke-width="1.2"/>`;
@@ -1886,13 +2149,14 @@ const SvgDrawing = (function(){
   }
   function drawToolpath(svg, g, s, pass){
     const W=600, H=320;
-    const scale = Math.min((W-160)/(2*g.ra+20), (H-100)/(2*g.ra+20), 3);
+    const ra = g.ra || 50;
+    const scale = Math.min((W-160)/(2*ra+20), (H-100)/(2*ra+20), 3);
     const cx = W/2 - 60, cy = H/2;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(g.ra*scale,2)}" fill="#141b24" stroke="#3a4756"/>`;
-    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(g.rp*scale,2)}" fill="none" stroke="#ffbe3c" stroke-width="0.7" stroke-dasharray="6 3"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${fmt(ra*scale,2)}" fill="#141b24" stroke="#3a4756"/>`;
+    html += `<circle cx="${cx}" cy="${cy}" r="${fmt((g.rp||ra*0.9)*scale,2)}" fill="none" stroke="#ffbe3c" stroke-width="0.7" stroke-dasharray="6 3"/>`;
     const cutterR = 26;
-    const cxp = cx + g.ra*scale + cutterR*0.9;
+    const cxp = cx + ra*scale + cutterR*0.9;
     html += `<circle cx="${fmt(cxp,2)}" cy="${fmt(cy,2)}" r="${cutterR}" fill="rgba(77,163,255,0.15)" stroke="#4da3ff"/>`;
     html += `<text x="20" y="28" fill="#d6dee8" font-size="11" font-family="monospace">PASS ${(pass||0)+1}</text>`;
     svg.innerHTML = html;
@@ -1945,20 +2209,15 @@ const SvgDrawing = (function(){
     }
     svg.innerHTML = out;
   }
-  return { drawGear, drawTrain, drawDifferential, drawHelix, drawSpiralCone, drawSection,
+  return { drawByType, drawTrain, drawDifferential, drawHelix, drawSpiralCone, drawSection,
            drawToolpath, pathFromOutline, drawMultiStageTop, drawMultiStageSide };
 })();
 
 /* ============================================================================
- * SVG ZOOM / PAN CONTROLLER  (applies to EVERY 2D drawing)
- *   - wheel zoom (desktop)
- *   - drag pan (mouse + touch)
- *   - pinch zoom (touch)
- *   - double click / double tap reset
- *   - auto-injected ＋ / − / ⤢ buttons on each .svg-wrap
+ * SVG ZOOM / PAN CONTROLLER
  * ==========================================================================*/
 const SvgZoom = (function(){
-  const MIN_SCALE = 0.15;   // relative to base viewBox
+  const MIN_SCALE = 0.15;
   const MAX_SCALE = 40;
 
   function readViewBox(el){
@@ -1981,7 +2240,6 @@ const SvgZoom = (function(){
     const wrap = svg.closest('.svg-wrap') || svg.parentElement;
     const base = readViewBox(svg);
     const st = { base: base.slice(), vb: base.slice() };
-
     const apply = ()=> svg.setAttribute('viewBox', st.vb.map(v=>+(+v).toFixed(4)).join(' '));
     const scaleFactor = ()=> st.vb[2] / st.base[2];
 
@@ -1999,15 +2257,13 @@ const SvgZoom = (function(){
       zoomAt(x + w/2, y + h/2, f);
     }
     function reset(){ st.vb = st.base.slice(); apply(); }
-
     function toUser(clientX, clientY){
       const r = svg.getBoundingClientRect();
       const [vx,vy,vw,vh] = st.vb;
       const s = Math.min(r.width/vw, r.height/vh) || 1;
       const ox = (r.width  - vw*s)/2;
       const oy = (r.height - vh*s)/2;
-      return { x: vx + (clientX - r.left - ox)/s,
-               y: vy + (clientY - r.top  - oy)/s };
+      return { x: vx + (clientX - r.left - ox)/s, y: vy + (clientY - r.top  - oy)/s };
     }
     function panBy(dxPx, dyPx){
       const r = svg.getBoundingClientRect();
@@ -2017,14 +2273,12 @@ const SvgZoom = (function(){
       apply();
     }
 
-    /* ---- wheel ---- */
     svg.addEventListener('wheel', e=>{
       e.preventDefault();
       const p = toUser(e.clientX, e.clientY);
       zoomAt(p.x, p.y, e.deltaY > 0 ? 1.15 : 1/1.15);
     }, {passive:false});
 
-    /* ---- mouse drag ---- */
     let drag = null;
     svg.addEventListener('mousedown', e=>{
       if (e.button !== 0) return;
@@ -2038,17 +2292,11 @@ const SvgZoom = (function(){
     });
     window.addEventListener('mouseup', ()=>{ drag = null; });
 
-    /* ---- touch ---- */
     const tdist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
     let tPrev = null, tPinch = null;
     svg.addEventListener('touchstart', e=>{
-      if (e.touches.length === 1){
-        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
-        tPinch = null;
-      } else if (e.touches.length === 2){
-        tPinch = { d: tdist(e.touches) };
-        tPrev = null;
-      }
+      if (e.touches.length === 1){ tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY }; tPinch = null; }
+      else if (e.touches.length === 2){ tPinch = { d: tdist(e.touches) }; tPrev = null; }
     }, {passive:true});
     svg.addEventListener('touchmove', e=>{
       if (e.touches.length === 1 && tPrev){
@@ -2068,16 +2316,10 @@ const SvgZoom = (function(){
     }, {passive:false});
     svg.addEventListener('touchend', e=>{
       if (e.touches.length === 0){ tPrev = null; tPinch = null; }
-      else if (e.touches.length === 1){
-        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
-        tPinch = null;
-      }
+      else if (e.touches.length === 1){ tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY }; tPinch = null; }
     }, {passive:true});
-
-    /* ---- double click reset ---- */
     svg.addEventListener('dblclick', e=>{ e.preventDefault(); reset(); });
 
-    /* ---- overlay buttons ---- */
     if (wrap){
       let ctrl = wrap.querySelector('.svg-zoom');
       if (!ctrl){
@@ -2114,7 +2356,7 @@ const SvgZoom = (function(){
 })();
 
 /* ============================================================================
- * THREE.JS 3D GEAR ENGINE
+ * THREE.JS 3D GEAR ENGINE — builders per gear type
  * ==========================================================================*/
 const Gear3D = (function(){
   let renderer, scene, camera, root, pitchCircle, axesHelper;
@@ -2145,7 +2387,6 @@ const Gear3D = (function(){
     resize();
     animate();
   }
-
   function resize(){
     if (!renderer) return;
     const c = document.getElementById('threeWrap');
@@ -2155,43 +2396,30 @@ const Gear3D = (function(){
     camera.aspect = w/h;
     camera.updateProjectionMatrix();
   }
-
   function attachOrbit(el){
-    /* ---------- mouse ---------- */
     let dragging = false, lastX = 0, lastY = 0;
-    const onDown = e => { dragging = true; lastX = e.clientX; lastY = e.clientY; };
-    const onMove = e => {
+    el.addEventListener('mousedown', e=>{ dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener('mousemove', e=>{
       if (!dragging) return;
       const dx = e.clientX-lastX, dy = e.clientY-lastY;
       lastX = e.clientX; lastY = e.clientY;
       camState.theta -= dx*0.008;
       camState.phi = clamp(camState.phi - dy*0.008, 0.05, Math.PI-0.05);
       updateCamera();
-    };
-    const onUp = ()=>{ dragging = false; };
-    const onWheel = e => { e.preventDefault();
-      camState.dist *= (1 + Math.sign(e.deltaY)*0.1);
-      camState.dist = clamp(camState.dist, 10, 5000); updateCamera(); };
+    });
+    window.addEventListener('mouseup', ()=>{ dragging = false; });
+    el.addEventListener('wheel', e=>{
+      e.preventDefault();
+      camState.dist = clamp(camState.dist * (1 + Math.sign(e.deltaY)*0.1), 10, 5000);
+      updateCamera();
+    }, {passive:false});
 
-    el.addEventListener('mousedown', onDown);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    el.addEventListener('wheel', onWheel, {passive:false});
-
-    /* ---------- touch (orbit + pinch zoom) ---------- */
     const tdist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
     let tPrev = null, tPinch = null;
-
     el.addEventListener('touchstart', e=>{
-      if (e.touches.length === 1){
-        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
-        tPinch = null;
-      } else if (e.touches.length === 2){
-        tPinch = { d: tdist(e.touches) };
-        tPrev = null;
-      }
+      if (e.touches.length === 1){ tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY }; tPinch = null; }
+      else if (e.touches.length === 2){ tPinch = { d: tdist(e.touches) }; tPrev = null; }
     }, {passive:true});
-
     el.addEventListener('touchmove', e=>{
       if (e.touches.length === 1 && tPrev){
         e.preventDefault();
@@ -2208,16 +2436,11 @@ const Gear3D = (function(){
         updateCamera();
       }
     }, {passive:false});
-
     el.addEventListener('touchend', e=>{
       if (e.touches.length === 0){ tPrev = null; tPinch = null; }
-      else if (e.touches.length === 1){
-        tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY };
-        tPinch = null;
-      }
+      else if (e.touches.length === 1){ tPrev = { x:e.touches[0].clientX, y:e.touches[0].clientY }; tPinch = null; }
     }, {passive:true});
   }
-
   function updateCamera(){
     const {theta, phi, dist} = camState;
     camera.position.set(
@@ -2227,7 +2450,6 @@ const Gear3D = (function(){
     );
     camera.lookAt(camState.target);
   }
-
   function setView(v){
     switch(v){
       case 'front':  camState.theta = 0; camState.phi = Math.PI/2; break;
@@ -2243,13 +2465,47 @@ const Gear3D = (function(){
     }
     updateCamera();
   }
+  function makeMaterial(color){
+    return new THREE.MeshStandardMaterial({
+      color: color === undefined ? 0x9aa7b5 : color,
+      metalness: 0.72, roughness: 0.36, side: THREE.DoubleSide, wireframe: wire
+    });
+  }
 
-  function buildGearSolid(profile, width, twist, boreR){
+  /* ---------- shared: extrude a 2D shape with optional bore ---------- */
+  function extrudeShape(shape, depth, boreR){
+    if (boreR > 0.001){
+      const hole = new THREE.Path();
+      for (let i=0;i<=48;i++){
+        const a = i/48*Math.PI*2;
+        const hx = boreR*Math.cos(a), hy = boreR*Math.sin(a);
+        if (i===0) hole.moveTo(hx,hy); else hole.lineTo(hx,hy);
+      }
+      shape.holes.push(hole);
+    }
+    const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled:false, curveSegments:24 });
+    geo.translate(0, 0, -depth/2);
+    return new THREE.Mesh(geo, makeMaterial());
+  }
+
+  /* ---------- Spur / Helical / Wormwheel — involute extruded ---------- */
+  function buildInvoluteSolid(g, s){
+    const mUse = (g.type === 'helical') ? g.mt : g.m;
+    const teethUse = (g.type === 'wormwheel') ? g.z2 : g.effectiveTeeth;
+    const profile = ToothGeometry.buildProfile(mUse, teethUse, g.alpha, s.profileShift,
+      s.addendumCoeff, s.dedendumCoeff, s.backlash, {nInv:10, nFil:4, nTip:4, nRoot:3});
+    g.outline = profile.outline;
+    const width = s.faceWidth;
+    let twist = 0;
+    if (g.type === 'helical'){
+      twist = 2*width*Math.tan(g.beta)/g.d;
+      if (s.hand === 'left') twist = -twist;
+    }
     const group = new THREE.Group();
     const pts = profile.outline;
     const n = pts.length;
     const layers = Math.abs(twist) > 1e-6 ? 22 : 2;
-    const pos = [], nor = [], idx = [];
+    const pos = [], idx = [];
     const hw = width/2;
     for (let l=0;l<layers;l++){
       const t = l/(layers-1);
@@ -2258,10 +2514,7 @@ const Gear3D = (function(){
       const ca = Math.cos(ang), sa = Math.sin(ang);
       for (let i=0;i<n;i++){
         const x = pts[i].x, y = pts[i].y;
-        const rx = x*ca - y*sa, ry = x*sa + y*ca;
-        pos.push(rx, ry, zz);
-        const len = Math.hypot(rx, ry) || 1;
-        nor.push(rx/len, ry/len, 0);
+        pos.push(x*ca - y*sa, x*sa + y*ca, zz);
       }
     }
     for (let l=0;l<layers-1;l++){
@@ -2272,87 +2525,295 @@ const Gear3D = (function(){
     }
     const sideGeo = new THREE.BufferGeometry();
     sideGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
-    sideGeo.setAttribute('normal',   new THREE.Float32BufferAttribute(nor,3));
     sideGeo.setIndex(idx);
     sideGeo.computeVertexNormals();
     group.add(new THREE.Mesh(sideGeo, makeMaterial()));
 
     const shape = new THREE.Shape(pts.map(p=>new THREE.Vector2(p.x, p.y)));
-    if (boreR > 0.001){
+    if (s.bore > 0.001){
       const hole = new THREE.Path();
       for (let i=0;i<=56;i++){
         const a = i/56*Math.PI*2;
-        const hx = boreR*Math.cos(a), hy = boreR*Math.sin(a);
+        const hx = (s.bore/2)*Math.cos(a), hy = (s.bore/2)*Math.sin(a);
         if (i===0) hole.moveTo(hx,hy); else hole.lineTo(hx,hy);
       }
       shape.holes.push(hole);
     }
     const capGeo = new THREE.ShapeGeometry(shape, 1);
-    const capBack = new THREE.Mesh(capGeo, makeMaterial());
-    capBack.position.z = -hw; group.add(capBack);
-    const capFront = new THREE.Mesh(capGeo, makeMaterial());
-    capFront.position.z = hw; capFront.rotation.z = twist; group.add(capFront);
-    if (boreR > 0.001){
-      const boreGeo = new THREE.CylinderGeometry(boreR, boreR, width, 48, 1, true);
+    const capBack = new THREE.Mesh(capGeo, makeMaterial()); capBack.position.z = -hw; group.add(capBack);
+    const capFront = new THREE.Mesh(capGeo, makeMaterial()); capFront.position.z = hw; capFront.rotation.z = twist; group.add(capFront);
+    if (s.bore > 0.001){
+      const boreGeo = new THREE.CylinderGeometry(s.bore/2, s.bore/2, width, 48, 1, true);
       const bore = new THREE.Mesh(boreGeo, makeMaterial(0x2b7fd4));
       bore.rotation.x = Math.PI/2; group.add(bore);
     }
     return group;
   }
 
-  function makeMaterial(color){
-    return new THREE.MeshStandardMaterial({
-      color: color === undefined ? 0x9aa7b5 : color,
-      metalness: 0.72, roughness: 0.36, side: THREE.DoubleSide, wireframe: wire
-    });
+  /* ---------- Bevel / Spiral Bevel — tapered body ---------- */
+  function buildBevelSolid(g, s, spiral){
+    const m = g.m;
+    const z = g.effectiveTeeth;
+    const alpha = g.alpha;
+    const profile = ToothGeometry.buildProfile(m, z, alpha, 0, 1.0, 1.2, 0, {nInv:8, nFil:3, nTip:3, nRoot:2});
+    const pts = profile.outline;
+    const n = pts.length;
+    const layers = 12;
+    const kInner = Math.max(0.4, (g.R - g.b) / g.R);
+    const zLen = g.b * Math.cos(g.delta1);
+    const zStart = -zLen/2, zEnd = zLen/2;
+    const spiralTwist = spiral ? (g.spiralTravel / Math.max(g.dm1, 1)) : 0;
+
+    const pos = [], idx = [];
+    for (let l=0; l<layers; l++){
+      const t = l/(layers-1);
+      const k = 1 - t*(1 - kInner);
+      const zPos = zStart + t*(zEnd - zStart);
+      const ang = spiralTwist * t;
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      for (let i=0; i<n; i++){
+        const px = pts[i].x * k, py = pts[i].y * k;
+        pos.push(px*ca - py*sa, px*sa + py*ca, zPos);
+      }
+    }
+    for (let l=0; l<layers-1; l++){
+      for (let i=0; i<n; i++){
+        const i2 = (i+1)%n;
+        idx.push(l*n+i, l*n+i2, (l+1)*n+i2, l*n+i, (l+1)*n+i2, (l+1)*n+i);
+      }
+    }
+    const sideGeo = new THREE.BufferGeometry();
+    sideGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    sideGeo.setIndex(idx);
+    sideGeo.computeVertexNormals();
+    const group = new THREE.Group();
+    group.add(new THREE.Mesh(sideGeo, makeMaterial()));
+
+    // Outer cap
+    const outerPts = pts.map(p => new THREE.Vector2(p.x, p.y));
+    const outerShape = new THREE.Shape(outerPts);
+    if (s.bore > 0.001){
+      const hole = new THREE.Path();
+      for (let i=0;i<=40;i++){
+        const a = i/40*Math.PI*2;
+        const hx = (s.bore/2)*Math.cos(a), hy = (s.bore/2)*Math.sin(a);
+        if (i===0) hole.moveTo(hx,hy); else hole.lineTo(hx,hy);
+      }
+      outerShape.holes.push(hole);
+    }
+    const outerCap = new THREE.Mesh(new THREE.ShapeGeometry(outerShape), makeMaterial());
+    outerCap.position.z = zEnd; group.add(outerCap);
+
+    // Inner cap
+    const innerPts = pts.map(p => new THREE.Vector2(p.x*kInner, p.y*kInner));
+    const innerShape = new THREE.Shape(innerPts);
+    if (s.bore > 0.001){
+      const hole = new THREE.Path();
+      for (let i=0;i<=40;i++){
+        const a = i/40*Math.PI*2;
+        const hx = (s.bore/2)*Math.cos(a), hy = (s.bore/2)*Math.sin(a);
+        if (i===0) hole.moveTo(hx,hy); else hole.lineTo(hx,hy);
+      }
+      innerShape.holes.push(hole);
+    }
+    const innerCap = new THREE.Mesh(new THREE.ShapeGeometry(innerShape), makeMaterial());
+    innerCap.position.z = zStart; group.add(innerCap);
+
+    // Bore tube
+    if (s.bore > 0.001){
+      const boreGeo = new THREE.CylinderGeometry(s.bore/2, s.bore/2, zLen, 32, 1, true);
+      const bore = new THREE.Mesh(boreGeo, makeMaterial(0x2b7fd4));
+      bore.rotation.x = Math.PI/2; group.add(bore);
+    }
+    return group;
   }
 
+  /* ---------- Worm — cylinder + helical thread ---------- */
+  function buildWormSolid(g, s){
+    const group = new THREE.Group();
+    const R = g.d/2;
+    const L = s.faceWidth;
+    const lead = g.lead;
+    const turns = L / Math.max(lead, 1e-6);
+    const hand = s.hand;
+
+    const cyl = new THREE.Mesh(
+      new THREE.CylinderGeometry(R, R, L, 48, 1, false),
+      makeMaterial(0x9aa7b5)
+    );
+    cyl.rotation.x = Math.PI/2;
+    group.add(cyl);
+
+    // Helical thread
+    const steps = Math.max(120, Math.ceil(turns * 80));
+    const points = [];
+    for (let i=0; i<=steps; i++){
+      const t = i/steps;
+      const angle = t * turns * 2 * Math.PI * (hand === 'left' ? -1 : 1);
+      const z = -L/2 + t * L;
+      const r = R + 0.5*g.m;
+      points.push(new THREE.Vector3(r*Math.cos(angle), r*Math.sin(angle), z));
+    }
+    const curve = new THREE.CatmullRomCurve3(points);
+    const tubeGeo = new THREE.TubeGeometry(curve, steps, 0.6*g.m, 10, false);
+    group.add(new THREE.Mesh(tubeGeo, makeMaterial(0xb0b8c4)));
+
+    // Addendum cylinder (slightly larger) to give it a full worm profile
+    const addCyl = new THREE.Mesh(
+      new THREE.CylinderGeometry(R + 0.9*g.m, R + 0.9*g.m, L*0.98, 32, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0x9aa7b5, metalness: 0.7, roughness: 0.4, transparent: true, opacity: 0.15, side: THREE.DoubleSide })
+    );
+    addCyl.rotation.x = Math.PI/2;
+    group.add(addCyl);
+
+    return group;
+  }
+
+  /* ---------- Rack — extruded straight-tooth bar ---------- */
+  function buildRackSolid(g, s){
+    const m = g.m;
+    const z = g.effectiveTeeth;
+    const p = Math.PI*m;
+    const ha = g.ha, hf = g.hf;
+    const L = g.rackLength;
+    const W = s.faceWidth;
+
+    const shape = new THREE.Shape();
+    shape.moveTo(-L/2, -hf);
+    shape.lineTo(L/2, -hf);
+    shape.lineTo(L/2, 0);
+    for (let i=z-1; i>=0; i--){
+      const xc = -L/2 + (i+0.5)*p;
+      const haHW = p * 0.20;
+      const rootHW = p * 0.30;
+      shape.lineTo(xc + rootHW, 0);
+      shape.lineTo(xc + haHW, ha);
+      shape.lineTo(xc - haHW, ha);
+      shape.lineTo(xc - rootHW, 0);
+    }
+    shape.lineTo(-L/2, 0);
+    shape.lineTo(-L/2, -hf);
+
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: W, bevelEnabled: false });
+    geo.translate(0, 0, -W/2);
+    const group = new THREE.Group();
+    group.add(new THREE.Mesh(geo, makeMaterial()));
+    return group;
+  }
+
+  /* ---------- Sprocket — disc with roller pockets ---------- */
+  function buildSprocketSolid(g, s){
+    const z = g.effectiveTeeth;
+    const p = g.chainPitch;
+    const dr = g.rollerDia;
+    const d = g.d;
+    const da = g.da;
+    const W = s.faceWidth;
+    const ra = da/2;
+    const Rroll = d/2;
+    const rr = dr/2;
+
+    const shape = new THREE.Shape();
+    // Scalloped outer edge: alternate between ra and ra - tooth depth
+    const toothDepth = (da - d)/2 * 0.7;
+    const N = z * 12;
+    for (let i=0; i<=N; i++){
+      const angle = i * 2*Math.PI/N;
+      // tooth tips at each tooth center, roots between
+      const toothPhase = (i % 12) / 12;  // 0..1 across one tooth period
+      const tipness = Math.max(0, Math.cos(toothPhase * Math.PI * 2));
+      const r = ra - toothDepth * (1 - tipness);
+      const x = r*Math.cos(angle);
+      const y = r*Math.sin(angle);
+      if (i===0) shape.moveTo(x, y); else shape.lineTo(x, y);
+    }
+    // Roller pockets
+    for (let i=0; i<z; i++){
+      const angle = i * 2*Math.PI/z - Math.PI/2;
+      const cx = Rroll * Math.cos(angle);
+      const cy = Rroll * Math.sin(angle);
+      const hole = new THREE.Path();
+      hole.absarc(cx, cy, rr, 0, Math.PI*2, true);
+      shape.holes.push(hole);
+    }
+    // Bore
+    if (s.bore > 0.001){
+      const hole = new THREE.Path();
+      hole.absarc(0, 0, s.bore/2, 0, Math.PI*2, true);
+      shape.holes.push(hole);
+    }
+
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: W, bevelEnabled: false, curveSegments: 24 });
+    geo.translate(0, 0, -W/2);
+    const group = new THREE.Group();
+    group.add(new THREE.Mesh(geo, makeMaterial()));
+    return group;
+  }
+
+  /* ---------- router ---------- */
+  function disposeTree(obj){
+    obj.traverse(o => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material){
+        Array.isArray(o.material) ? o.material.forEach(m=>m.dispose()) : o.material.dispose();
+      }
+    });
+  }
   function render(g, s){
     if (!initialized) return;
     while (root.children.length) disposeTree(root.children.pop());
     if (pitchCircle){ scene.remove(pitchCircle); pitchCircle = null; }
-    let boreR = s.bore/2;
-    if (g.type === 'spur' || g.type === 'helical' || g.type === 'wormwheel'){
-      const m = g.type === 'helical' ? g.mt : g.m;
-      const profile = ToothGeometry.buildProfile(m, s.teeth, g.alpha, s.profileShift,
-        s.addendumCoeff, s.dedendumCoeff, s.backlash, {nInv:10, nFil:4, nTip:4, nRoot:3});
-      g.outline = profile.outline;
-      const width = s.faceWidth;
-      let twist = 0;
-      if (g.type === 'helical'){
-        twist = 2*width*Math.tan(g.beta)/g.d;
-        if (s.hand === 'left') twist = -twist;
+
+    switch (g.type){
+      case 'bevel':
+        root.add(buildBevelSolid(g, s, false));
+        camState.dist = Math.max(g.R, g.da)*2.4;
+        break;
+      case 'spiralbevel':
+        root.add(buildBevelSolid(g, s, true));
+        camState.dist = Math.max(g.R, g.da)*2.4;
+        break;
+      case 'worm':
+        root.add(buildWormSolid(g, s));
+        camState.dist = Math.max(s.faceWidth, g.d)*2.2;
+        break;
+      case 'wormwheel': {
+        root.add(buildInvoluteSolid(g, s));
+        const pg = new THREE.CylinderGeometry(g.rp, g.rp, s.faceWidth*1.02, 72, 1, true);
+        pitchCircle = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({color:0xffbe3c, wireframe:true, transparent:true, opacity:0.22}));
+        pitchCircle.rotation.x = Math.PI/2;
+        scene.add(pitchCircle);
+        camState.dist = Math.max(g.ra, s.faceWidth)*2.4;
+        break;
       }
-      root.add(buildGearSolid(profile, width, twist, boreR));
-      const pg = new THREE.CylinderGeometry(g.rp, g.rp, width*1.02, 72, 1, true);
-      pitchCircle = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({color:0xffbe3c, wireframe:true, transparent:true, opacity:0.22}));
-      pitchCircle.rotation.x = Math.PI/2;
-      scene.add(pitchCircle);
-      camState.dist = Math.max(g.ra, width)*2.4;
-      updateCamera();
-    } else {
-      const cyl = new THREE.Mesh(new THREE.CylinderGeometry(g.ra, g.ra, s.faceWidth, 64), makeMaterial());
-      cyl.rotation.x = Math.PI/2;
-      root.add(cyl);
-      camState.dist = g.ra*2.6;
-      updateCamera();
+      case 'rack':
+        root.add(buildRackSolid(g, s));
+        camState.dist = Math.max(g.rackLength, s.faceWidth)*1.8;
+        break;
+      case 'sprocket':
+        root.add(buildSprocketSolid(g, s));
+        camState.dist = Math.max(g.da, s.faceWidth)*2.4;
+        break;
+      case 'spur':
+      case 'helical':
+      default: {
+        root.add(buildInvoluteSolid(g, s));
+        const pg = new THREE.CylinderGeometry(g.rp, g.rp, s.faceWidth*1.02, 72, 1, true);
+        pitchCircle = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({color:0xffbe3c, wireframe:true, transparent:true, opacity:0.22}));
+        pitchCircle.rotation.x = Math.PI/2;
+        scene.add(pitchCircle);
+        camState.dist = Math.max(g.ra, s.faceWidth)*2.4;
+        break;
+      }
     }
+    updateCamera();
     reportInfo(g);
   }
-
-  function disposeTree(obj){
-    obj.traverse(o => {
-      if (o.geometry) o.geometry.dispose();
-      if (o.material){ Array.isArray(o.material) ? o.material.forEach(m=>m.dispose()) : o.material.dispose(); }
-    });
-  }
-
   function reportInfo(g){
     const box = document.getElementById('meshInfo');
     if (!box) return;
     box.innerHTML = `Type: <b>${g.type}</b><br>Pitch Ø: <b>${fmtLen(g.d,2)} ${LEN()}</b><br>Outside Ø: <b>${fmtLen(g.da,2)} ${LEN()}</b>`;
   }
-
   function animate(){
     requestAnimationFrame(animate);
     if (!renderer) return;
@@ -2363,7 +2824,6 @@ const Gear3D = (function(){
     }
     renderer.render(scene, camera);
   }
-
   return {
     init, render, setView, resize,
     setSpin(v){ spinning = v; },
@@ -2461,14 +2921,11 @@ const App = (function(){
     if ($('fBacklash')) $('fBacklash').style.display = (t === 'sprocket' || t === 'rack') ? 'none' : '';
     if ($('fModule')) $('fModule').style.display = (t === 'sprocket') ? 'none' : '';
   }
-
-  /* ---------- TAB VISIBILITY BY GEAR TYPE ---------- */
   function updateTabVisibility(){
     const visible = TABS_FOR_TYPE[State.gearType] || TABS_FOR_TYPE.spur;
     const visibleSet = new Set(visible);
     document.querySelectorAll('#tabs button').forEach(btn=>{
-      const tab = btn.dataset.tab;
-      btn.hidden = !visibleSet.has(tab);
+      btn.hidden = !visibleSet.has(btn.dataset.tab);
     });
     const activeBtn = document.querySelector('#tabs button.active');
     if (!activeBtn || activeBtn.hidden){
@@ -2476,39 +2933,28 @@ const App = (function(){
       if (designBtn) designBtn.click();
     }
   }
-
-  /* ---------- GEAR-TYPE SPECIFIC PANELS ----------
-   * Helical selected  -> only helical / worm lead panels are shown.
-   * Spiral bevel      -> only the spiral bevel panel is shown.
-   * No foreign (bevel / spiral bevel) information is displayed for a helical gear.
-   */
-  function showEl(id, vis){
-    const el = $(id);
-    if (el) el.style.display = vis ? '' : 'none';
-  }
+  function showEl(id, vis){ const el = $(id); if (el) el.style.display = vis ? '' : 'none'; }
   function updateTypeSpecificUI(){
     const t = State.gearType;
     const leadLike   = (t === 'helical' || t === 'worm' || t === 'wormwheel');
     const spiralLike = (t === 'spiralbevel');
-
     showEl('helicalLeadGroup', leadLike);
     showEl('helicalGearTrainCard', leadLike);
     showEl('spiralBevelGroup', spiralLike);
-
     const ht = $('helicalLeadTitle');
-    if (ht){
-      ht.textContent = (t === 'worm' || t === 'wormwheel')
-        ? 'Worm Lead Calculation'
-        : 'Helical Lead Calculation';
+    if (ht) ht.textContent = (t === 'worm' || t === 'wormwheel') ? 'Worm Lead Calculation' : 'Helical Lead Calculation';
+    const dt = $('drawingTitle');
+    if (dt){
+      const names = { spur:'Spur', helical:'Helical', bevel:'Bevel', spiralbevel:'Spiral Bevel',
+                      worm:'Worm', wormwheel:'Worm Wheel', rack:'Rack', sprocket:'Sprocket' };
+      dt.textContent = `${names[t] || t} — 2D Engineering Drawing`;
     }
   }
 
-  /* ---------- SYNC LEAD TAB WITH THE ACTIVE GEAR ---------- */
   function syncLeadFromGear(){
     const g = currentGear;
     if (!g) return;
     const t = State.gearType;
-
     if (t === 'helical' || t === 'worm'){
       if ($('inLeadD'))   $('inLeadD').value   = fmt(lenOut(g.d), 4);
       if ($('inLeadBeta'))$('inLeadBeta').value= fmt(g.type === 'helical' ? g.betaDeg : (g.leadAngleDeg || 20), 4);
@@ -2529,7 +2975,6 @@ const App = (function(){
     }
   }
 
-  /* ---------- INPUT SUMMARY ---------- */
   function renderInputSummary(){
     const box = $('inputSummary');
     if (!box) return;
@@ -2583,7 +3028,8 @@ const App = (function(){
     }
     if (g.type === 'spur' || g.type === 'helical' || g.type === 'wormwheel'){
       const mUse = (g.type === 'helical') ? g.mt : g.m;
-      const prof = ToothGeometry.buildProfile(mUse, State.teeth, g.alpha, State.profileShift,
+      const teethUse = (g.type === 'wormwheel') ? g.z2 : State.teeth;
+      const prof = ToothGeometry.buildProfile(mUse, teethUse, g.alpha, State.profileShift,
         State.addendumCoeff, State.dedendumCoeff, State.backlash, {nInv:14, nFil:6, nTip:4, nRoot:3});
       g.outline = prof.outline;
       g.phiTip = prof.phiTip;
@@ -2591,7 +3037,6 @@ const App = (function(){
     }
     currentGear = g;
     currentPair = calcPair(g, State);
-
     updateTabVisibility();
     updateTypeSpecificUI();
     renderValidation(validate(State, g));
@@ -2660,13 +3105,14 @@ const App = (function(){
   function renderSvg(g){
     let scale = 1;
     if (g.ra > 0){ scale = 290/Math.max(g.ra, State.faceWidth/2); }
-    let label = State.gearType.toUpperCase();
-    if (g.type === 'helical')     label += `   β = ${fmt(g.betaDeg,2)}°   ${String(State.hand).toUpperCase()} HAND`;
-    if (g.type === 'worm')        label += `   γ = ${fmt(g.leadAngleDeg,2)}°`;
-    if (g.type === 'spiralbevel') label += `   β_m = ${fmt(g.spiralAngle,2)}°   ${String(State.hand).toUpperCase()} HAND`;
-    SvgDrawing.drawGear($('gearSvg'), g, State, {
-      scale,
-      label,
+    let label = '';
+    if (g.type === 'helical')     label = `β = ${fmt(g.betaDeg,2)}°   ${String(State.hand).toUpperCase()} HAND`;
+    if (g.type === 'worm')        label = `γ = ${fmt(g.leadAngleDeg,2)}°   ${String(State.hand).toUpperCase()} HAND`;
+    if (g.type === 'spiralbevel') label = `β_m = ${fmt(g.spiralAngle,2)}°   ${String(State.hand).toUpperCase()} HAND`;
+    if (g.type === 'bevel')       label = `δ₁ = ${fmt(g.delta1*R2D,2)}°   R = ${fmtLen(g.R,2)} ${LEN()}`;
+    SvgDrawing.drawByType($('gearSvg'), g, State, {
+      scale, label,
+      typeLabel: State.gearType,
       showPitch: $('chkPitch').checked,
       showBase: $('chkBase').checked,
       showRoot: $('chkRoot').checked,
@@ -2674,33 +3120,135 @@ const App = (function(){
       showTeethNo: $('chkTeethNo').checked,
       highlight: parseInt($('inToothSel').value, 10) || 0
     });
+    // Re-attach zoom controller after SVG innerHTML replacement
+    try { SvgZoom.attach($('gearSvg')); } catch(e){}
   }
   function renderToothPanel(g){
-    const sel = clamp(parseInt($('inToothSel').value,10) || 1, 1, State.teeth);
+    const zEff = g.effectiveTeeth || State.teeth;
+    const sel = clamp(parseInt($('inToothSel').value,10) || 1, 1, zEff);
     $('inToothSel').value = sel;
-    const z = State.teeth;
-    const ang = (sel-1)*360/z;
-    const mUse = (g.type === 'helical') ? g.mt : g.m;
+    $('inToothSel').max = zEff;
+    const ang = (sel-1)*360/zEff;
     const el = $('toothPanel');
-    el.innerHTML =
-      `<div><span class="k">TOOTH #</span> <b>${sel}</b> of ${z}</div>` +
-      `<div><span class="k">Angular position:</span> <b>${fmt(ang,4)}°</b></div>` +
-      `<div><span class="k">Pitch radius r:</span> <b>${fmtLen(g.rp,4)} ${LEN()}</b></div>` +
-      `<div><span class="k">Base radius r_b:</span> <b>${fmtLen(g.rb,4)} ${LEN()}</b></div>` +
-      `<div><span class="k">Outside radius r_a:</span> <b>${fmtLen(g.ra,4)} ${LEN()}</b></div>` +
-      `<div><span class="k">Root radius r_f:</span> <b>${fmtLen(g.rf,4)} ${LEN()}</b></div>` +
-      `<div><span class="k">Tooth thickness:</span> <b>${fmtLen(g.sPitch,4)} ${LEN()}</b></div>` +
-      `<div><span class="k">Circular pitch:</span> <b>${fmtLen(Math.PI*mUse,4)} ${LEN()}</b></div>`;
-    const invP = Math.tan(g.alpha)-g.alpha;
-    const phiP = g.sPitch/(2*g.rp);
-    const rows = [];
-    const rStart = Math.max(g.rb, g.rf);
-    for (let i=0;i<=12;i++){
-      const r = rStart + (g.ra-rStart)*(i/12);
-      const phi = ToothGeometry.involuteAngleAtRadius(r, g.rb, phiP, invP);
-      rows.push(`r=${fmt(r,3).padStart(9)}  φ=${fmt(phi*R2D,4).padStart(8)}°  x=${fmt(r*Math.cos(phi),3).padStart(9)}  y=${fmt(r*Math.sin(phi),3).padStart(9)}`);
+    const t = g.type;
+
+    if (t === 'bevel' || t === 'spiralbevel'){
+      el.innerHTML =
+        `<div><span class="k">GEAR TYPE:</span> <b>${t === 'spiralbevel' ? 'Spiral Bevel' : 'Straight Bevel'}</b></div>` +
+        `<div><span class="k">Pitch cone angle δ₁:</span> <b>${fmt(g.delta1*R2D,3)}°</b></div>` +
+        `<div><span class="k">Pitch cone δ₂:</span> <b>${fmt(g.delta2*R2D,3)}°</b></div>` +
+        `<div><span class="k">Outer cone dist R:</span> <b>${fmtLen(g.R,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Mean cone dist R_m:</span> <b>${fmtLen(g.Rm,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Face width b:</span> <b>${fmtLen(g.b,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Outer pitch Ø d₁:</span> <b>${fmtLen(g.d,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Mean pitch Ø d_m1:</span> <b>${fmtLen(g.dm1,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Face cone δ_a1:</span> <b>${fmt(g.faceCone1*R2D,3)}°</b></div>` +
+        `<div><span class="k">Root cone δ_f1:</span> <b>${fmt(g.rootCone1*R2D,3)}°</b></div>` +
+        (t === 'spiralbevel'
+          ? `<div><span class="k">Spiral angle β_m:</span> <b>${fmt(g.spiralAngle,3)}°</b></div>` +
+            `<div><span class="k">Spiral lead L_s:</span> <b>${fmtLen(g.spiralLead,3)} ${LEN()}</b></div>`
+          : '');
+      $('involuteTable').textContent =
+        `Tapered tooth approximation at outer cone surface\n` +
+        `Outer radius r_a1 = ${fmtLen(g.da/2,3)} ${LEN()}\n` +
+        `Inner radius r_a2 ≈ r_a1 × (R − b)/R = ${fmtLen(g.da/2*(g.R-g.b)/g.R,3)} ${LEN()}\n\n` +
+        `Straight bevel teeth are generated by the cone surface —\n` +
+        `profile approximates the involute octoid form at the mean section.`;
+    } else if (t === 'worm'){
+      const lead = g.lead, turns = State.faceWidth/lead;
+      el.innerHTML =
+        `<div><span class="k">GEAR TYPE:</span> <b>Worm Shaft</b></div>` +
+        `<div><span class="k">Number of starts z₁:</span> <b>${g.z}</b></div>` +
+        `<div><span class="k">Axial module m_x:</span> <b>${fmtLen(g.m,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Worm pitch Ø d₁:</span> <b>${fmtLen(g.d,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Worm length L:</span> <b>${fmtLen(State.faceWidth,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Lead angle γ:</span> <b>${fmt(g.leadAngleDeg,3)}°</b></div>` +
+        `<div><span class="k">Lead p_z:</span> <b>${fmtLen(g.lead,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Axial pitch p_x:</span> <b>${fmtLen(Math.PI*g.m,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Hand:</span> <b>${String(State.hand).toUpperCase()}</b></div>` +
+        `<div><span class="k">Turns across face:</span> <b>${fmt(turns,3)}</b></div>`;
+      $('involuteTable').textContent =
+        `Worm thread = helical curve on a cylinder\n` +
+        `L = p_z = π · m · z₁ = ${fmtLen(g.lead,3)} mm\n` +
+        `γ = atan(z₁ / q) = ${fmt(g.leadAngleDeg,3)}°\n` +
+        `Axial pitch p_x = ${fmtLen(Math.PI*g.m,3)} mm\n\n` +
+        `Tooth profile perpendicular to thread is trapezoidal\n(involute of a rack at the normal section).`;
+    } else if (t === 'wormwheel'){
+      el.innerHTML =
+        `<div><span class="k">GEAR TYPE:</span> <b>Worm Wheel</b></div>` +
+        `<div><span class="k">Number of teeth z₂:</span> <b>${g.z2}</b></div>` +
+        `<div><span class="k">Module m:</span> <b>${fmtLen(g.m,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Pitch Ø d₂:</span> <b>${fmtLen(g.d,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Outside Ø d_a2:</span> <b>${fmtLen(g.da,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Root Ø d_f2:</span> <b>${fmtLen(g.df,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Throat Ø d_th:</span> <b>${fmtLen(g.throatDia,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Throat radius r_th:</span> <b>${fmtLen(g.throatRadius,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Centre distance a:</span> <b>${fmtLen(g.centreDistance,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Ratio i = z₂/z₁:</span> <b>${fmt(g.ratio,3)}</b></div>`;
+      $('involuteTable').textContent =
+        `Worm wheel = involute gear with concave (throated) tooth form\n` +
+        `Pitch Ø d₂ = m · z₂ = ${fmtLen(g.d,3)} mm\n` +
+        `Throat Ø d_th ≈ d₂ + 2m = ${fmtLen(g.throatDia,3)} mm\n` +
+        `Wrap angle ≈ 60°–90° around the worm.\n` +
+        `Rendered 3D model shows the wheel on its own axis (throat approximated).`;
+    } else if (t === 'rack'){
+      el.innerHTML =
+        `<div><span class="k">GEAR TYPE:</span> <b>Rack</b></div>` +
+        `<div><span class="k">Number of teeth z:</span> <b>${g.z}</b></div>` +
+        `<div><span class="k">Module m:</span> <b>${fmtLen(g.m,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Circular pitch p:</span> <b>${fmtLen(g.p,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Addendum hₐ:</span> <b>${fmtLen(g.ha,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Dedendum h_f:</span> <b>${fmtLen(g.hf,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Whole depth h:</span> <b>${fmtLen(g.h,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Tooth thickness s:</span> <b>${fmtLen(g.sPitch,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Total length L:</span> <b>${fmtLen(g.rackLength,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Face width b:</span> <b>${fmtLen(State.faceWidth,3)} ${LEN()}</b></div>`;
+      $('involuteTable').textContent =
+        `Rack = involute gear with infinite pitch radius\n` +
+        `Flanks become straight lines inclined at pressure angle α = ${State.pressureAngle}°\n` +
+        `Tooth profile in normal section: straight-sided trapezoid.\n` +
+        `p = π · m = ${fmtLen(Math.PI*g.m,3)} mm`;
+    } else if (t === 'sprocket'){
+      el.innerHTML =
+        `<div><span class="k">GEAR TYPE:</span> <b>Chain Sprocket</b></div>` +
+        `<div><span class="k">Number of teeth z:</span> <b>${g.z}</b></div>` +
+        `<div><span class="k">Chain pitch p:</span> <b>${fmtLen(g.chainPitch,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Roller Ø d_r:</span> <b>${fmtLen(g.rollerDia,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Pitch Ø d:</span> <b>${fmtLen(g.d,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Outside Ø d_a:</span> <b>${fmtLen(g.da,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Root Ø d_f:</span> <b>${fmtLen(g.df,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Roller seat radius:</span> <b>${fmtLen(g.rollerSeatRadius,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Tooth top width:</span> <b>${fmtLen(g.toothTopWidth,3)} ${LEN()}</b></div>` +
+        `<div><span class="k">Tooth root radius:</span> <b>${fmtLen(g.toothRootRadius,3)} ${LEN()}</b></div>`;
+      $('involuteTable').textContent =
+        `Sprocket teeth engage chain rollers — no involute.\n` +
+        `Tooth profile is a circular arc (roller seating radius).\n` +
+        `Pitch Ø d = p / sin(π/z) = ${fmtLen(g.d,3)} mm\n` +
+        `Each roller sits in a pocket of radius d_r/2 = ${fmtLen(g.rollerDia/2,3)} mm\n` +
+        `Roller circle radius = d/2 = ${fmtLen(g.d/2,3)} mm`;
+    } else {
+      // involute: spur / helical
+      const mUse = (g.type === 'helical') ? g.mt : g.m;
+      el.innerHTML =
+        `<div><span class="k">TOOTH #</span> <b>${sel}</b> of ${zEff}</div>` +
+        `<div><span class="k">Angular position:</span> <b>${fmt(ang,4)}°</b></div>` +
+        `<div><span class="k">Pitch radius r:</span> <b>${fmtLen(g.rp,4)} ${LEN()}</b></div>` +
+        `<div><span class="k">Base radius r_b:</span> <b>${fmtLen(g.rb,4)} ${LEN()}</b></div>` +
+        `<div><span class="k">Outside radius r_a:</span> <b>${fmtLen(g.ra,4)} ${LEN()}</b></div>` +
+        `<div><span class="k">Root radius r_f:</span> <b>${fmtLen(g.rf,4)} ${LEN()}</b></div>` +
+        `<div><span class="k">Tooth thickness:</span> <b>${fmtLen(g.sPitch,4)} ${LEN()}</b></div>` +
+        `<div><span class="k">Circular pitch:</span> <b>${fmtLen(Math.PI*mUse,4)} ${LEN()}</b></div>`;
+      const invP = Math.tan(g.alpha)-g.alpha;
+      const phiP = g.sPitch/(2*g.rp);
+      const rows = [];
+      const rStart = Math.max(g.rb, g.rf);
+      for (let i=0;i<=12;i++){
+        const r = rStart + (g.ra-rStart)*(i/12);
+        const phi = ToothGeometry.involuteAngleAtRadius(r, g.rb, phiP, invP);
+        rows.push(`r=${fmt(r,3).padStart(9)}  φ=${fmt(phi*R2D,4).padStart(8)}°  x=${fmt(r*Math.cos(phi),3).padStart(9)}  y=${fmt(r*Math.sin(phi),3).padStart(9)}`);
+      }
+      $('involuteTable').textContent = rows.join('\n');
     }
-    $('involuteTable').textContent = rows.join('\n');
   }
   function updateLeadVisuals(g){
     if (g.type === 'helical' || g.type === 'worm'){
@@ -2761,6 +3309,10 @@ const App = (function(){
   function renderBacklash(g){
     const j = State.backlash;
     const m = (g.type === 'helical') ? g.mt : g.m;
+    if (g.type === 'sprocket' || g.type === 'rack'){
+      $('backlashBox').innerHTML = `<div class="msg info">Backlash is a chain/rack-fit characteristic — see the chain/sprocket clearance.</div>`;
+      return;
+    }
     $('backlashBox').innerHTML =
       `<div class="kv"><span>Circular pitch p</span><b>${fmtLen(Math.PI*m,4)} ${LEN()}</b></div>` +
       `<div class="kv"><span>Nominal tooth thickness</span><b>${fmtLen(Math.PI*m/2,4)} ${LEN()}</b></div>` +
@@ -2796,7 +3348,6 @@ const App = (function(){
     if (c) $('cutterResult').innerHTML = `<div class="msg info">Recommended involute gear cutter: <b>No. ${c.no}</b> (covers ${c.min}–${c.max} teeth).</div>`;
     else $('cutterResult').innerHTML = '<div class="msg warn">No standard cutter number matched.</div>';
   }
-
   function parseHoleCirclesFromUI(){
     const preset = $('idxHolePreset') ? $('idxHolePreset').value : '';
     const custom = $('idxCustomHoles') ? $('idxCustomHoles').value : '';
@@ -2842,7 +3393,6 @@ const App = (function(){
     const r = selVal('idxRatio');
     $('fIdxRatioCustom').style.display = (r === 'custom') ? '' : 'none';
   }
-
   function computeIndexing(){
     if (!$('idxMethod')) return;
     try {
@@ -2955,7 +3505,6 @@ const App = (function(){
       $('idxTrace').textContent = '';
     }
   }
-
   function positiveNumberOrThrow(v, name){
     if (!isFinite(v) || v <= 0) throw new Error(`${name} must be greater than zero.`);
     return v;
@@ -3027,7 +3576,6 @@ const App = (function(){
     SvgDrawing.drawMultiStageTop(topSvg, alt.pairs, 700, 400);
     SvgDrawing.drawMultiStageSide(sideSvg, alt.pairs, 700, 340);
   }
-
   function machineRelation(cfg, Ls, L){
     switch (cfg){
       case 'universalMillDH': return { text: `Universal milling machine + 40:1 dividing head\n  i = 40 · Ls / L`, ratio: 40*Ls/L };
@@ -3105,7 +3653,7 @@ const App = (function(){
     let html = `<div class="card"><h2>GEAR ENGINEERING REPORT</h2>`;
     html += `<div class="grid g3">`;
     html += `<div class="kv"><span>Gear type</span><b>${State.gearType}</b></div>`;
-    html += `<div class="kv"><span>Teeth</span><b>${State.teeth}</b></div>`;
+    html += `<div class="kv"><span>Teeth</span><b>${g.effectiveTeeth}</b></div>`;
     html += `<div class="kv"><span>Module</span><b>${fmt(State.module,4)} mm</b></div>`;
     html += `<div class="kv"><span>Material</span><b>${State.material}</b></div>`;
     html += `<div class="kv"><span>Date</span><b>${now.toISOString().slice(0,10)}</b></div>`;
@@ -3191,18 +3739,19 @@ const App = (function(){
     });
     $('inToothSel').addEventListener('input', ()=>{ if (currentGear){ renderSvg(currentGear); renderToothPanel(currentGear); } });
     $('btnToothPrev').addEventListener('click', ()=>{
+      const g = currentGear; const zEff = g ? g.effectiveTeeth : State.teeth;
       const v = (parseInt($('inToothSel').value,10)||1) - 1;
-      $('inToothSel').value = v < 1 ? State.teeth : v;
-      renderSvg(currentGear); renderToothPanel(currentGear);
+      $('inToothSel').value = v < 1 ? zEff : v;
+      renderSvg(g); renderToothPanel(g);
     });
     $('btnToothNext').addEventListener('click', ()=>{
+      const g = currentGear; const zEff = g ? g.effectiveTeeth : State.teeth;
       const v = (parseInt($('inToothSel').value,10)||1) + 1;
-      $('inToothSel').value = v > State.teeth ? 1 : v;
-      renderSvg(currentGear); renderToothPanel(currentGear);
+      $('inToothSel').value = v > zEff ? 1 : v;
+      renderSvg(g); renderToothPanel(g);
     });
     $('btnToothAll').addEventListener('click', ()=>{ $('inToothSel').value = 1; renderSvg(currentGear); renderToothPanel(currentGear); });
 
-    /* gear drawing zoom buttons -> shared controller */
     document.querySelectorAll('[data-svg]').forEach(b => {
       b.addEventListener('click', () => {
         const ctl = SvgZoom.attach($('gearSvg'));
@@ -3212,7 +3761,6 @@ const App = (function(){
         else ctl.reset();
       });
     });
-
     document.querySelectorAll('[data-view]').forEach(b => {
       b.addEventListener('click', () => Gear3D.setView(b.dataset.view));
     });
@@ -3222,7 +3770,6 @@ const App = (function(){
     $('chkPitch3d').addEventListener('change', ()=>Gear3D.setPitchVisible($('chkPitch3d').checked));
     $('chkWire').addEventListener('change', ()=>Gear3D.setWire($('chkWire').checked));
 
-    /* Indexing wiring */
     $('idxMethod').addEventListener('change', ()=>{ updateIdxMethodUI(); computeIndexing(); });
     $('idxRatio').addEventListener('change', ()=>{ updateIdxMethodUI(); computeIndexing(); });
     $('idxRatioCustom').addEventListener('input', ()=>computeIndexing());
@@ -3236,12 +3783,10 @@ const App = (function(){
     $('idxAngleMin').addEventListener('input', ()=>computeIndexing());
     $('btnIdxCalc').addEventListener('click', ()=>computeIndexing());
 
-    /* Change-gear wiring */
     $('btnGearSearch').addEventListener('click', runGearSearch);
     ['inMachine','inLeadScrew','inReqLead'].forEach(id => $(id).addEventListener('change', ()=>{ updateKinematicBox(); }));
     $('btnTrainAnim').addEventListener('click', ()=>{ const svg = $('trainSvg'); svg.style.filter = `hue-rotate(${Math.random()*180}deg)`; setTimeout(()=>{ svg.style.filter = 'none'; }, 900); });
 
-    /* Lead wiring */
     $('btnLeadCalc').addEventListener('click', computeLead);
     $('btnSpiralCalc').addEventListener('click', computeSpiralLead);
     $('btnLeadFromGear').addEventListener('click', ()=>{
@@ -3275,7 +3820,6 @@ const App = (function(){
       }
     });
 
-    /* CNC */
     $('btnCnc').addEventListener('click', ()=>{ computeCnc(); computeMilling(currentGear); });
     $('inCncMaterial').addEventListener('change', ()=>{
       const mat = MATERIAL_DB[selVal('inCncMaterial')];
@@ -3289,7 +3833,6 @@ const App = (function(){
     });
     $('btnToolpathSim').addEventListener('click', ()=>{ SvgDrawing.drawToolpath($('toolpathSvg'), currentGear, State, Math.floor(Math.random()*10)); });
 
-    /* Report */
     $('btnGenReport').addEventListener('click', generateReport);
     $('btnPrintReport').addEventListener('click', ()=>window.print());
     $('btnCsv').addEventListener('click', exportCsv);
@@ -3303,7 +3846,6 @@ const App = (function(){
     });
     $('btnPrint').addEventListener('click', ()=>window.print());
 
-    /* SVG export */
     $('btnSvgFile').addEventListener('click', ()=>{
       const svg = $('gearSvg').outerHTML;
       const blob = new Blob([svg], { type:'image/svg+xml' });
@@ -3338,7 +3880,6 @@ const App = (function(){
     computeIndexing();
     try { runLeadGearSearch('helical'); } catch(e){}
     try { runLeadGearSearch('spiral'); } catch(e){}
-    /* enable zoom / pan on every 2D drawing */
     SvgZoom.attachAll();
   }
   return { init, recompute, _spin:false, get gear(){ return currentGear; } };
