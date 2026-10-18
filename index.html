@@ -77,6 +77,10 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
 .trace .t{color:var(--accent);font-weight:600}
 .trace .r{color:#7ee08a}
 
+.gcode-pre{font-family:var(--mono);font-size:11.5px;background:#0a0e13;border:1px solid var(--line);
+  border-radius:6px;padding:10px;max-height:520px;overflow:auto;white-space:pre;
+  line-height:1.4;tab-size:2}
+
 .svg-wrap{background:#0a0e13;border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
 .svg-wrap svg{display:block;width:100%;height:auto;cursor:grab;touch-action:none;user-select:none}
 .svg-wrap svg:active{cursor:grabbing}
@@ -955,9 +959,12 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
       </div>
       <div class="row" style="margin-top:8px">
         <button class="btn small" id="btnToolpathSim">Simulation ON/OFF</button>
-        <button class="btn small" id="btnGcode">Generate G-code</button>
+        <button class="btn small primary" id="btnGcode">Generate G-code</button>
+        <button class="btn small" id="btnGcodeCopy" style="display:none">Copy</button>
+        <button class="btn small" id="btnGcodeDownload" style="display:none">Download .nc</button>
+        <span id="gcodeInfo" style="font-size:11px;color:var(--dim);margin-left:auto"></span>
       </div>
-      <div class="trace" id="gcodeBox" style="max-height:220px;margin-top:8px;display:none"></div>
+      <pre class="gcode-pre" id="gcodeBox" style="display:none;margin-top:8px"></pre>
     </div>
   </div>
 </section>
@@ -1214,8 +1221,7 @@ const ToothGeometry = (function(){
 })();
 
 /* ============================================================================
- * CALCULATION ENGINES  — every gear type exposes a full geometry table,
- * effectiveTeeth (used for profile generation), and type-specific rows
+ * CALCULATION ENGINES
  * ==========================================================================*/
 
 function calcSpurGear(s){
@@ -1445,7 +1451,7 @@ function calcWormWheel(s){
   const m = w.m, z2 = w.z2, d2 = w.d2;
   const da2 = d2 + 2*m, df2 = d2 - 2.4*m;
   const faceWidth = Math.min(s.faceWidth, 0.75*w.d);
-  const throatRadius = w.d/2 + 0.5*m; // wrap-around radius (approx)
+  const throatRadius = w.d/2 + 0.5*m;
   w.type = 'wormwheel';
   w.effectiveTeeth = z2;
   w.d = d2; w.da = da2; w.df = df2; w.ra = da2/2; w.rf = df2/2; w.rp = d2/2;
@@ -1697,7 +1703,7 @@ function recommendCutter(z){
 }
 
 /* ============================================================================
- * SVG 2D DRAWING ENGINE — one drawing function per gear type
+ * SVG 2D DRAWING ENGINE
  * ==========================================================================*/
 const SvgDrawing = (function(){
   const BG = `<rect x="-2000" y="-2000" width="4000" height="4000" fill="#0a0e13"/>`;
@@ -1709,8 +1715,6 @@ const SvgDrawing = (function(){
     }
     return g + `</g>`;
   }
-
-  /* ---------- Involute gear (spur, helical, wormwheel) ---------- */
   function pathFromOutline(outline, scale){
     if (!outline || !outline.length) return '';
     let d = '';
@@ -1765,7 +1769,6 @@ const SvgDrawing = (function(){
     svg.innerHTML = html;
   }
 
-  /* ---------- Bevel gear (front view + cone side inset) ---------- */
   function drawBevel2D(svg, g, s, opts){
     opts = opts || {};
     const isSpiral = (g.type === 'spiralbevel');
@@ -1775,8 +1778,6 @@ const SvgDrawing = (function(){
     const step = 2*Math.PI/z;
     const innerScale = Math.max(0.55, (g.R - g.b)/g.R);
     let html = BG + grid();
-
-    // Tapered tooth representation — teeth drawn as trapezoids from inner to outer
     for (let i=0;i<z;i++){
       const a0 = i*step - step*0.20;
       const a1 = i*step + step*0.20;
@@ -1786,7 +1787,6 @@ const SvgDrawing = (function(){
       const ix2 = (rf*innerScale)*Math.cos(a1*1.05), iy2 = -(rf*innerScale)*Math.sin(a1*1.05);
       html += `<path d="M${fmt(ix1,2)} ${fmt(iy1,2)} L${fmt(ox1,2)} ${fmt(oy1,2)} L${fmt(ox2,2)} ${fmt(oy2,2)} L${fmt(ix2,2)} ${fmt(iy2,2)} Z" fill="#243040" stroke="#5fa8ff" stroke-width="0.85"/>`;
       if (isSpiral){
-        // curved spiral line on the tooth face
         const midR = (ra + rf*innerScale)/2;
         const mx = midR*Math.cos((a0+a1)/2);
         const my = -midR*Math.sin((a0+a1)/2);
@@ -1794,26 +1794,18 @@ const SvgDrawing = (function(){
         html += `<path d="M${fmt(ox1,2)} ${fmt(oy1,2)} Q${fmt(mx+bend,2)} ${fmt(my+bend,2)} ${fmt(ix2,2)} ${fmt(iy2,2)}" fill="none" stroke="#ffbe3c" stroke-width="0.7" opacity="0.7"/>`;
       }
     }
-    // Root disc
     html += `<circle cx="0" cy="0" r="${fmt(rf*innerScale,2)}" fill="#0a0e13" stroke="#8b97a6" stroke-width="0.8"/>`;
-    // Pitch & outer circles
     html += circle(0,0,rp,'#ffbe3c','10 4 3 4',1.1);
     html += circle(0,0,ra,'#5fa8ff','',0.6);
-    // Bore
     if (s.bore > 0)
       html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1"/>`;
-    // Centre crosses
     html += `<line x1="${-ra-10}" y1="0" x2="${ra+10}" y2="0" stroke="#f85149" stroke-width="0.7" stroke-dasharray="10 3 3 3"/>`;
     html += `<line x1="0" y1="${-ra-10}" x2="0" y2="${ra+10}" stroke="#f85149" stroke-width="0.7" stroke-dasharray="10 3 3 3"/>`;
-
-    // ----- Cone side-view inset (bottom) -----
     const insetY = 220, apexX = -140;
     const coneLen = 200;
     const coneR = 95;
     html += `<text x="${apexX}" y="${insetY-46}" fill="#4da3ff" font-size="10" font-family="monospace" letter-spacing="0.6">CONE SIDE VIEW</text>`;
-    // axis
     html += `<line x1="${apexX}" y1="${insetY}" x2="${apexX+coneLen+10}" y2="${insetY}" stroke="#3a4756" stroke-dasharray="4,4"/>`;
-    // pitch cone (upper & lower)
     const pcUx1 = apexX, pcUy1 = insetY;
     const pcUx2 = apexX + coneLen*Math.cos(g.delta1);
     const pcUy2 = insetY - coneLen*Math.sin(g.delta1);
@@ -1821,25 +1813,19 @@ const SvgDrawing = (function(){
     const pcLy2 = insetY + (insetY - pcUy2);
     html += `<line x1="${fmt(pcUx1,2)}" y1="${fmt(pcUy1,2)}" x2="${fmt(pcUx2,2)}" y2="${fmt(pcUy2,2)}" stroke="#ffbe3c" stroke-width="1.4"/>`;
     html += `<line x1="${fmt(pcUx1,2)}" y1="${fmt(pcUy1,2)}" x2="${fmt(pcLx2,2)}" y2="${fmt(pcLy2,2)}" stroke="#ffbe3c" stroke-width="1.4"/>`;
-    // back cone (outer face)
     html += `<line x1="${fmt(pcUx2,2)}" y1="${fmt(pcUy2,2)}" x2="${fmt(pcLx2,2)}" y2="${fmt(pcLy2,2)}" stroke="#5fa8ff" stroke-width="1"/>`;
-    // inner (heal) line
     const innerX = apexX + (coneLen - coneR*Math.cos(g.delta1)) * Math.cos(g.delta1);
     const innerY = insetY - (coneLen - coneR) * Math.sin(g.delta1);
     html += `<line x1="${fmt(innerX,2)}" y1="${fmt(innerY,2)}" x2="${fmt(innerX,2)}" y2="${fmt(insetY + (insetY - innerY),2)}" stroke="#8b97a6" stroke-width="0.7" stroke-dasharray="2,3"/>`;
-    // angle annotation
     html += `<text x="${apexX+40}" y="${insetY+22}" fill="#d6dee8" font-size="10" font-family="monospace">δ₁ = ${fmt(g.delta1*R2D,2)}°</text>`;
     html += `<text x="${apexX+40}" y="${insetY+36}" fill="#d6dee8" font-size="10" font-family="monospace">R = ${fmtLen(g.R,2)} ${LEN()}</text>`;
     html += `<text x="${apexX+40}" y="${insetY+50}" fill="#d6dee8" font-size="10" font-family="monospace">b = ${fmtLen(g.b,2)} ${LEN()}</text>`;
     html += `<text x="${apexX+40}" y="${insetY+64}" fill="#d6dee8" font-size="10" font-family="monospace">d_m = ${fmtLen(g.dm1,2)} ${LEN()}</text>`;
-
-    // Title / label
     html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">${isSpiral?'SPIRAL BEVEL':'STRAIGHT BEVEL'}   z₁ = ${z}   m = ${fmtLen(s.module,3)} mm</text>`;
     html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">${isSpiral?'β_m = ' + fmt(g.spiralAngle,2) + '°   L_s = ' + fmtLen(g.spiralLead,2) + ' mm':'δ₁ = ' + fmt(g.delta1*R2D,2) + '°'}</text>`;
     svg.innerHTML = html;
   }
 
-  /* ---------- Worm (side view: cylinder + helix) ---------- */
   function drawWorm2D(svg, g, s, opts){
     opts = opts || {};
     const L = s.faceWidth;
@@ -1850,16 +1836,10 @@ const SvgDrawing = (function(){
     const lead = g.lead;
     const turns = Math.max(0.5, L/lead);
     const hand = s.hand;
-
     let html = BG + grid();
-
-    // Cylinder body
     html += `<rect x="${-halfL}" y="${-R}" width="${2*halfL}" height="${2*R}" fill="#1e2833" stroke="#5fa8ff" stroke-width="1.3" rx="3"/>`;
-    // End ellipses
     html += `<ellipse cx="${-halfL}" cy="0" rx="${R*0.18}" ry="${R}" fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
     html += `<ellipse cx="${halfL}" cy="0" rx="${R*0.18}" ry="${R}" fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
-
-    // Helical threads — draw sinusoidal curves that only show on the front half
     const numThreads = Math.max(3, Math.round(turns * 4));
     for (let k=0; k<numThreads; k++){
       let path = '';
@@ -1878,26 +1858,19 @@ const SvgDrawing = (function(){
       }
       if (path) html += `<path d="${path}" fill="none" stroke="#ffbe3c" stroke-width="1.7" opacity="0.85"/>`;
     }
-
-    // Axis line + arrow
     html += `<line x1="${-halfL-15}" y1="0" x2="${halfL+15}" y2="0" stroke="#f85149" stroke-width="0.7" stroke-dasharray="8 3 3 3"/>`;
-    // Axial pitch marks
     const px = Math.PI*g.m;
-    for (let i=0;i<=z_pitchCount();i++){
+    for (let i=0;i<=Math.ceil(L/px);i++){
       const xp = -halfL + i*px*scale;
       if (xp > halfL) break;
       html += `<line x1="${fmt(xp,2)}" y1="${-R-6}" x2="${fmt(xp,2)}" y2="${-R}" stroke="#4da3ff" stroke-width="0.8"/>`;
     }
-    function z_pitchCount(){ return Math.ceil(L/px); }
-
-    // Annotations
     html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">WORM SHAFT   z₁ = ${g.z}   m = ${fmtLen(g.m,3)} mm</text>`;
     html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">γ = ${fmt(g.leadAngleDeg,2)}°   L = ${fmtLen(L,2)} mm   p_z = ${fmtLen(lead,2)} mm   ${String(hand).toUpperCase()} HAND</text>`;
     html += `<text x="${-halfL}" y="${R+30}" fill="#8b97a6" font-size="10" font-family="monospace">d₁ = ${fmtLen(d,2)}   d_a1 = ${fmtLen(g.da,2)}   d_f1 = ${fmtLen(g.df,2)}</text>`;
     svg.innerHTML = html;
   }
 
-  /* ---------- Rack (straight toothed bar) ---------- */
   function drawRack2D(svg, g, s, opts){
     opts = opts || {};
     const m = g.m;
@@ -1905,19 +1878,13 @@ const SvgDrawing = (function(){
     const p = Math.PI*m;
     const ha = g.ha, hf = g.hf, h = g.h;
     const L = g.rackLength;
-
-    // Fit inside viewBox
     const sx = 540 / L;
     const sy = 160 / h;
     const sFit = Math.min(sx, sy);
-
     const halfL = L/2 * sFit;
     const haS = ha * sFit, hfS = hf * sFit;
     const pS = p * sFit;
-
     let html = BG + grid();
-
-    // Rack outline
     let path = `M${-halfL} ${hfS} L${halfL} ${hfS} L${halfL} ${-hfS} `;
     for (let i=z-1; i>=0; i--){
       const xc = -halfL + (i+0.5)*pS;
@@ -1927,18 +1894,13 @@ const SvgDrawing = (function(){
     }
     path += `L${-halfL} ${-hfS} Z`;
     html += `<path d="${path}" fill="#243040" stroke="#5fa8ff" stroke-width="1.2"/>`;
-
-    // Pitch line
     html += `<line x1="${-halfL}" y1="0" x2="${halfL}" y2="0" stroke="#ffbe3c" stroke-width="1.2" stroke-dasharray="10 4 3 4"/>`;
     html += `<text x="${halfL+8}" y="3" fill="#ffbe3c" font-size="10" font-family="monospace">pitch line</text>`;
-
-    // Annotations
     html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">RACK   z = ${z}   m = ${fmtLen(m,3)} mm</text>`;
     html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">L = ${fmtLen(L,2)} mm   p = ${fmtLen(p,2)} mm   hₐ = ${fmtLen(ha,2)}   h_f = ${fmtLen(hf,2)}</text>`;
     svg.innerHTML = html;
   }
 
-  /* ---------- Sprocket (disc with roller pockets) ---------- */
   function drawSprocket2D(svg, g, s, opts){
     opts = opts || {};
     const z = g.effectiveTeeth;
@@ -1950,38 +1912,26 @@ const SvgDrawing = (function(){
     const rp = d/2*scale;
     const rf = df/2*scale;
     const rr = dr/2*scale;
-
     let html = BG + grid();
-
-    // Outer disc
     html += `<circle cx="0" cy="0" r="${fmt(ra,2)}" fill="#243040" stroke="#5fa8ff" stroke-width="1.2"/>`;
-    // Roller pockets
     const Rroll = rp;
     for (let i=0;i<z;i++){
       const angle = i * 2*Math.PI/z - Math.PI/2;
       const cx = Rroll * Math.cos(angle);
       const cy = Rroll * Math.sin(angle);
       html += `<circle cx="${fmt(cx,2)}" cy="${fmt(cy,2)}" r="${fmt(rr,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="0.8"/>`;
-      // Small tooth tip pointing outward
       const tipR = ra - 2;
       html += `<line x1="${fmt(Rroll*Math.cos(angle),2)}" y1="${fmt(Rroll*Math.sin(angle),2)}" x2="${fmt(tipR*Math.cos(angle),2)}" y2="${fmt(tipR*Math.sin(angle),2)}" stroke="#5fa8ff" stroke-width="1.2"/>`;
     }
-
-    // Pitch & root circles
     html += circle(0,0,rp,'#ffbe3c','10 4 3 4',1.1);
     html += circle(0,0,rf,'#8b97a6','2 3',0.9);
-
-    // Bore
     if (s.bore > 0)
       html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1"/>`;
-
-    // Annotations
     html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">SPROCKET   z = ${z}   p = ${fmtLen(p,2)} mm   d_r = ${fmtLen(dr,2)} mm</text>`;
     html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">d = ${fmtLen(d,2)}   d_a = ${fmtLen(da,2)}   d_f = ${fmtLen(df,2)}</text>`;
     svg.innerHTML = html;
   }
 
-  /* ---------- Router ---------- */
   function drawByType(svg, g, s, opts){
     switch(g.type){
       case 'bevel':
@@ -1996,7 +1946,6 @@ const SvgDrawing = (function(){
     }
   }
 
-  /* ---------- Change-gear train (unchanged) ---------- */
   function drawTrain(svg, gears, opts){
     const W = 1000, H = 520;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
@@ -2027,7 +1976,6 @@ const SvgDrawing = (function(){
     svg.innerHTML = html;
   }
 
-  /* ---------- Differential (unchanged) ---------- */
   function drawDifferential(svg, res){
     const W = 980, H = 420;
     let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a0e13"/>`;
@@ -2085,7 +2033,6 @@ const SvgDrawing = (function(){
     return b.stages === 1 ? `${b.a} / ${b.b}` : `${b.a}/${b.b} · ${b.c}/${b.d}`;
   }
 
-  /* ---------- Helix, spiral cone, section, toolpath (unchanged) ---------- */
   function drawHelix(svg, d, betaDeg, b, lead, hand){
     const W=640, H=400;
     const cx = 220, cy = 200, R = 110;
@@ -2356,7 +2303,7 @@ const SvgZoom = (function(){
 })();
 
 /* ============================================================================
- * THREE.JS 3D GEAR ENGINE — builders per gear type
+ * THREE.JS 3D GEAR ENGINE
  * ==========================================================================*/
 const Gear3D = (function(){
   let renderer, scene, camera, root, pitchCircle, axesHelper;
@@ -2472,23 +2419,6 @@ const Gear3D = (function(){
     });
   }
 
-  /* ---------- shared: extrude a 2D shape with optional bore ---------- */
-  function extrudeShape(shape, depth, boreR){
-    if (boreR > 0.001){
-      const hole = new THREE.Path();
-      for (let i=0;i<=48;i++){
-        const a = i/48*Math.PI*2;
-        const hx = boreR*Math.cos(a), hy = boreR*Math.sin(a);
-        if (i===0) hole.moveTo(hx,hy); else hole.lineTo(hx,hy);
-      }
-      shape.holes.push(hole);
-    }
-    const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled:false, curveSegments:24 });
-    geo.translate(0, 0, -depth/2);
-    return new THREE.Mesh(geo, makeMaterial());
-  }
-
-  /* ---------- Spur / Helical / Wormwheel — involute extruded ---------- */
   function buildInvoluteSolid(g, s){
     const mUse = (g.type === 'helical') ? g.mt : g.m;
     const teethUse = (g.type === 'wormwheel') ? g.z2 : g.effectiveTeeth;
@@ -2550,7 +2480,6 @@ const Gear3D = (function(){
     return group;
   }
 
-  /* ---------- Bevel / Spiral Bevel — tapered body ---------- */
   function buildBevelSolid(g, s, spiral){
     const m = g.m;
     const z = g.effectiveTeeth;
@@ -2589,7 +2518,6 @@ const Gear3D = (function(){
     const group = new THREE.Group();
     group.add(new THREE.Mesh(sideGeo, makeMaterial()));
 
-    // Outer cap
     const outerPts = pts.map(p => new THREE.Vector2(p.x, p.y));
     const outerShape = new THREE.Shape(outerPts);
     if (s.bore > 0.001){
@@ -2604,7 +2532,6 @@ const Gear3D = (function(){
     const outerCap = new THREE.Mesh(new THREE.ShapeGeometry(outerShape), makeMaterial());
     outerCap.position.z = zEnd; group.add(outerCap);
 
-    // Inner cap
     const innerPts = pts.map(p => new THREE.Vector2(p.x*kInner, p.y*kInner));
     const innerShape = new THREE.Shape(innerPts);
     if (s.bore > 0.001){
@@ -2619,7 +2546,6 @@ const Gear3D = (function(){
     const innerCap = new THREE.Mesh(new THREE.ShapeGeometry(innerShape), makeMaterial());
     innerCap.position.z = zStart; group.add(innerCap);
 
-    // Bore tube
     if (s.bore > 0.001){
       const boreGeo = new THREE.CylinderGeometry(s.bore/2, s.bore/2, zLen, 32, 1, true);
       const bore = new THREE.Mesh(boreGeo, makeMaterial(0x2b7fd4));
@@ -2628,7 +2554,6 @@ const Gear3D = (function(){
     return group;
   }
 
-  /* ---------- Worm — cylinder + helical thread ---------- */
   function buildWormSolid(g, s){
     const group = new THREE.Group();
     const R = g.d/2;
@@ -2644,7 +2569,6 @@ const Gear3D = (function(){
     cyl.rotation.x = Math.PI/2;
     group.add(cyl);
 
-    // Helical thread
     const steps = Math.max(120, Math.ceil(turns * 80));
     const points = [];
     for (let i=0; i<=steps; i++){
@@ -2658,7 +2582,6 @@ const Gear3D = (function(){
     const tubeGeo = new THREE.TubeGeometry(curve, steps, 0.6*g.m, 10, false);
     group.add(new THREE.Mesh(tubeGeo, makeMaterial(0xb0b8c4)));
 
-    // Addendum cylinder (slightly larger) to give it a full worm profile
     const addCyl = new THREE.Mesh(
       new THREE.CylinderGeometry(R + 0.9*g.m, R + 0.9*g.m, L*0.98, 32, 1, true),
       new THREE.MeshStandardMaterial({ color: 0x9aa7b5, metalness: 0.7, roughness: 0.4, transparent: true, opacity: 0.15, side: THREE.DoubleSide })
@@ -2669,7 +2592,6 @@ const Gear3D = (function(){
     return group;
   }
 
-  /* ---------- Rack — extruded straight-tooth bar ---------- */
   function buildRackSolid(g, s){
     const m = g.m;
     const z = g.effectiveTeeth;
@@ -2701,7 +2623,6 @@ const Gear3D = (function(){
     return group;
   }
 
-  /* ---------- Sprocket — disc with roller pockets ---------- */
   function buildSprocketSolid(g, s){
     const z = g.effectiveTeeth;
     const p = g.chainPitch;
@@ -2714,20 +2635,17 @@ const Gear3D = (function(){
     const rr = dr/2;
 
     const shape = new THREE.Shape();
-    // Scalloped outer edge: alternate between ra and ra - tooth depth
     const toothDepth = (da - d)/2 * 0.7;
     const N = z * 12;
     for (let i=0; i<=N; i++){
       const angle = i * 2*Math.PI/N;
-      // tooth tips at each tooth center, roots between
-      const toothPhase = (i % 12) / 12;  // 0..1 across one tooth period
+      const toothPhase = (i % 12) / 12;
       const tipness = Math.max(0, Math.cos(toothPhase * Math.PI * 2));
       const r = ra - toothDepth * (1 - tipness);
       const x = r*Math.cos(angle);
       const y = r*Math.sin(angle);
       if (i===0) shape.moveTo(x, y); else shape.lineTo(x, y);
     }
-    // Roller pockets
     for (let i=0; i<z; i++){
       const angle = i * 2*Math.PI/z - Math.PI/2;
       const cx = Rroll * Math.cos(angle);
@@ -2736,7 +2654,6 @@ const Gear3D = (function(){
       hole.absarc(cx, cy, rr, 0, Math.PI*2, true);
       shape.holes.push(hole);
     }
-    // Bore
     if (s.bore > 0.001){
       const hole = new THREE.Path();
       hole.absarc(0, 0, s.bore/2, 0, Math.PI*2, true);
@@ -2750,7 +2667,6 @@ const Gear3D = (function(){
     return group;
   }
 
-  /* ---------- router ---------- */
   function disposeTree(obj){
     obj.traverse(o => {
       if (o.geometry) o.geometry.dispose();
@@ -2832,6 +2748,415 @@ const Gear3D = (function(){
     setAxes(v){ if (axesHelper) axesHelper.visible = v; },
     setPitchVisible(v){ if (pitchCircle) pitchCircle.visible = v; }
   };
+})();
+
+/* ============================================================================
+ * G-CODE GENERATOR — per-gear-type strategy
+ * ==========================================================================*/
+const GcodeGenerator = (function(){
+  const FT = v => (Number(v) || 0).toFixed(3);
+  const FR = v => Math.round(Number(v) || 0);
+  const R2D = 180 / Math.PI;
+
+  function offsetPolygon(pts, radius){
+    const n = pts.length;
+    if (n < 3) return pts.slice();
+    let area = 0;
+    for (let i = 0; i < n; i++){
+      const j = (i + 1) % n;
+      area += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
+    }
+    const sign = area > 0 ? 1 : -1;
+    const out = [];
+    for (let i = 0; i < n; i++){
+      const prev = pts[(i - 1 + n) % n], curr = pts[i], next = pts[(i + 1) % n];
+      const e1x = curr.x - prev.x, e1y = curr.y - prev.y;
+      const e2x = next.x - curr.x, e2y = next.y - curr.y;
+      const l1 = Math.hypot(e1x, e1y) || 1e-9;
+      const l2 = Math.hypot(e2x, e2y) || 1e-9;
+      const n1x = sign * e1y / l1, n1y = -sign * e1x / l1;
+      const n2x = sign * e2y / l2, n2y = -sign * e2x / l2;
+      const bx = n1x + n2x, by = n1y + n2y;
+      const bl = Math.hypot(bx, by);
+      if (bl < 1e-6){ out.push({ x: curr.x + n1x * radius, y: curr.y + n1y * radius }); continue; }
+      const cosHalf = (n1x * bx + n1y * by) / bl;
+      const ml = radius / Math.max(Math.abs(cosHalf), 0.15);
+      out.push({ x: curr.x + bx / bl * ml, y: curr.y + by / bl * ml });
+    }
+    return out;
+  }
+
+  function rotatePoint(p, a){
+    const c = Math.cos(a), s = Math.sin(a);
+    return { x: p.x * c - p.y * s, y: p.x * s + p.y * c };
+  }
+
+  function header(g, s, title, notes){
+    const toolD = s.toolDiameter || 3;
+    const rpm   = (s.cuttingSpeed * 1000) / (Math.PI * toolD);
+    const feed  = rpm * (s.toolFlutes || 4) * (s.feedPerTooth || 0.05);
+    const L = [];
+    L.push('%');
+    L.push('(=========================================)');
+    L.push('(  GEAR ENGINEERING PLATFORM - ' + title + ')');
+    L.push('(  Author: Gizie Melkamu)');
+    L.push('(  Generated: ' + new Date().toISOString().slice(0,19).replace('T',' ') + ')');
+    L.push('(=========================================)');
+    L.push('(*** VERIFY ALL PARAMETERS BEFORE RUNNING ***)');
+    L.push('(*** SIMULATE IN SOFTWARE FIRST ***)');
+    L.push('');
+    if (notes) for (const n of notes) L.push('(' + n + ')');
+    if (notes) L.push('');
+    L.push('(GEAR TYPE: ' + g.type.toUpperCase() + ')');
+    L.push('(MODULE: ' + FT(s.module) + ' mm)');
+    L.push('(TEETH: ' + (g.effectiveTeeth || 0) + ')');
+    L.push('(PRESSURE ANGLE: ' + FT(s.pressureAngle) + ' deg)');
+    L.push('(MATERIAL: ' + (s.material || 'unknown') + ')');
+    L.push('');
+    L.push('G21 ; Metric');
+    L.push('G90 ; Absolute');
+    L.push('G94 ; Feed per minute');
+    L.push('G17 ; XY plane');
+    L.push('G54 ; Work offset');
+    L.push('');
+    L.push('(TOOL: D' + FT(toolD) + ' mm, ' + (s.toolFlutes || 4) + ' flutes)');
+    L.push('(SPINDLE: ' + FR(rpm) + ' RPM)');
+    L.push('(FEED: ' + FR(feed) + ' mm/min)');
+    L.push('');
+    L.push('T1 M06');
+    L.push('S' + FR(rpm) + ' M03');
+    L.push('M08 ; Coolant on');
+    L.push('G00 Z10.0');
+    L.push('');
+    return { L, rpm, feed, plungeFeed: feed * 0.4, toolR: toolD / 2 };
+  }
+
+  function footer(L){
+    L.push('');
+    L.push('(--- END OF PROGRAM ---)');
+    L.push('G00 Z50.0');
+    L.push('M09');
+    L.push('M05');
+    L.push('G00 X0 Y0');
+    L.push('M30');
+    L.push('%');
+  }
+
+  function spur(g, s){
+    const h = header(g, s, 'SPUR GEAR - PROFILE CONTOUR', [
+      '3-axis contour milling of involute profile',
+      'Tool must fit between teeth - check diameter',
+      'Cutter comp NOT used - tool radius offset applied'
+    ]);
+    const L = h.L;
+    if (!g.outline || !g.outline.length){
+      L.push('(ERROR: profile not computed - recalculate first)');
+      footer(L); return L.join('\n');
+    }
+    const toolR = h.toolR;
+    const depth = g.h;
+    const stepDown = Math.min(s.depthOfCut || 1, depth);
+    const passes = Math.ceil(depth / stepDown);
+    const toothSpace = Math.PI * g.m - g.sPitch;
+    if (2 * toolR >= 0.9 * toothSpace)
+      L.push('(WARNING: tool D' + FT(2*toolR) + ' may not fit - tooth space ≈ ' + FT(toothSpace) + ' mm)');
+    L.push('(Whole depth: ' + FT(depth) + ' mm, ' + passes + ' passes)');
+    L.push('');
+    const path = offsetPolygon(g.outline, toolR);
+    const start = path[0];
+    L.push('G00 X' + FT(start.x) + ' Y' + FT(start.y));
+    L.push('G00 Z5.0');
+    for (let p = 0; p < passes; p++){
+      const z = -Math.min((p+1)*stepDown, depth);
+      L.push('(--- Pass ' + (p+1) + '/' + passes + ' - Z=' + FT(z) + ' ---)');
+      L.push('G01 Z' + FT(z) + ' F' + FR(h.plungeFeed));
+      for (let i = 1; i < path.length; i++)
+        L.push('G01 X' + FT(path[i].x) + ' Y' + FT(path[i].y) + ' F' + FR(h.feed));
+      L.push('G01 X' + FT(start.x) + ' Y' + FT(start.y));
+      L.push('G00 Z5.0');
+    }
+    footer(L);
+    return L.join('\n');
+  }
+
+  function helical(g, s){
+    const h = header(g, s, 'HELICAL GEAR - 3-AXIS TWIST CONTOUR', [
+      '3-axis approximation: profile rotates with depth',
+      'Each Z-level uses a rotated copy of the profile',
+      'True helical requires 4th axis - this is a stepped approx'
+    ]);
+    const L = h.L;
+    if (!g.outline || !g.outline.length){
+      L.push('(ERROR: profile not computed)');
+      footer(L); return L.join('\n');
+    }
+    const toolR = h.toolR;
+    const depth = g.h;
+    const stepDown = Math.min(s.depthOfCut || 0.5, depth);
+    const passes = Math.ceil(depth / stepDown);
+    const handSign = s.hand === 'left' ? -1 : 1;
+    const twistPerMM = 2 * Math.tan(g.beta) / g.d;
+    L.push('(Helix angle: ' + FT(g.betaDeg) + ' deg, ' + s.hand + ' hand)');
+    L.push('(Twist rate: ' + FT(twistPerMM * R2D) + ' deg per mm of depth)');
+    L.push('');
+    const base = offsetPolygon(g.outline, toolR);
+    for (let p = 0; p < passes; p++){
+      const z = -Math.min((p+1)*stepDown, depth);
+      const twist = handSign * twistPerMM * z;
+      const rotated = base.map(pt => rotatePoint(pt, twist));
+      const start = rotated[0];
+      L.push('(--- Pass ' + (p+1) + '/' + passes + ' - Z=' + FT(z) + ', twist=' + FT(twist*R2D) + '° ---)');
+      L.push('G00 X' + FT(start.x) + ' Y' + FT(start.y) + ' Z5.0');
+      L.push('G01 Z' + FT(z) + ' F' + FR(h.plungeFeed));
+      for (let i = 1; i < rotated.length; i++)
+        L.push('G01 X' + FT(rotated[i].x) + ' Y' + FT(rotated[i].y) + ' F' + FR(h.feed));
+      L.push('G01 X' + FT(start.x) + ' Y' + FT(start.y));
+      L.push('G00 Z5.0');
+    }
+    footer(L);
+    return L.join('\n');
+  }
+
+  function bevelCommon(g, s, isSpiral){
+    const title = isSpiral ? 'SPIRAL BEVEL - MEAN-SECTION APPROX' : 'STRAIGHT BEVEL - MEAN-SECTION APPROX';
+    const notes = isSpiral ? [
+      'TRUE SPIRAL BEVEL REQUIRES 5-AXIS OR SPECIAL MACHINE',
+      'Cuts mean-section involute contour with A-indexing',
+      'Requires tilting workhead set to pitch cone angle'
+    ] : [
+      'TRUE BEVEL REQUIRES TILTING WORKHEAD OR 5-AXIS',
+      'Cuts mean-section involute contour with A-indexing',
+      'Tilt workhead to pitch cone angle before running'
+    ];
+    const h = header(g, s, title, notes);
+    const L = h.L;
+    const zEff = g.effectiveTeeth;
+    const mMean = g.mm;
+    const prof = ToothGeometry.buildProfile(mMean, zEff, g.alpha, 0, 1.0, 1.2, 0, {nInv:8,nFil:3,nTip:3,nRoot:2});
+    const toolR = h.toolR;
+    const depth = g.h;
+    const stepDown = Math.min(s.depthOfCut || 0.5, depth);
+    const passes = Math.ceil(depth / stepDown);
+    const toothStep = 360 / zEff;
+    L.push('(Mean module: ' + FT(mMean) + ', teeth: ' + zEff + ')');
+    L.push('(Mean pitch Ø: ' + FT(g.dm1) + ', outer Ø: ' + FT(g.da) + ')');
+    L.push('(Pitch cone angle: ' + FT(g.delta1 * R2D) + '° from axis)');
+    L.push('(Face width: ' + FT(g.b) + ', outer cone dist: ' + FT(g.R) + ')');
+    if (isSpiral) L.push('(Spiral angle: ' + FT(g.spiralAngle) + '°, lead: ' + FT(g.spiralLead) + ' mm)');
+    L.push('');
+    const path = offsetPolygon(prof.outline, toolR);
+    const start = path[0];
+    for (let t = 0; t < zEff; t++){
+      const aAng = t * toothStep;
+      L.push('(=== Tooth ' + (t+1) + '/' + zEff + ' - A=' + FT(aAng) + '° ===)');
+      L.push('G00 A' + FT(aAng));
+      for (let p = 0; p < passes; p++){
+        const z = -Math.min((p+1)*stepDown, depth);
+        L.push('G00 X' + FT(start.x) + ' Y' + FT(start.y) + ' Z5.0');
+        L.push('G01 Z' + FT(z) + ' F' + FR(h.plungeFeed));
+        for (let i = 1; i < path.length; i++)
+          L.push('G01 X' + FT(path[i].x) + ' Y' + FT(path[i].y) + ' F' + FR(h.feed));
+        L.push('G01 X' + FT(start.x) + ' Y' + FT(start.y));
+        L.push('G00 Z5.0');
+      }
+    }
+    footer(L);
+    return L.join('\n');
+  }
+  const bevel = (g, s) => bevelCommon(g, s, false);
+  const spiralBevel = (g, s) => bevelCommon(g, s, true);
+
+  function worm(g, s){
+    const h = header(g, s, 'WORM - HELICAL THREAD MILLING (4-AXIS)', [
+      '4-axis setup: work axis = X, A rotates around X',
+      'Tool approaches radially, helical interpolation',
+      'Multiple depth passes at increasing radial offset'
+    ]);
+    const L = h.L;
+    const lead = g.lead, L_worm = s.faceWidth, z1 = g.z;
+    const rf = g.df/2, ra = g.da/2, depth = g.h;
+    const toolR = h.toolR;
+    const handSign = s.hand === 'left' ? -1 : 1;
+    const stepDown = Math.min(s.depthOfCut || 0.5, depth);
+    const passes = Math.ceil(depth / stepDown);
+    L.push('(Worm length: ' + FT(L_worm) + ', lead: ' + FT(lead) + ', starts: ' + z1 + ')');
+    L.push('(Root Ø: ' + FT(g.df) + ', tip Ø: ' + FT(g.da) + ')');
+    L.push('(Lead angle: ' + FT(g.leadAngleDeg) + '°, hand: ' + s.hand + ')');
+    L.push('');
+    const xStart = -L_worm/2, xEnd = L_worm/2;
+    for (let st = 0; st < z1; st++){
+      const aBase = st * (360 / z1);
+      L.push('(=== Start ' + (st+1) + '/' + z1 + ' ===)');
+      for (let p = 0; p < passes; p++){
+        const dCurr = Math.min((p+1)*stepDown, depth);
+        const rCurr = ra - dCurr;
+        const yTool = Math.max(0, rCurr - toolR);
+        L.push('(--- Pass ' + (p+1) + '/' + passes + ' - depth=' + FT(dCurr) + ' Y=' + FT(yTool) + ' ---)');
+        L.push('G00 X' + FT(xStart) + ' Y' + FT(yTool) + ' Z0');
+        L.push('G00 A' + FT(aBase));
+        const nRevs = L_worm / lead;
+        const steps = Math.max(20, Math.ceil(nRevs * 72));
+        const dx = L_worm / steps;
+        for (let i = 1; i <= steps; i++){
+          const xi = xStart + i*dx;
+          const ai = aBase + handSign * (i*dx/lead) * 360;
+          L.push('G01 X' + FT(xi) + ' A' + FT(ai) + ' F' + FR(h.feed));
+        }
+        L.push('G00 Z10.0');
+      }
+    }
+    footer(L);
+    return L.join('\n');
+  }
+
+  function wormWheel(g, s){
+    const h = header(g, s, 'WORM WHEEL - INDEXED INVOLUTE CONTOUR', [
+      '4th axis (A) indexes between teeth',
+      'Throat geometry approximated as flat (for true throat use 5-axis)'
+    ]);
+    const L = h.L;
+    if (!g.outline || !g.outline.length){
+      L.push('(ERROR: profile not computed)');
+      footer(L); return L.join('\n');
+    }
+    const toolR = h.toolR;
+    const zEff = g.effectiveTeeth;
+    const depth = g.h;
+    const stepDown = Math.min(s.depthOfCut || 1, depth);
+    const passes = Math.ceil(depth / stepDown);
+    const toothStep = 360 / zEff;
+    L.push('(Teeth: ' + zEff + ', module: ' + FT(g.m) + ', pitch Ø: ' + FT(g.d) + ')');
+    L.push('(Centre distance: ' + FT(g.centreDistance) + ', throat Ø: ' + FT(g.throatDia) + ')');
+    L.push('');
+    const path = offsetPolygon(g.outline, toolR);
+    const start = path[0];
+    for (let t = 0; t < zEff; t++){
+      const aAng = t * toothStep;
+      L.push('(=== Tooth ' + (t+1) + '/' + zEff + ' - A=' + FT(aAng) + '° ===)');
+      L.push('G00 A' + FT(aAng));
+      for (let p = 0; p < passes; p++){
+        const z = -Math.min((p+1)*stepDown, depth);
+        L.push('G00 X' + FT(start.x) + ' Y' + FT(start.y) + ' Z5.0');
+        L.push('G01 Z' + FT(z) + ' F' + FR(h.plungeFeed));
+        for (let i = 1; i < path.length; i++)
+          L.push('G01 X' + FT(path[i].x) + ' Y' + FT(path[i].y) + ' F' + FR(h.feed));
+        L.push('G01 X' + FT(start.x) + ' Y' + FT(start.y));
+        L.push('G00 Z5.0');
+      }
+    }
+    footer(L);
+    return L.join('\n');
+  }
+
+  function rack(g, s){
+    const h = header(g, s, 'RACK - PROFILE MILLING (3-AXIS)', [
+      'Rack lies flat, teeth in X-Y plane',
+      'Cut through full Z depth (through-cut)',
+      'Use small end mill for accurate tooth flanks'
+    ]);
+    const L = h.L;
+    const m = g.m, p = Math.PI * m;
+    const ha = g.ha, hf = g.hf, L_rack = g.rackLength, z = g.z;
+    const faceW = s.faceWidth;
+    const toolR = h.toolR;
+    const outline = [];
+    outline.push({ x: -L_rack/2, y: -hf });
+    outline.push({ x:  L_rack/2, y: -hf });
+    outline.push({ x:  L_rack/2, y:  hf });
+    for (let i = z - 1; i >= 0; i--){
+      const xc = -L_rack/2 + (i + 0.5) * p;
+      const haHW = p * 0.20, rootHW = p * 0.30;
+      outline.push({ x: xc + rootHW, y: hf });
+      outline.push({ x: xc + haHW,   y: hf + ha });
+      outline.push({ x: xc - haHW,   y: hf + ha });
+      outline.push({ x: xc - rootHW, y: hf });
+    }
+    outline.push({ x: -L_rack/2, y: hf });
+    const path = offsetPolygon(outline, toolR);
+    const start = path[0];
+    const stepDown = Math.min(s.depthOfCut || 1, faceW);
+    const passes = Math.ceil(faceW / stepDown);
+    L.push('(Rack: L=' + FT(L_rack) + ', m=' + FT(m) + ', z=' + z + ', p=' + FT(p) + ')');
+    L.push('(Face width (through-cut): ' + FT(faceW) + ' mm, ' + passes + ' passes)');
+    L.push('');
+    L.push('G00 X' + FT(start.x) + ' Y' + FT(start.y) + ' Z5.0');
+    for (let pss = 0; pss < passes; pss++){
+      const z = -Math.min((pss+1)*stepDown, faceW);
+      L.push('(--- Pass ' + (pss+1) + '/' + passes + ' - Z=' + FT(z) + ' ---)');
+      L.push('G01 Z' + FT(z) + ' F' + FR(h.plungeFeed));
+      for (let i = 1; i < path.length; i++)
+        L.push('G01 X' + FT(path[i].x) + ' Y' + FT(path[i].y) + ' F' + FR(h.feed));
+      L.push('G01 X' + FT(start.x) + ' Y' + FT(start.y));
+      L.push('G00 Z5.0');
+    }
+    footer(L);
+    return L.join('\n');
+  }
+
+  function sprocket(g, s){
+    const h = header(g, s, 'SPROCKET - POCKET & PROFILE MILLING', [
+      'Roller pockets cut with circular interpolation (G03)',
+      'Outer profile: assume turned on lathe (or contour later)',
+      'Ensure tool fits inside roller pockets'
+    ]);
+    const L = h.L;
+    const z = g.effectiveTeeth;
+    const d = g.d, da = g.da, df = g.df;
+    const dr = g.rollerDia, rr = dr / 2;
+    const Rroll = d / 2;
+    const faceW = s.faceWidth;
+    const toolR = h.toolR;
+    const stepDown = Math.min(s.depthOfCut || 1, faceW);
+    const passes = Math.ceil(faceW / stepDown);
+    L.push('(Sprocket: z=' + z + ', chain pitch=' + FT(g.chainPitch) + ', roller Ø=' + FT(dr) + ')');
+    L.push('(Pitch Ø: ' + FT(d) + ', outside: ' + FT(da) + ', root: ' + FT(df) + ')');
+    L.push('(Face width: ' + FT(faceW) + ', ' + passes + ' passes)');
+    L.push('');
+    const pocketR = rr - toolR;
+    if (pocketR <= 0.1){
+      L.push('(WARNING: tool too large - pockets are D' + FT(2*rr) + ' but tool is D' + FT(2*toolR) + ')');
+      footer(L); return L.join('\n');
+    }
+    L.push('(=== ROLLER POCKETS (tool center path R=' + FT(pocketR) + ') ===)');
+    for (let i = 0; i < z; i++){
+      const ang = i * 2 * Math.PI / z - Math.PI / 2;
+      const cx = Rroll * Math.cos(ang);
+      const cy = Rroll * Math.sin(ang);
+      L.push('(--- Pocket ' + (i+1) + '/' + z + ' at (' + FT(cx) + ',' + FT(cy) + ') ---)');
+      L.push('G00 X' + FT(cx + pocketR) + ' Y' + FT(cy) + ' Z5.0');
+      for (let pss = 0; pss < passes; pss++){
+        const zz = -Math.min((pss+1)*stepDown, faceW);
+        L.push('G01 Z' + FT(zz) + ' F' + FR(h.plungeFeed));
+        L.push('G03 X' + FT(cx + pocketR) + ' Y' + FT(cy) + ' I' + FT(-pocketR) + ' J0 F' + FR(h.feed));
+        if (pss < passes - 1){
+          L.push('G00 Z2.0');
+          L.push('G00 X' + FT(cx + pocketR) + ' Y' + FT(cy));
+        }
+      }
+      L.push('G00 Z5.0');
+    }
+    L.push('');
+    L.push('(=== OUTER PROFILE ===)');
+    L.push('(Assumed turned to Ø' + FT(da) + ' mm on lathe)');
+    L.push('(If not pre-turned, contour with small end mill)');
+    footer(L);
+    return L.join('\n');
+  }
+
+  function generate(g, s){
+    switch (g.type){
+      case 'helical':     return helical(g, s);
+      case 'bevel':       return bevel(g, s);
+      case 'spiralbevel': return spiralBevel(g, s);
+      case 'worm':        return worm(g, s);
+      case 'wormwheel':   return wormWheel(g, s);
+      case 'rack':        return rack(g, s);
+      case 'sprocket':    return sprocket(g, s);
+      default:            return spur(g, s);
+    }
+  }
+
+  return { generate };
 })();
 
 /* ============================================================================
@@ -3057,6 +3382,14 @@ const App = (function(){
     computeIndexing();
     updateKinematicBox();
     syncLeadFromGear();
+    // Reset gcode view when inputs change
+    if ($('gcodeBox')){
+      $('gcodeBox').textContent = '';
+      $('gcodeBox').style.display = 'none';
+      if ($('btnGcodeCopy')) $('btnGcodeCopy').style.display = 'none';
+      if ($('btnGcodeDownload')) $('btnGcodeDownload').style.display = 'none';
+      if ($('gcodeInfo')) $('gcodeInfo').textContent = '';
+    }
   }
 
   function renderValidation(list){
@@ -3120,7 +3453,6 @@ const App = (function(){
       showTeethNo: $('chkTeethNo').checked,
       highlight: parseInt($('inToothSel').value, 10) || 0
     });
-    // Re-attach zoom controller after SVG innerHTML replacement
     try { SvgZoom.attach($('gearSvg')); } catch(e){}
   }
   function renderToothPanel(g){
@@ -3227,7 +3559,6 @@ const App = (function(){
         `Each roller sits in a pocket of radius d_r/2 = ${fmtLen(g.rollerDia/2,3)} mm\n` +
         `Roller circle radius = d/2 = ${fmtLen(g.d/2,3)} mm`;
     } else {
-      // involute: spur / helical
       const mUse = (g.type === 'helical') ? g.mt : g.m;
       el.innerHTML =
         `<div><span class="k">TOOTH #</span> <b>${sel}</b> of ${zEff}</div>` +
@@ -3826,11 +4157,63 @@ const App = (function(){
       if (mat) $('inVc').value = fmt((mat.vcMin+mat.vcMax)/2, 3);
       computeCnc();
     });
+
+    // ---- FULL WORKING G-CODE GENERATION ----
     $('btnGcode').addEventListener('click', ()=>{
+      if (!currentGear){
+        alert('Calculate a gear first (click Recalculate).');
+        return;
+      }
+      computeCnc();
       const box = $('gcodeBox');
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
-      if (box.style.display === 'block') box.textContent = '(G-code generation is a demonstration — verify before use)\nG21 G90 G94\nG54\nM03 S1000\nG00 Z10\nM05\nM30';
+      const info = $('gcodeInfo');
+      const copyBtn = $('btnGcodeCopy');
+      const dlBtn = $('btnGcodeDownload');
+
+      if (box.style.display === 'none' || !box.textContent){
+        try{
+          const gcode = GcodeGenerator.generate(currentGear, State);
+          box.textContent = gcode;
+          box.style.display = 'block';
+          copyBtn.style.display = '';
+          dlBtn.style.display = '';
+          const lines = gcode.split('\n').length;
+          info.textContent = lines + ' lines · ' + currentGear.type.toUpperCase();
+        } catch (e){
+          box.textContent = '(G-code generation error: ' + e.message + ')';
+          box.style.display = 'block';
+          info.textContent = 'error';
+        }
+      } else {
+        box.style.display = 'none';
+      }
     });
+
+    $('btnGcodeCopy').addEventListener('click', async ()=>{
+      const text = $('gcodeBox').textContent;
+      if (!text) return;
+      try{
+        await navigator.clipboard.writeText(text);
+        const b = $('btnGcodeCopy');
+        const orig = b.textContent;
+        b.textContent = 'Copied!';
+        setTimeout(()=>b.textContent = orig, 1200);
+      } catch(e){
+        alert('Copy failed - select text and use Ctrl+C');
+      }
+    });
+
+    $('btnGcodeDownload').addEventListener('click', ()=>{
+      const text = $('gcodeBox').textContent;
+      if (!text) return;
+      const blob = new Blob([text], {type: 'text/plain'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (currentGear ? currentGear.type : 'gear') + '-program.nc';
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+    });
+
     $('btnToolpathSim').addEventListener('click', ()=>{ SvgDrawing.drawToolpath($('toolpathSvg'), currentGear, State, Math.floor(Math.random()*10)); });
 
     $('btnGenReport').addEventListener('click', generateReport);
