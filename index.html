@@ -206,6 +206,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
   <button data-tab="cnc">CNC &amp; Milling</button>
   <button data-tab="inspection">Inspection</button>
   <button data-tab="report">Report</button>
+  <button data-tab="definitions">Definitions</button>
 </nav>
 
 <main>
@@ -1015,6 +1016,410 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
   <div id="reportArea"></div>
 </section>
 
+<!-- ===================== DEFINITIONS ===================== -->
+<section id="tab-definitions" class="tab-pane">
+
+  <div class="card">
+    <h2>Definitions — Complete Parameter Reference</h2>
+    <div class="note">
+      This section defines every symbol, input field and calculated result used anywhere in the
+      platform. Formulas are written exactly as they are implemented in the calculation engines.
+      Symbols follow ISO 21771 / ISO 701 notation where applicable. All internal computation is
+      carried out in millimetres and radians; results are converted for display according to the
+      selected unit system. Rows marked <i>(ref.)</i> are reference/informative values only.
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="card" style="margin-top:14px">
+    <h2>1 · Units, Calculation Basis &amp; Engineering Constants</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Values</th><th>Unit</th></tr>
+      <tr><td>—</td><td>Unit system</td><td>Metric (mm, module) or Imperial (in, DP). Internal computation is always metric; conversion is applied only when displaying.</td><td>—</td></tr>
+      <tr><td>—</td><td>Calculation basis</td><td>General Engineering (default), ISO, AGMA, DIN, JIS. The selection labels the output — the platform implements the general engineering equation set.</td><td>—</td></tr>
+      <tr><td>α</td><td>Standard pressure angle</td><td>20° (reference value used by the validation checks)</td><td>°</td></tr>
+      <tr><td>h<sub>a</sub>*</td><td>Addendum coefficient</td><td>1.00 — standard full-depth tooth</td><td>—</td></tr>
+      <tr><td>h<sub>f</sub>*</td><td>Dedendum coefficient</td><td>1.25 — standard full-depth tooth</td><td>—</td></tr>
+      <tr><td>c*</td><td>Clearance coefficient</td><td>0.25 · m</td><td>—</td></tr>
+      <tr><td>h*</td><td>Whole-depth coefficient</td><td>2.25 · m</td><td>—</td></tr>
+      <tr><td>ρ<sub>f</sub>*</td><td>Root fillet coefficient</td><td>0.38 · m (used to generate the root fillet of the involute profile)</td><td>—</td></tr>
+      <tr><td>z<sub>min</sub></td><td>Minimum teeth without undercut</td><td>17 for α = 20°; 32 for α = 14.5°</td><td>—</td></tr>
+      <tr><td>D2R / R2D</td><td>Angle conversion</td><td>D2R = π/180 (deg → rad); R2D = 180/π (rad → deg)</td><td>—</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="card" style="margin-top:14px">
+    <h2>2 · Design Input Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition</th><th>Unit</th></tr>
+      <tr><td>—</td><td>Gear type</td><td>Component being designed: spur, helical, straight bevel, spiral bevel, worm shaft, worm wheel, rack or sprocket. It decides which inputs, tabs and calculation engine are active.</td><td>—</td></tr>
+      <tr><td>m</td><td>Module</td><td>Tooth size: m = d / z. For helical gears the input is the <i>normal</i> module m<sub>n</sub>; for worms the <i>axial</i> module m<sub>x</sub>.</td><td>mm</td></tr>
+      <tr><td>DP</td><td>Diametral pitch</td><td>Imperial tooth size: DP = 25.4 / m</td><td>1/in</td></tr>
+      <tr><td>z</td><td>Number of teeth</td><td>Total tooth count (number of starts z₁ for a worm; number of wheel teeth for a worm wheel).</td><td>—</td></tr>
+      <tr><td>z₂</td><td>Mating teeth</td><td>Tooth count of the gear that meshes with the component. 0 = no mate (pair calculations disabled).</td><td>—</td></tr>
+      <tr><td>α</td><td>Pressure angle</td><td>Angle between the tooth-flank normal and the tangent to the pitch circle at the pitch point.</td><td>°</td></tr>
+      <tr><td>β</td><td>Helix angle</td><td>Angle between the tooth trace and the gear axis (helical gears).</td><td>°</td></tr>
+      <tr><td>β<sub>m</sub></td><td>Spiral angle</td><td>Spiral angle of a spiral bevel gear measured at the mean cone distance.</td><td>°</td></tr>
+      <tr><td>—</td><td>Hand</td><td>Right-hand or left-hand direction of the helix / spiral / worm thread.</td><td>—</td></tr>
+      <tr><td>b</td><td>Face width</td><td>Axial width of the toothed rim. For a worm this field is the <i>worm length L</i>; for a worm wheel it is b₂.</td><td>mm</td></tr>
+      <tr><td>d<sub>bore</sub></td><td>Bore diameter</td><td>Central through bore that receives the shaft.</td><td>mm</td></tr>
+      <tr><td>x</td><td>Profile shift coefficient</td><td>Radial displacement of the generating cutter, expressed as a fraction of the module (actual shift = x · m). Positive shift moves the tooth outwards.</td><td>—</td></tr>
+      <tr><td>h<sub>a</sub>*</td><td>Addendum coefficient</td><td>Addendum expressed as a fraction of the module.</td><td>—</td></tr>
+      <tr><td>h<sub>f</sub>*</td><td>Dedendum coefficient</td><td>Dedendum expressed as a fraction of the module.</td><td>—</td></tr>
+      <tr><td>j</td><td>Backlash</td><td>Circumferential clearance between the flanks of mating teeth. Half of j is removed from each gear.</td><td>mm</td></tr>
+      <tr><td>q</td><td>Worm diameter factor</td><td>Worm pitch diameter expressed in modules: q = d₁ / m.</td><td>—</td></tr>
+      <tr><td>Σ</td><td>Shaft angle</td><td>Angle between the two bevel-gear axes; Σ = 90° for a right-angle drive.</td><td>°</td></tr>
+      <tr><td>n</td><td>Speed</td><td>Rotational speed of the component.</td><td>RPM</td></tr>
+      <tr><td>P</td><td>Power</td><td>Transmitted power (kW metric, HP imperial).</td><td>kW / HP</td></tr>
+      <tr><td>—</td><td>Material</td><td>Selection from the material database. Supplies density, allowable bending stress σ<sub>allow</sub>, hardness, modulus of elasticity E and a cutting-speed range.</td><td>—</td></tr>
+      <tr><td>—</td><td>Manufacturing method</td><td>Form milling, hobbing, shaping, CNC machining, broaching, grinding or manual milling.</td><td>—</td></tr>
+      <tr><td>p</td><td>Chain pitch</td><td>Distance between the centres of two adjacent chain rollers (sprocket only).</td><td>mm</td></tr>
+      <tr><td>d<sub>r</sub></td><td>Roller diameter</td><td>Diameter of the chain roller that seats in the sprocket pocket (sprocket only).</td><td>mm</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="card" style="margin-top:14px">
+    <h2>3 · Basic Calculated Geometry (Spur / Involute)</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>r<sub>p</sub></td><td>Pitch radius</td><td>r<sub>p</sub> = d / 2</td><td>mm</td></tr>
+      <tr><td>d</td><td>Pitch diameter</td><td>d = m · z &nbsp;(helical: d = m<sub>t</sub> · z)</td><td>mm</td></tr>
+      <tr><td>d<sub>b</sub></td><td>Base diameter</td><td>d<sub>b</sub> = d · cos α — diameter of the circle from which the involute is unwound</td><td>mm</td></tr>
+      <tr><td>d<sub>a</sub></td><td>Outside (tip) diameter</td><td>d<sub>a</sub> = d + 2·m·(h<sub>a</sub>* + x)</td><td>mm</td></tr>
+      <tr><td>d<sub>f</sub></td><td>Root diameter</td><td>d<sub>f</sub> = d − 2·m·(h<sub>f</sub>* − x)</td><td>mm</td></tr>
+      <tr><td>r<sub>a</sub> / r<sub>f</sub></td><td>Tip / root radius</td><td>r<sub>a</sub> = d<sub>a</sub>/2 ; r<sub>f</sub> = d<sub>f</sub>/2</td><td>mm</td></tr>
+      <tr><td>h<sub>a</sub></td><td>Addendum</td><td>h<sub>a</sub> = m·(h<sub>a</sub>* + x) — tooth height above the pitch circle</td><td>mm</td></tr>
+      <tr><td>h<sub>f</sub></td><td>Dedendum</td><td>h<sub>f</sub> = m·(h<sub>f</sub>* − x) — tooth depth below the pitch circle</td><td>mm</td></tr>
+      <tr><td>h</td><td>Whole depth</td><td>h = h<sub>a</sub> + h<sub>f</sub></td><td>mm</td></tr>
+      <tr><td>p</td><td>Circular pitch</td><td>p = π · m — arc length between corresponding points of adjacent teeth</td><td>mm</td></tr>
+      <tr><td>p<sub>b</sub></td><td>Base pitch</td><td>p<sub>b</sub> = p · cos α — distance between corresponding involute flanks measured on the base circle</td><td>mm</td></tr>
+      <tr><td>s</td><td>Tooth thickness</td><td>s = m·(π/2 + 2·x·tan α) − j/2 — arc thickness on the pitch circle</td><td>mm</td></tr>
+      <tr><td>e</td><td>Tooth space</td><td>e = p − s — arc width of the gap on the pitch circle</td><td>mm</td></tr>
+      <tr><td>τ</td><td>Angular pitch</td><td>τ = 360° / z</td><td>°</td></tr>
+      <tr><td>c</td><td>Clearance</td><td>c = h<sub>f</sub> − h<sub>a</sub> — radial gap between tip and root of mating teeth</td><td>mm</td></tr>
+      <tr><td>inv α</td><td>Involute function</td><td>inv α = tan α − α</td><td>rad</td></tr>
+      <tr><td>φ</td><td>Pitch half-angle</td><td>φ = s / (2·r<sub>p</sub>) — half the angular tooth thickness at the pitch circle</td><td>rad</td></tr>
+      <tr><td>ρ<sub>f</sub></td><td>Root fillet radius</td><td>ρ<sub>f</sub> = min(0.38·m , ρ<sub>max</sub>) — automatically limited so the fillet remains inside the root circle</td><td>mm</td></tr>
+      <tr><td>ε<sub>α</sub></td><td>Transverse contact ratio</td><td>ε<sub>α</sub> = [√(r<sub>a1</sub>²−r<sub>b1</sub>²) + √(r<sub>a2</sub>²−r<sub>b2</sub>²) − a·sin α] / (π·m·cos α)</td><td>—</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="card" style="margin-top:14px">
+    <h2>4 · Helical Gear Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>m<sub>n</sub></td><td>Normal module</td><td>Module measured in the plane normal to the tooth trace (the input value).</td><td>mm</td></tr>
+      <tr><td>m<sub>t</sub></td><td>Transverse module</td><td>m<sub>t</sub> = m<sub>n</sub> / cos β</td><td>mm</td></tr>
+      <tr><td>α<sub>n</sub></td><td>Normal pressure angle</td><td>Pressure angle in the normal plane (the input value).</td><td>°</td></tr>
+      <tr><td>α<sub>t</sub></td><td>Transverse pressure angle</td><td>α<sub>t</sub> = atan(tan α<sub>n</sub> / cos β)</td><td>°</td></tr>
+      <tr><td>p<sub>n</sub></td><td>Normal pitch</td><td>p<sub>n</sub> = π · m<sub>n</sub></td><td>mm</td></tr>
+      <tr><td>p<sub>t</sub></td><td>Transverse pitch</td><td>p<sub>t</sub> = π · m<sub>t</sub></td><td>mm</td></tr>
+      <tr><td>p<sub>x</sub></td><td>Axial pitch</td><td>p<sub>x</sub> = π · m<sub>n</sub> / sin β</td><td>mm</td></tr>
+      <tr><td>L</td><td>Helix lead</td><td>L = π · d / tan β — axial distance for one complete turn of the helix</td><td>mm</td></tr>
+      <tr><td>ε<sub>β</sub></td><td>Overlap ratio</td><td>ε<sub>β</sub> = b · tan β / p<sub>t</sub></td><td>—</td></tr>
+      <tr><td>ε<sub>γ</sub></td><td>Total contact ratio</td><td>ε<sub>γ</sub> = ε<sub>α</sub> + ε<sub>β</sub></td><td>—</td></tr>
+      <tr><td>—</td><td>Twist rate</td><td>2 · tan β / d — angular rotation of the section per unit of face width</td><td>rad/mm</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="card" style="margin-top:14px">
+    <h2>5 · Straight Bevel &amp; Spiral Bevel Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>δ₁</td><td>Pitch cone angle (pinion)</td><td>δ₁ = atan[ sin Σ / (z₂/z₁ + cos Σ) ]</td><td>°</td></tr>
+      <tr><td>δ₂</td><td>Pitch cone angle (wheel)</td><td>δ₂ = Σ − δ₁</td><td>°</td></tr>
+      <tr><td>δ<sub>a1</sub></td><td>Face cone angle</td><td>δ<sub>a1</sub> = δ₁ + atan(h<sub>a</sub> / R)</td><td>°</td></tr>
+      <tr><td>δ<sub>f1</sub></td><td>Root cone angle</td><td>δ<sub>f1</sub> = δ₁ − atan(h<sub>f</sub> / R)</td><td>°</td></tr>
+      <tr><td>R</td><td>Outer cone distance</td><td>R = ½ · √(d₁² + d₂²)</td><td>mm</td></tr>
+      <tr><td>R<sub>m</sub></td><td>Mean cone distance</td><td>R<sub>m</sub> = R − b/2</td><td>mm</td></tr>
+      <tr><td>b</td><td>Face width (bevel)</td><td>Limited to b ≤ R/3; larger inputs are automatically reduced.</td><td>mm</td></tr>
+      <tr><td>k</td><td>Mean-section factor</td><td>k = 1 − 0.5 · b/R</td><td>—</td></tr>
+      <tr><td>m<sub>m</sub></td><td>Mean module</td><td>m<sub>m</sub> = m · k</td><td>mm</td></tr>
+      <tr><td>d<sub>m1</sub></td><td>Mean pitch diameter</td><td>d<sub>m1</sub> = d₁ · k</td><td>mm</td></tr>
+      <tr><td>h<sub>ae</sub></td><td>Addendum at outer end</td><td>h<sub>ae</sub> = h<sub>a</sub> · cos δ₁</td><td>mm</td></tr>
+      <tr><td>h<sub>fe</sub></td><td>Dedendum at outer end</td><td>h<sub>fe</sub> = h<sub>f</sub> · cos δ₁</td><td>mm</td></tr>
+      <tr><td>L<sub>s</sub></td><td>Spiral lead <i>(spiral bevel)</i></td><td>L<sub>s</sub> = π · d<sub>m</sub> / tan β<sub>m</sub></td><td>mm</td></tr>
+      <tr><td>p<sub>xm</sub></td><td>Spiral axial pitch</td><td>p<sub>xm</sub> = π · m<sub>m</sub> / tan β<sub>m</sub></td><td>mm</td></tr>
+      <tr><td>Δ</td><td>Spiral rise across the face</td><td>Δ = b · tan β<sub>m</sub></td><td>mm</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="card" style="margin-top:14px">
+    <h2>6 · Worm &amp; Worm Wheel Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>z₁</td><td>Number of starts</td><td>Number of independent thread starts on the worm.</td><td>—</td></tr>
+      <tr><td>z₂</td><td>Wheel teeth</td><td>Tooth count of the mating worm wheel.</td><td>—</td></tr>
+      <tr><td>q</td><td>Diameter factor</td><td>q = d₁ / m</td><td>—</td></tr>
+      <tr><td>d₁</td><td>Worm pitch diameter</td><td>d₁ = q · m</td><td>mm</td></tr>
+      <tr><td>d₂</td><td>Wheel pitch diameter</td><td>d₂ = m · z₂</td><td>mm</td></tr>
+      <tr><td>γ</td><td>Lead angle</td><td>γ = atan(z₁ / q)</td><td>°</td></tr>
+      <tr><td>p<sub>z</sub></td><td>Lead</td><td>p<sub>z</sub> = π · m · z₁ — axial advance per worm revolution</td><td>mm</td></tr>
+      <tr><td>p<sub>x</sub></td><td>Axial pitch</td><td>p<sub>x</sub> = π · m</td><td>mm</td></tr>
+      <tr><td>m<sub>n</sub></td><td>Normal module</td><td>m<sub>n</sub> = m · cos γ</td><td>mm</td></tr>
+      <tr><td>d<sub>a1</sub></td><td>Worm outside diameter</td><td>d<sub>a1</sub> = d₁ + 2·m</td><td>mm</td></tr>
+      <tr><td>d<sub>f1</sub></td><td>Worm root diameter</td><td>d<sub>f1</sub> = d₁ − 2.4·m</td><td>mm</td></tr>
+      <tr><td>a</td><td>Centre distance</td><td>a = (d₁ + d₂) / 2</td><td>mm</td></tr>
+      <tr><td>i</td><td>Ratio</td><td>i = z₂ / z₁</td><td>:1</td></tr>
+      <tr><td>η</td><td>Efficiency <i>(ref.)</i></td><td>η = tan γ / tan(γ + atan μ), with μ = 0.05 assumed friction coefficient</td><td>—</td></tr>
+      <tr><td>d<sub>th</sub></td><td>Wheel throat diameter</td><td>d<sub>th</sub> ≈ d₂ + 2·m</td><td>mm</td></tr>
+      <tr><td>r<sub>th</sub></td><td>Throat radius</td><td>r<sub>th</sub> = d₁/2 + 0.5·m — radius of the concave wheel throat</td><td>mm</td></tr>
+      <tr><td>b₂</td><td>Wheel face width</td><td>Limited to b₂ ≤ 0.75 · d₁</td><td>mm</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="card" style="margin-top:14px">
+    <h2>7 · Rack Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>p</td><td>Circular pitch</td><td>p = π · m — constant along the whole rack</td><td>mm</td></tr>
+      <tr><td>h<sub>a</sub></td><td>Addendum</td><td>h<sub>a</sub> = 1.0 · m</td><td>mm</td></tr>
+      <tr><td>h<sub>f</sub></td><td>Dedendum</td><td>h<sub>f</sub> = 1.25 · m</td><td>mm</td></tr>
+      <tr><td>h</td><td>Whole depth</td><td>h = h<sub>a</sub> + h<sub>f</sub> = 2.25 · m</td><td>mm</td></tr>
+      <tr><td>s</td><td>Tooth thickness</td><td>s = p/2 − j/2</td><td>mm</td></tr>
+      <tr><td>e</td><td>Tooth space</td><td>e = p/2 + j/2</td><td>mm</td></tr>
+      <tr><td>L</td><td>Total rack length</td><td>L = p · z</td><td>mm</td></tr>
+      <tr><td>α</td><td>Flank inclination</td><td>Straight flanks inclined at the pressure angle α (the rack is the limiting case of an involute gear with infinite pitch radius)</td><td>°</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="card" style="margin-top:14px">
+    <h2>8 · Sprocket Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>p</td><td>Chain pitch</td><td>Roller-centre distance of the chain</td><td>mm</td></tr>
+      <tr><td>d<sub>r</sub></td><td>Roller diameter</td><td>Chain roller diameter</td><td>mm</td></tr>
+      <tr><td>d</td><td>Pitch diameter</td><td>d = p / sin(π/z)</td><td>mm</td></tr>
+      <tr><td>d<sub>a</sub></td><td>Outside diameter</td><td>d<sub>a</sub> = p · (0.6 + 1/tan(π/z))</td><td>mm</td></tr>
+      <tr><td>d<sub>f</sub></td><td>Root diameter</td><td>d<sub>f</sub> = d − d<sub>r</sub></td><td>mm</td></tr>
+      <tr><td>r<sub>s</sub></td><td>Roller seating radius</td><td>r<sub>s</sub> = d/2 − d<sub>r</sub>/2 — radius on which the roller centre rides</td><td>mm</td></tr>
+      <tr><td>—</td><td>Tooth top width</td><td>≈ 0.5 · p</td><td>mm</td></tr>
+      <tr><td>—</td><td>Tooth root radius</td><td>≈ d/2 − d<sub>r</sub>/2 − 0.4 · p</td><td>mm</td></tr>
+      <tr><td>—</td><td>Seating angle <i>(ref.)</i></td><td>≈ 30° + 120°/z</td><td>°</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 9 -->
+  <div class="card" style="margin-top:14px">
+    <h2>9 · Gear Pair / Meshing Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>i</td><td>Transmission ratio</td><td>i = z₂ / z₁</td><td>:1</td></tr>
+      <tr><td>a</td><td>Centre distance</td><td>a = r<sub>p1</sub> + r<sub>p2</sub></td><td>mm</td></tr>
+      <tr><td>n₂</td><td>Output speed</td><td>n₂ = n₁ / i</td><td>RPM</td></tr>
+      <tr><td>ω</td><td>Angular velocity</td><td>ω = 2π · n / 60</td><td>rad/s</td></tr>
+      <tr><td>T</td><td>Input torque</td><td>T = P · 1000 / ω &nbsp;(P in kW)</td><td>N·m</td></tr>
+      <tr><td>F<sub>t</sub></td><td>Tangential force</td><td>F<sub>t</sub> = T · 1000 / r<sub>p</sub></td><td>N</td></tr>
+      <tr><td>F<sub>r</sub></td><td>Radial force</td><td>F<sub>r</sub> = F<sub>t</sub> · tan α</td><td>N</td></tr>
+      <tr><td>F<sub>a</sub></td><td>Axial force</td><td>F<sub>a</sub> = F<sub>t</sub> · tan β &nbsp;(helical only, 0 for spur)</td><td>N</td></tr>
+      <tr><td>T<sub>out</sub></td><td>Output torque</td><td>T<sub>out</sub> = T · i</td><td>N·m</td></tr>
+      <tr><td>ε<sub>α</sub></td><td>Transverse contact ratio</td><td>See section 3 — average number of tooth pairs in contact</td><td>—</td></tr>
+      <tr><td>ε<sub>γ</sub></td><td>Total contact ratio</td><td>ε<sub>γ</sub> = ε<sub>α</sub> + ε<sub>β</sub></td><td>—</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 10 -->
+  <div class="card" style="margin-top:14px">
+    <h2>10 · Dividing-Head Indexing Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>—</td><td>Indexing method</td><td>Direct, simple, differential or angular indexing.</td><td>—</td></tr>
+      <tr><td>R</td><td>Dividing-head ratio</td><td>Worm turns of the head per one turn of the spindle (40:1, 30:1, 60:1 or custom).</td><td>:1</td></tr>
+      <tr><td>N</td><td>Number of divisions</td><td>Number of equal steps around the workpiece, normally equal to the tooth count.</td><td>—</td></tr>
+      <tr><td>—</td><td>Direct indexing</td><td>Crank movement = 24 / N holes on a 24-hole plate. Requires N to divide 24 exactly.</td><td>holes</td></tr>
+      <tr><td>—</td><td>Simple indexing</td><td>Crank turns per step = R / N = whole turns + fraction. The fraction is realised as holes on a hole circle.</td><td>turns</td></tr>
+      <tr><td>—</td><td>Hole circle</td><td>Number of holes in the selected plate circle. Valid when the denominator of the reduced fraction divides the circle exactly.</td><td>holes</td></tr>
+      <tr><td>N′ (A)</td><td>Approximate division</td><td>Simply indexable number close to N, used as the basis of differential indexing.</td><td>—</td></tr>
+      <tr><td>i</td><td>Differential change-gear ratio</td><td>i = R · (A − N) / A. Negative i = reverse direction, one idler gear required.</td><td>—</td></tr>
+      <tr><td>—</td><td>Angular indexing</td><td>Crank turns = angle · R / 360, with the angle entered in degrees + minutes.</td><td>turns</td></tr>
+      <tr><td>—</td><td>Error</td><td>Deviation between the achieved and the exact division, expressed as a percentage of the required ratio.</td><td>%</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 11 -->
+  <div class="card" style="margin-top:14px">
+    <h2>11 · Change-Gear Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>—</td><td>Machine configuration</td><td>Defines the kinematic relation between the lead screw and the workpiece: universal mill + 40:1 head, 60:1 head, lathe, gear hobber differential, or direct gear-milling setup.</td><td>—</td></tr>
+      <tr><td>L<sub>s</sub></td><td>Lead-screw pitch</td><td>Axial advance of the machine table per one revolution of the lead screw.</td><td>mm</td></tr>
+      <tr><td>L</td><td>Required lead</td><td>Lead to be generated on the workpiece (helix lead, spiral lead or thread pitch).</td><td>mm</td></tr>
+      <tr><td>—</td><td>Change-gear set</td><td>List of available gear tooth counts (A, B, C, D …).</td><td>teeth</td></tr>
+      <tr><td>—</td><td>Train type</td><td>Simple (one pair, 2 gears) or compound (two pairs, 4 gears). “Auto” tries the simple train first, then the compound train.</td><td>—</td></tr>
+      <tr><td>—</td><td>Tolerance</td><td>Maximum acceptable ratio error, in percent of the required ratio.</td><td>%</td></tr>
+      <tr><td>—</td><td>Distinct gears</td><td>When enabled, the same gear cannot be used twice in one train.</td><td>—</td></tr>
+      <tr><td>i</td><td>Required ratio</td><td>Universal mill + 40:1 head: i = 40 · L<sub>s</sub> / L. Lathe / hobber: i = L<sub>s</sub> / L.</td><td>—</td></tr>
+      <tr><td>—</td><td>Train ratio</td><td>Simple: i = A / B. Compound: i = (A / B) · (C / D).</td><td>—</td></tr>
+      <tr><td>—</td><td>Ratio error</td><td>| i<sub>train</sub> − i<sub>required</sub> | / i<sub>required</sub> × 100</td><td>%</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 12 -->
+  <div class="card" style="margin-top:14px">
+    <h2>12 · Lead / Helical (Lead Tab) Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>d</td><td>Pitch diameter</td><td>Diameter on which the helix angle is defined</td><td>mm</td></tr>
+      <tr><td>β</td><td>Helix / spiral angle</td><td>Angle between the tooth trace and the axis</td><td>°</td></tr>
+      <tr><td>b</td><td>Face width</td><td>Axial length over which the helix is generated</td><td>mm</td></tr>
+      <tr><td>—</td><td>Hand</td><td>Right or left hand of the helix</td><td>—</td></tr>
+      <tr><td>L</td><td>Lead</td><td>L = π · d / tan β</td><td>mm</td></tr>
+      <tr><td>—</td><td>Rise over the face</td><td>Δ = b · tan β</td><td>mm</td></tr>
+      <tr><td>L<sub>s</sub></td><td>Lead-screw pitch</td><td>Machine lead screw used to generate the lead</td><td>mm</td></tr>
+      <tr><td>—</td><td>Lead source</td><td>Auto (from angle and diameter) or manual (entered directly)</td><td>—</td></tr>
+      <tr><td>—</td><td>Number of gears in train</td><td>2, 4, 6, 8, 10 or 12 gears — i.e. 1 to 6 pairs</td><td>—</td></tr>
+      <tr><td>i</td><td>Required ratio</td><td>i = L / (L<sub>s</sub> · 40) for the 40:1 dividing head</td><td>—</td></tr>
+      <tr><td>L<sub>s</sub> (spiral)</td><td>Spiral lead</td><td>L<sub>s</sub> = π · d<sub>m</sub> / tan β<sub>m</sub> at the mean cone distance</td><td>mm</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 13 -->
+  <div class="card" style="margin-top:14px">
+    <h2>13 · CNC Cutting Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>D</td><td>Tool diameter</td><td>Diameter of the milling cutter</td><td>mm</td></tr>
+      <tr><td>—</td><td>Tool type</td><td>End mill (HSS/carbide), face mill, ball nose, involute gear cutter or slot drill</td><td>—</td></tr>
+      <tr><td>z</td><td>Number of flutes</td><td>Cutting edges of the tool</td><td>—</td></tr>
+      <tr><td>V<sub>c</sub></td><td>Cutting speed</td><td>Peripheral speed of the cutting edge</td><td>m/min</td></tr>
+      <tr><td>f<sub>z</sub></td><td>Feed per tooth</td><td>Advance of the workpiece per cutting edge</td><td>mm</td></tr>
+      <tr><td>a<sub>p</sub></td><td>Axial depth of cut</td><td>Depth of the cut measured along the tool axis</td><td>mm</td></tr>
+      <tr><td>a<sub>e</sub></td><td>Radial width of cut</td><td>Engagement of the tool measured radially</td><td>mm</td></tr>
+      <tr><td>L</td><td>Total cut length</td><td>Tool path length used for the time estimate</td><td>mm</td></tr>
+      <tr><td>n</td><td>Spindle speed</td><td>n = 1000 · V<sub>c</sub> / (π · D)</td><td>RPM</td></tr>
+      <tr><td>f<sub>rev</sub></td><td>Feed per revolution</td><td>f<sub>rev</sub> = z · f<sub>z</sub></td><td>mm/rev</td></tr>
+      <tr><td>V<sub>f</sub></td><td>Table feed</td><td>V<sub>f</sub> = n · z · f<sub>z</sub></td><td>mm/min</td></tr>
+      <tr><td>Q</td><td>Material removal rate</td><td>Q = a<sub>p</sub> · a<sub>e</sub> · V<sub>f</sub> / 1000</td><td>cm³/min</td></tr>
+      <tr><td>t</td><td>Machining time</td><td>t = L / V<sub>f</sub></td><td>min</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 14 -->
+  <div class="card" style="margin-top:14px">
+    <h2>14 · Gear Milling Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>D</td><td>Cutter diameter</td><td>Diameter of the form / involute gear cutter</td><td>mm</td></tr>
+      <tr><td>z<sub>t</sub></td><td>Cutter teeth</td><td>Number of cutting edges on the cutter</td><td>—</td></tr>
+      <tr><td>—</td><td>Passes</td><td>Number of depth passes used to reach the whole depth</td><td>—</td></tr>
+      <tr><td>n</td><td>Spindle speed</td><td>n = 1000 · V<sub>c</sub> / (π · D)</td><td>RPM</td></tr>
+      <tr><td>V<sub>f</sub></td><td>Table feed</td><td>V<sub>f</sub> = n · z<sub>t</sub> · f<sub>z</sub></td><td>mm/min</td></tr>
+      <tr><td>h</td><td>Whole depth</td><td>h = h<sub>a</sub> + h<sub>f</sub> — total depth to be cut</td><td>mm</td></tr>
+      <tr><td>No.</td><td>Involute cutter number</td><td>Standard 8-cutter series: No.1 = 12–13 T, No.2 = 14–16 T, No.3 = 17–20 T, No.4 = 21–25 T, No.5 = 26–34 T, No.6 = 35–54 T, No.7 = 55–134 T, No.8 = 135 T and above</td><td>—</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 15 -->
+  <div class="card" style="margin-top:14px">
+    <h2>15 · Inspection &amp; Strength-Check Parameters</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Symbol</th><th>Parameter</th><th>Definition / Formula</th><th>Unit</th></tr>
+      <tr><td>—</td><td>Nominal value</td><td>Design value taken directly from the calculated geometry</td><td>mm</td></tr>
+      <tr><td>—</td><td>Tolerance ±</td><td>Permissible symmetric deviation of the measured value</td><td>mm</td></tr>
+      <tr><td>—</td><td>Actual value</td><td>Value measured on the manufactured part</td><td>mm</td></tr>
+      <tr><td>—</td><td>Deviation</td><td>Actual − Nominal</td><td>mm</td></tr>
+      <tr><td>—</td><td>Status</td><td>PASS when |deviation| ≤ tolerance, otherwise FAIL</td><td>—</td></tr>
+      <tr><td>Y</td><td>Lewis form factor <i>(ref.)</i></td><td>Y = 0.154 − 0.912 / z</td><td>—</td></tr>
+      <tr><td>σ<sub>b</sub></td><td>Bending stress <i>(ref.)</i></td><td>σ<sub>b</sub> = F<sub>t</sub> / (b · m · Y)</td><td>MPa</td></tr>
+      <tr><td>σ<sub>allow</sub></td><td>Allowable stress</td><td>Material-dependent value from the material database</td><td>MPa</td></tr>
+      <tr><td>SF</td><td>Safety factor</td><td>SF = σ<sub>allow</sub> / σ<sub>b</sub> &nbsp;(green &gt; 1.5, amber 1.0–1.5, red &lt; 1.0)</td><td>—</td></tr>
+      <tr><td>j</td><td>Backlash</td><td>Circumferential clearance shared between the two flanks of a pair; each gear contributes j/2</td><td>mm</td></tr>
+      <tr><td>s<sub>eff</sub></td><td>Effective tooth thickness</td><td>s<sub>eff</sub> = π·m/2 − j/2</td><td>mm</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 16 -->
+  <div class="card" style="margin-top:14px">
+    <h2>16 · G-code Words Used in the Generated Programs</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Word</th><th>Meaning</th><th>Definition</th><th>Unit</th></tr>
+      <tr><td>%</td><td>Program delimiter</td><td>Start / end of file marker required by most controls</td><td>—</td></tr>
+      <tr><td>( )</td><td>Comment</td><td>Text ignored by the control — used here for headers and warnings</td><td>—</td></tr>
+      <tr><td>G21 / G20</td><td>Units</td><td>Metric (mm) / inch programming</td><td>—</td></tr>
+      <tr><td>G90 / G91</td><td>Positioning mode</td><td>Absolute / incremental coordinates</td><td>—</td></tr>
+      <tr><td>G94</td><td>Feed mode</td><td>Feed rate expressed per minute</td><td>—</td></tr>
+      <tr><td>G17</td><td>Plane selection</td><td>XY working plane</td><td>—</td></tr>
+      <tr><td>G54</td><td>Work offset</td><td>First work coordinate system</td><td>—</td></tr>
+      <tr><td>T / M06</td><td>Tool change</td><td>Select tool number and execute the change</td><td>—</td></tr>
+      <tr><td>S / M03</td><td>Spindle</td><td>Spindle speed in RPM / clockwise rotation</td><td>RPM</td></tr>
+      <tr><td>M08 / M09</td><td>Coolant</td><td>Coolant on / coolant off</td><td>—</td></tr>
+      <tr><td>G00</td><td>Rapid traverse</td><td>Non-cutting positioning move</td><td>mm/min</td></tr>
+      <tr><td>G01</td><td>Linear interpolation</td><td>Cutting move at the programmed feed</td><td>mm/min</td></tr>
+      <tr><td>G03</td><td>Circular interpolation (CCW)</td><td>Counter-clockwise arc, used for the roller pockets</td><td>—</td></tr>
+      <tr><td>X / Y / Z</td><td>Linear axes</td><td>Tool position coordinates</td><td>mm</td></tr>
+      <tr><td>A</td><td>Rotary axis</td><td>Indexing / simultaneous rotation about the X axis (4th axis)</td><td>°</td></tr>
+      <tr><td>I / J</td><td>Arc centre offsets</td><td>Incremental distance from the start point to the arc centre</td><td>mm</td></tr>
+      <tr><td>F</td><td>Feed rate</td><td>Programmed cutting feed</td><td>mm/min</td></tr>
+      <tr><td>M05 / M30</td><td>End of program</td><td>Spindle stop / program end and rewind</td><td>—</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <!-- 17 -->
+  <div class="card" style="margin-top:14px">
+    <h2>17 · Validation Messages &amp; Limits</h2>
+    <div class="scroll-x">
+    <table class="res">
+      <tr><th>Level</th><th>Condition</th><th>Meaning / Action</th></tr>
+      <tr><td><span class="badge ok">OK</span></td><td>All checks passed</td><td>No geometric or input conflict detected — the design may proceed.</td></tr>
+      <tr><td><span class="badge warn">WARN</span></td><td>z &lt; 17 at α ≤ 21° with x ≤ 0</td><td>Undercut of the involute flank is likely; increase the profile shift or the tooth count.</td></tr>
+      <tr><td><span class="badge warn">WARN</span></td><td>Bore &gt; 85 % of the root diameter</td><td>The hub wall becomes thin; reduce the bore or enlarge the gear.</td></tr>
+      <tr><td><span class="badge warn">WARN</span></td><td>Bevel face width &gt; R/3</td><td>Face width is automatically limited to R/3 to avoid a pointed tooth at the inner cone.</td></tr>
+      <tr><td><span class="badge warn">WARN</span></td><td>Sprocket z &lt; 13</td><td>Chain articulation becomes severe; consider a larger sprocket.</td></tr>
+      <tr><td><span class="badge err">ERROR</span></td><td>Module ≤ 0, non-integer teeth, α outside 10°–30°</td><td>Invalid input — calculation cannot proceed until corrected.</td></tr>
+      <tr><td><span class="badge err">ERROR</span></td><td>Root diameter ≤ 0</td><td>The tooth geometry collapses; reduce the dedendum or increase the module / teeth.</td></tr>
+      <tr><td><span class="badge err">ERROR</span></td><td>Bore ≥ root diameter</td><td>The bore removes the entire tooth root — the part cannot exist as drawn.</td></tr>
+    </table>
+    </div>
+    <div class="note" style="margin-top:10px">
+      <b>REFERENCE NOTICE.</b> All strength, efficiency and durability figures produced by this
+      platform are simplified engineering estimates intended for preliminary sizing. They are not
+      a certified ISO, AGMA, DIN or JIS rating — verify the final design against the applicable
+      standard before manufacture.
+    </div>
+  </div>
+
+</section>
+<!-- =================== /DEFINITIONS =================== -->
+
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1101,14 +1506,14 @@ function lcm(a,b){ return Math.abs(a*b)/gcd(a,b); }
  * SECTION 5 — PER-GEAR-TYPE TAB VISIBILITY
  * ==========================================================================*/
 const TABS_FOR_TYPE = {
-  spur:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
-  helical:     ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report'],
-  bevel:       ['design','tooth','model3d','indexing','cnc','inspection','report'],
-  spiralbevel: ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report'],
-  worm:        ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report'],
-  wormwheel:   ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report'],
-  rack:        ['design','tooth','model3d','indexing','cnc','inspection','report'],
-  sprocket:    ['design','tooth','model3d','indexing','cnc','inspection','report']
+  spur:        ['design','tooth','model3d','indexing','cnc','inspection','report','definitions'],
+  helical:     ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report','definitions'],
+  bevel:       ['design','tooth','model3d','indexing','cnc','inspection','report','definitions'],
+  spiralbevel: ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report','definitions'],
+  worm:        ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report','definitions'],
+  wormwheel:   ['design','tooth','model3d','indexing','changegears','lead','cnc','inspection','report','definitions'],
+  rack:        ['design','tooth','model3d','indexing','cnc','inspection','report','definitions'],
+  sprocket:    ['design','tooth','model3d','indexing','cnc','inspection','report','definitions']
 };
 
 /* ============================================================================
