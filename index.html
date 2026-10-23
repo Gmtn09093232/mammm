@@ -527,6 +527,7 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         Direct indexing requires N to divide 24 exactly.
       </div>
 
+      <!-- ── FIX #1 : hole circles shown for ALL methods ── -->
       <div id="idxSimpleExtra">
         <div class="field">
           <label>Hole circles preset</label>
@@ -541,10 +542,20 @@ table.res tr.sec td{background:#10151c;color:var(--accent);font-weight:600;font-
         </div>
       </div>
 
+      <!-- ── FIX #2 : change-gear preset dropdown added for differential ── -->
       <div id="idxDiffExtra" style="display:none">
         <div class="field">
           <label>Approximate A <span class="hint">(0 = auto, must be simply indexable)</span></label>
           <input type="number" id="idxApproxA" step="1" value="0">
+        </div>
+        <div class="field">
+          <label>Change gear preset</label>
+          <select id="idxDiffGearPreset">
+            <option value="25,25,30,35,40,50,55,60,70,80,90,100">Standard set (25–100)</option>
+            <option value="24,28,32,36,40,44,48,56,64,72,86,100" selected>Alternative set (24–100)</option>
+            <option value="20,20,25,30,35,40,45,50,55,60,70,80,90,100,110,120">Extended set (20–120)</option>
+            <option value="10,20,30,40,50,60,70,80,90,100,110,120">10–120 step 10</option>
+          </select>
         </div>
         <div class="field">
           <label>Change gear set for differential</label>
@@ -2314,48 +2325,56 @@ const SvgDrawing = (function(){
     svg.innerHTML = html;
   }
 
+  /* ── FIX #3a : cleaner worm helix rendering ── */
   function drawWorm2D(svg, g, s, opts){
     opts = opts || {};
-    const L = s.faceWidth;
-    const d = g.d;
-    const scale = 460 / Math.max(L, d*2);
-    const R = d/2*scale;
-    const halfL = L/2*scale;
-    const lead = g.lead;
-    const turns = Math.max(0.5, L/lead);
-    const hand = s.hand;
+    const L       = s.faceWidth;
+    const d       = g.d;
+    const scale   = 460 / Math.max(L, d * 2);
+    const R       = d / 2 * scale;
+    const halfL   = L / 2 * scale;
+    const lead    = g.lead;
+    const turns   = Math.max(1, L / Math.max(lead, 1e-6));
+    const hand    = s.hand;
+    const sign    = (hand === 'left') ? -1 : 1;
+    const z1      = Math.max(1, g.z | 0);
+
     let html = BG + grid();
-    html += `<rect x="${-halfL}" y="${-R}" width="${2*halfL}" height="${2*R}" fill="#1e2833" stroke="#5fa8ff" stroke-width="1.3" rx="3"/>`;
-    html += `<ellipse cx="${-halfL}" cy="0" rx="${R*0.18}" ry="${R}" fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
-    html += `<ellipse cx="${halfL}" cy="0" rx="${R*0.18}" ry="${R}" fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
-    const numThreads = Math.max(3, Math.round(turns * 4));
-    for (let k=0; k<numThreads; k++){
+
+    html += `<rect x="${-halfL}" y="${-R}" width="${2*halfL}" height="${2*R}"
+                  fill="#1e2833" stroke="#5fa8ff" stroke-width="1.3" rx="3"/>`;
+    html += `<ellipse cx="${-halfL}" cy="0" rx="${R*0.18}" ry="${R}"
+                  fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
+    html += `<ellipse cx="${halfL}"  cy="0" rx="${R*0.18}" ry="${R}"
+                  fill="#141b24" stroke="#5fa8ff" stroke-width="1"/>`;
+
+    const N = 220;
+    for (let st = 0; st < z1; st++){
+      const startAngle = st * 2 * Math.PI / z1;
       let path = '';
       let started = false;
-      for (let i=0; i<=120; i++){
-        const t = i/120;
-        const angle = (t * turns * 2 * Math.PI + k * Math.PI) * (hand === 'left' ? -1 : 1);
-        if (Math.cos(angle) > 0){
-          const x = -halfL + 2*halfL*t;
-          const y = R * Math.sin(angle) * 0.95;
-          path += (started?'L':'M') + fmt(x,2) + ' ' + fmt(y,2) + ' ';
+      for (let i = 0; i <= N; i++){
+        const t     = i / N;
+        const angle = startAngle + t * turns * 2 * Math.PI * sign;
+        if (Math.cos(angle) > -0.3){
+          const x = -halfL + 2 * halfL * t;
+          const y = R * Math.sin(angle);
+          path += (started ? 'L' : 'M') + fmt(x, 2) + ' ' + fmt(y, 2) + ' ';
           started = true;
-        } else {
-          started = false;
-        }
+        } else started = false;
       }
-      if (path) html += `<path d="${path}" fill="none" stroke="#ffbe3c" stroke-width="1.7" opacity="0.85"/>`;
+      if (path)
+        html += `<path d="${path}" fill="none" stroke="#ffbe3c"
+                      stroke-width="1.8" opacity="0.9"/>`;
     }
-    html += `<line x1="${-halfL-15}" y1="0" x2="${halfL+15}" y2="0" stroke="#f85149" stroke-width="0.7" stroke-dasharray="8 3 3 3"/>`;
-    const px = Math.PI*g.m;
-    for (let i=0;i<=Math.ceil(L/px);i++){
-      const xp = -halfL + i*px*scale;
-      if (xp > halfL) break;
-      html += `<line x1="${fmt(xp,2)}" y1="${-R-6}" x2="${fmt(xp,2)}" y2="${-R}" stroke="#4da3ff" stroke-width="0.8"/>`;
-    }
-    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">WORM SHAFT   z₁ = ${g.z}   m = ${fmtLen(g.m,3)} mm</text>`;
-    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">γ = ${fmt(g.leadAngleDeg,2)}°   L = ${fmtLen(L,2)} mm   p_z = ${fmtLen(lead,2)} mm   ${String(hand).toUpperCase()} HAND</text>`;
-    html += `<text x="${-halfL}" y="${R+30}" fill="#8b97a6" font-size="10" font-family="monospace">d₁ = ${fmtLen(d,2)}   d_a1 = ${fmtLen(g.da,2)}   d_f1 = ${fmtLen(g.df,2)}</text>`;
+
+    html += `<line x1="${-halfL-15}" y1="0" x2="${halfL+15}" y2="0"
+                  stroke="#f85149" stroke-width="0.7" stroke-dasharray="8 3 3 3"/>`;
+    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11"
+                  font-family="monospace">WORM SHAFT   z₁ = ${z1}   m = ${fmtLen(g.m, 3)} mm</text>`;
+    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5"
+                  font-family="monospace" letter-spacing="0.6">γ = ${fmt(g.leadAngleDeg, 2)}°   L = ${fmtLen(L, 2)} mm   p_z = ${fmtLen(lead, 2)} mm   ${String(hand).toUpperCase()} HAND</text>`;
+
     svg.innerHTML = html;
   }
 
@@ -2389,37 +2408,63 @@ const SvgDrawing = (function(){
     svg.innerHTML = html;
   }
 
+  /* ── FIX #3b : scalloped sprocket profile ── */
   function drawSprocket2D(svg, g, s, opts){
     opts = opts || {};
-    const z = g.effectiveTeeth;
-    const p = g.chainPitch;
-    const dr = g.rollerDia;
-    const d = g.d, da = g.da, df = g.df;
-    const scale = 210 / (da/2);
-    const ra = da/2*scale;
-    const rp = d/2*scale;
-    const rf = df/2*scale;
-    const rr = dr/2*scale;
+    const z     = g.effectiveTeeth;
+    const p     = g.chainPitch;
+    const dr    = g.rollerDia;
+    const d     = g.d, da = g.da, df = g.df;
+    const scale = 210 / (da / 2);
+    const ra    = da / 2;
+    const Rroll = d / 2;
+    const rr    = dr / 2;
+    const rootR = Rroll - Math.max(rr * 0.6, (ra - Rroll) * 0.7);
+
     let html = BG + grid();
-    html += `<circle cx="0" cy="0" r="${fmt(ra,2)}" fill="#243040" stroke="#5fa8ff" stroke-width="1.2"/>`;
-    const Rroll = rp;
-    for (let i=0;i<z;i++){
-      const angle = i * 2*Math.PI/z - Math.PI/2;
-      const cx = Rroll * Math.cos(angle);
-      const cy = Rroll * Math.sin(angle);
-      html += `<circle cx="${fmt(cx,2)}" cy="${fmt(cy,2)}" r="${fmt(rr,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="0.8"/>`;
-      const tipR = ra - 2;
-      html += `<line x1="${fmt(Rroll*Math.cos(angle),2)}" y1="${fmt(Rroll*Math.sin(angle),2)}" x2="${fmt(tipR*Math.cos(angle),2)}" y2="${fmt(tipR*Math.sin(angle),2)}" stroke="#5fa8ff" stroke-width="1.2"/>`;
+
+    const samplesPerTooth = 24;
+    let path = '';
+    for (let i = 0; i < z; i++){
+      const baseAngle = i * 2 * Math.PI / z;
+      for (let j = 0; j < samplesPerTooth; j++){
+        const u     = j / samplesPerTooth;
+        const angle = baseAngle + u * 2 * Math.PI / z;
+        const tipness = 0.5 - 0.5 * Math.cos(u * 2 * Math.PI);
+        const r = rootR + (ra - rootR) * Math.pow(tipness, 0.6);
+        const x = r * Math.cos(angle) * scale;
+        const y = r * Math.sin(angle) * scale;
+        path += (i === 0 && j === 0 ? 'M' : 'L') + fmt(x, 3) + ' ' + fmt(-y, 3) + ' ';
+      }
     }
-    html += circle(0,0,rp,'#ffbe3c','10 4 3 4',1.1);
-    html += circle(0,0,rf,'#8b97a6','2 3',0.9);
+    path += 'Z';
+    html += `<path d="${path}" fill="#243040" stroke="#5fa8ff" stroke-width="1.2"/>`;
+
+    for (let i = 0; i < z; i++){
+      const angle = i * 2 * Math.PI / z - Math.PI / 2;
+      const cx    = Rroll * Math.cos(angle) * scale;
+      const cy    = Rroll * Math.sin(angle) * scale;
+      html += `<circle cx="${fmt(cx, 2)}" cy="${fmt(cy, 2)}" r="${fmt(rr * scale, 2)}"
+                      fill="none" stroke="#ffbe3c" stroke-width="0.7"
+                      stroke-dasharray="2 2"/>`;
+    }
+
+    html += circle(0, 0, Rroll * scale, '#ffbe3c', '10 4 3 4', 1.1);
+    html += circle(0, 0, rootR * scale, '#8b97a6', '2 3', 0.9);
+
     if (s.bore > 0)
-      html += `<circle cx="0" cy="0" r="${fmt(s.bore/2*scale,2)}" fill="#0a0e13" stroke="#5fa8ff" stroke-width="1"/>`;
-    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11" font-family="monospace">SPROCKET   z = ${z}   p = ${fmtLen(p,2)} mm   d_r = ${fmtLen(dr,2)} mm</text>`;
-    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5" font-family="monospace" letter-spacing="0.6">d = ${fmtLen(d,2)}   d_a = ${fmtLen(da,2)}   d_f = ${fmtLen(df,2)}</text>`;
+      html += `<circle cx="0" cy="0" r="${fmt(s.bore / 2 * scale, 2)}"
+                      fill="#0a0e13" stroke="#5fa8ff" stroke-width="1"/>`;
+
+    html += `<text x="-300" y="-286" fill="#d6dee8" font-size="11"
+                  font-family="monospace">SPROCKET   z = ${z}   p = ${fmtLen(p, 2)} mm   d_r = ${fmtLen(dr, 2)} mm</text>`;
+    html += `<text x="-300" y="-270" fill="#4da3ff" font-size="10.5"
+                  font-family="monospace" letter-spacing="0.6">d = ${fmtLen(d, 2)}   d_a = ${fmtLen(da, 2)}   d_f = ${fmtLen(df, 2)}</text>`;
+
     svg.innerHTML = html;
   }
 
+  /* ── FIX #3c : worm-wheel gets a throat side-view inset ── */
   function drawByType(svg, g, s, opts){
     switch(g.type){
       case 'bevel':
@@ -2427,9 +2472,26 @@ const SvgDrawing = (function(){
       case 'worm':        return drawWorm2D(svg, g, s, opts);
       case 'rack':        return drawRack2D(svg, g, s, opts);
       case 'sprocket':    return drawSprocket2D(svg, g, s, opts);
+      case 'wormwheel': {
+        drawInvoluteGear(svg, g, s, opts);
+        const insetX = 30, insetY = 180, insetW = 260, insetH = 110;
+        let inset = `<g transform="translate(${insetX},${insetY})">
+            <rect x="0" y="0" width="${insetW}" height="${insetH}" fill="#101822"
+                  stroke="#2a3441" rx="6"/>
+            <text x="10" y="16" fill="#4da3ff" font-size="10.5"
+                  font-family="monospace" letter-spacing="0.6">THROAT — SIDE VIEW</text>
+            <path d="M 20 78 Q ${insetW/2} 34 ${insetW-20} 78"
+                  fill="none" stroke="#ffbe3c" stroke-width="2"/>
+            <line x1="20" y1="88" x2="${insetW-20}" y2="88"
+                  stroke="#5fa8ff" stroke-width="1" stroke-dasharray="6 3"/>
+            <text x="10" y="104" fill="#8b97a6" font-size="9.5"
+                  font-family="monospace">concave (throated) rim — mate worm at r_th</text>
+          </g>`;
+        svg.innerHTML += inset;
+        return;
+      }
       case 'spur':
       case 'helical':
-      case 'wormwheel':
       default:            return drawInvoluteGear(svg, g, s, opts);
     }
   }
@@ -2922,16 +2984,23 @@ const Gear3D = (function(){
     const group = new THREE.Group();
     const pts = profile.outline;
     const n = pts.length;
-    const layers = Math.abs(twist) > 1e-6 ? 22 : 2;
+
+    /* ── FIX #4a : worm-wheel throat — sinusoidal waist across face ── */
+    const isWheel    = (g.type === 'wormwheel');
+    const throatFrac = isWheel ? 0.15 : 0;
+    const layers     = (Math.abs(twist) > 1e-6 || isWheel) ? 22 : 2;
+
     const pos = [], idx = [];
     const hw = width/2;
     for (let l=0;l<layers;l++){
-      const t = l/(layers-1);
-      const ang = twist*t;
-      const zz = -hw + width*t;
-      const ca = Math.cos(ang), sa = Math.sin(ang);
+      const t    = l/(layers-1);
+      const ang  = twist*t;
+      const zz   = -hw + width*t;
+      const ca   = Math.cos(ang), sa = Math.sin(ang);
+      const throatScale = 1 - throatFrac * Math.sin(Math.PI * t);
       for (let i=0;i<n;i++){
-        const x = pts[i].x, y = pts[i].y;
+        const x = pts[i].x * throatScale;
+        const y = pts[i].y * throatScale;
         pos.push(x*ca - y*sa, x*sa + y*ca, zz);
       }
     }
@@ -3042,40 +3111,40 @@ const Gear3D = (function(){
     return group;
   }
 
+  /* ── FIX #4b : proper threaded worm shaft, one tube per start ── */
   function buildWormSolid(g, s){
     const group = new THREE.Group();
-    const R = g.d/2;
-    const L = s.faceWidth;
-    const lead = g.lead;
-    const turns = L / Math.max(lead, 1e-6);
-    const hand = s.hand;
+    const R     = g.d / 2;
+    const L     = s.faceWidth;
+    const lead  = g.lead;
+    const turns = Math.max(0.5, L / Math.max(lead, 1e-6));
+    const hand  = s.hand;
+    const z1    = Math.max(1, g.z | 0);
 
+    /* body cylinder — sits at root radius */
+    const rootR = Math.max(0.1, R - 1.2 * g.m);
     const cyl = new THREE.Mesh(
-      new THREE.CylinderGeometry(R, R, L, 48, 1, false),
+      new THREE.CylinderGeometry(rootR, rootR, L, 64, 1, false),
       makeMaterial(0x9aa7b5)
     );
-    cyl.rotation.x = Math.PI/2;
+    cyl.rotation.x = Math.PI / 2;
     group.add(cyl);
 
-    const steps = Math.max(120, Math.ceil(turns * 80));
-    const points = [];
-    for (let i=0; i<=steps; i++){
-      const t = i/steps;
-      const angle = t * turns * 2 * Math.PI * (hand === 'left' ? -1 : 1);
-      const z = -L/2 + t * L;
-      const r = R + 0.5*g.m;
-      points.push(new THREE.Vector3(r*Math.cos(angle), r*Math.sin(angle), z));
+    /* helical thread — one tube per start, at pitch radius */
+    const steps = Math.max(180, Math.ceil(turns * 120));
+    for (let st = 0; st < z1; st++){
+      const startAngle = st * 2 * Math.PI / z1;
+      const pts = [];
+      for (let i = 0; i <= steps; i++){
+        const t     = i / steps;
+        const angle = startAngle + t * turns * 2 * Math.PI * (hand === 'left' ? -1 : 1);
+        const zz    = -L / 2 + t * L;
+        pts.push(new THREE.Vector3(R*Math.cos(angle), R*Math.sin(angle), zz));
+      }
+      const curve   = new THREE.CatmullRomCurve3(pts);
+      const tubeGeo = new THREE.TubeGeometry(curve, steps, 1.0 * g.m, 12, false);
+      group.add(new THREE.Mesh(tubeGeo, makeMaterial(0xc8d0da)));
     }
-    const curve = new THREE.CatmullRomCurve3(points);
-    const tubeGeo = new THREE.TubeGeometry(curve, steps, 0.6*g.m, 10, false);
-    group.add(new THREE.Mesh(tubeGeo, makeMaterial(0xb0b8c4)));
-
-    const addCyl = new THREE.Mesh(
-      new THREE.CylinderGeometry(R + 0.9*g.m, R + 0.9*g.m, L*0.98, 32, 1, true),
-      new THREE.MeshStandardMaterial({ color: 0x9aa7b5, metalness: 0.7, roughness: 0.4, transparent: true, opacity: 0.15, side: THREE.DoubleSide })
-    );
-    addCyl.rotation.x = Math.PI/2;
-    group.add(addCyl);
 
     return group;
   }
@@ -3111,45 +3180,47 @@ const Gear3D = (function(){
     return group;
   }
 
+  /* ── FIX #4c : scalloped sprocket profile (no floating roller holes) ── */
   function buildSprocketSolid(g, s){
-    const z = g.effectiveTeeth;
-    const p = g.chainPitch;
-    const dr = g.rollerDia;
-    const d = g.d;
-    const da = g.da;
-    const W = s.faceWidth;
-    const ra = da/2;
-    const Rroll = d/2;
-    const rr = dr/2;
+    const z   = g.effectiveTeeth;
+    const d   = g.d;
+    const da  = g.da;
+    const dr  = g.rollerDia;
+    const W   = s.faceWidth;
+    const ra  = da / 2;
+    const Rroll = d / 2;
+    const rr    = dr / 2;
+
+    const rootR = Rroll - Math.max(rr * 0.6, (ra - Rroll) * 0.7);
 
     const shape = new THREE.Shape();
-    const toothDepth = (da - d)/2 * 0.7;
-    const N = z * 12;
-    for (let i=0; i<=N; i++){
-      const angle = i * 2*Math.PI/N;
-      const toothPhase = (i % 12) / 12;
-      const tipness = Math.max(0, Math.cos(toothPhase * Math.PI * 2));
-      const r = ra - toothDepth * (1 - tipness);
-      const x = r*Math.cos(angle);
-      const y = r*Math.sin(angle);
-      if (i===0) shape.moveTo(x, y); else shape.lineTo(x, y);
+    const samplesPerTooth = 24;
+
+    for (let i = 0; i < z; i++){
+      const baseAngle = i * 2 * Math.PI / z;
+      for (let j = 0; j < samplesPerTooth; j++){
+        const u     = j / samplesPerTooth;
+        const angle = baseAngle + u * 2 * Math.PI / z;
+        const tipness  = 0.5 - 0.5 * Math.cos(u * 2 * Math.PI);
+        const r        = rootR + (ra - rootR) * Math.pow(tipness, 0.6);
+        const x = r * Math.cos(angle);
+        const y = r * Math.sin(angle);
+        if (i === 0 && j === 0) shape.moveTo(x, y);
+        else                    shape.lineTo(x, y);
+      }
     }
-    for (let i=0; i<z; i++){
-      const angle = i * 2*Math.PI/z - Math.PI/2;
-      const cx = Rroll * Math.cos(angle);
-      const cy = Rroll * Math.sin(angle);
-      const hole = new THREE.Path();
-      hole.absarc(cx, cy, rr, 0, Math.PI*2, true);
-      shape.holes.push(hole);
-    }
+
     if (s.bore > 0.001){
       const hole = new THREE.Path();
-      hole.absarc(0, 0, s.bore/2, 0, Math.PI*2, true);
+      hole.absarc(0, 0, s.bore / 2, 0, Math.PI * 2, true);
       shape.holes.push(hole);
     }
 
-    const geo = new THREE.ExtrudeGeometry(shape, { depth: W, bevelEnabled: false, curveSegments: 24 });
-    geo.translate(0, 0, -W/2);
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: W, bevelEnabled: false, curveSegments: 12
+    });
+    geo.translate(0, 0, -W / 2);
+
     const group = new THREE.Group();
     group.add(new THREE.Mesh(geo, makeMaterial()));
     return group;
@@ -3886,7 +3957,7 @@ const App = (function(){
 
   function recompute(){
     readInputs();
-    applyGearTypeConfig(); // <--- FIXED: Makes the layout update instantly when gear type changes
+    applyGearTypeConfig();
     let g;
     switch (State.gearType){
       case 'helical':     g = calcHelicalGear(State); break;
@@ -4261,15 +4332,18 @@ const App = (function(){
     if (v === 'custom') return parseInt($('idxRatioCustom').value, 10) || 40;
     return parseInt(v, 10) || 40;
   }
+
+  /* ── FIX #5 : hole circles visible for ALL methods ── */
   function updateIdxMethodUI(){
     const m = selVal('idxMethod');
-    $('idxDirectExtra').style.display = (m === 'direct') ? '' : 'none';
-    $('idxSimpleExtra').style.display = (m === 'simple') ? '' : 'none';
-    $('idxDiffExtra').style.display = (m === 'differential') ? '' : 'none';
-    $('idxAngularExtra').style.display = (m === 'angular') ? '' : 'none';
+    $('idxDirectExtra').style.display  = (m === 'direct')       ? '' : 'none';
+    $('idxSimpleExtra').style.display  = '';                            // always visible
+    $('idxDiffExtra').style.display    = (m === 'differential') ? '' : 'none';
+    $('idxAngularExtra').style.display = (m === 'angular')      ? '' : 'none';
     const r = selVal('idxRatio');
     $('fIdxRatioCustom').style.display = (r === 'custom') ? '' : 'none';
   }
+
   function computeIndexing(){
     if (!$('idxMethod')) return;
     try {
@@ -4655,6 +4729,15 @@ const App = (function(){
     $('idxHolePreset').addEventListener('change', ()=>computeIndexing());
     $('idxCustomHoles').addEventListener('input', ()=>computeIndexing());
     $('idxApproxA').addEventListener('input', ()=>computeIndexing());
+
+    /* ── FIX #6 : wire the new differential gear-set preset ── */
+    if ($('idxDiffGearPreset')){
+      $('idxDiffGearPreset').addEventListener('change', () => {
+        $('idxDiffGearSet').value = selVal('idxDiffGearPreset');
+        computeIndexing();
+      });
+    }
+
     $('idxDiffGearSet').addEventListener('input', ()=>computeIndexing());
     $('idxAngleDeg').addEventListener('input', ()=>computeIndexing());
     $('idxAngleMin').addEventListener('input', ()=>computeIndexing());
